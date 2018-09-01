@@ -44,7 +44,7 @@ var Client *amplitude.Client
 func Init() error {
 	if configs.GetAmplitudeToken() == "" {
 		Client = nil
-		return fmt.Errorf("AMPLITUDE_TOKEN env is not set, not an issue but analitycs won't work")
+		return fmt.Errorf("AMPLITUDE_TOKEN env is not set, not an issue but analytics won't work")
 	}
 	Client = amplitude.New(configs.GetAmplitudeToken())
 	return nil
