@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/bitrise-io/addons-firebase-testlab-android/actions"
+	"github.com/bitrise-io/addons-firebase-testlab/actions"
 	"github.com/gobuffalo/envy"
 )
 

@@ -5,6 +5,6 @@ RUN apt-get update -qq && apt-get upgrade -y && \
 
 RUN go get -v -u github.com/gobuffalo/buffalo/buffalo
 
-COPY . /go/src/github.com/bitrise-io/addons-firebase-testlab-android/
-RUN cd /go/src/github.com/bitrise-io/addons-firebase-testlab-android/ && \
+COPY . /go/src/github.com/bitrise-io/addons-firebase-testlab/
+RUN cd /go/src/github.com/bitrise-io/addons-firebase-testlab/ && \
     go install -v

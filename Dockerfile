@@ -1,7 +1,7 @@
 FROM quay.io/bitriseio/bitrise-base
 
 # envs
-ENV PROJ_NAME=addons-firebase-testlab-android
+ENV PROJ_NAME=addons-firebase-testlab
 ENV BITRISE_SOURCE_DIR="/bitrise/go/src/github.com/bitrise-io/$PROJ_NAME"
 
 # Get go tools

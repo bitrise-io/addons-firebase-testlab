@@ -3,9 +3,9 @@ package tasks
 import (
 	"fmt"
 
-	"github.com/bitrise-io/addons-firebase-testlab-android/database"
-	"github.com/bitrise-io/addons-firebase-testlab-android/firebaseutils"
-	"github.com/bitrise-io/addons-firebase-testlab-android/models"
+	"github.com/bitrise-io/addons-firebase-testlab/database"
+	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
+	"github.com/bitrise-io/addons-firebase-testlab/models"
 )
 
 // CleanBuilds ...

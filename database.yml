@@ -2,7 +2,7 @@
 
 development:
   dialect: "sqlite3"
-  database: {{env "GOPATH" }}/src/github.com/bitrise-io/addons-firebase-testlab-android/tmp/db/addons-firebase-testlab-android_development.sqlite
+  database: {{env "GOPATH" }}/src/github.com/bitrise-io/addons-firebase-testlab/tmp/db/addons-firebase-testlab_development.sqlite
 
 {{ else }}
 

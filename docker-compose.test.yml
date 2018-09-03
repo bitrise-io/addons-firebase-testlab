@@ -10,7 +10,7 @@ services:
   app:
     build: .
     volumes:
-      - .:/bitrise/go/src/github.com/bitrise-io/addons-firebase-testlab-android
+      - .:/bitrise/go/src/github.com/bitrise-io/addons-firebase-testlab
     ports:
       - "5001:5001"
     links:

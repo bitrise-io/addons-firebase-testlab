@@ -1,2 +1,2 @@
 release: bin/buffalo db migrate
-web: addons-firebase-testlab-android
+web: addons-firebase-testlab

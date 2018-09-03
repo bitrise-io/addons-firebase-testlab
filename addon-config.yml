@@ -1,4 +1,4 @@
-id: "addons-firebase-testlab-android"
+id: "addons-firebase-testlab"
 details:
   title: "Firebase TestLab"
   summary: "Run your Android tests on Firebase TestLab"

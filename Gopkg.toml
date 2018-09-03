@@ -21,7 +21,7 @@
 #  version = "2.4.0"
 
 [metadata.heroku]
-  root-package = "github.com/bitrise-io/addons-firebase-testlab-android"
+  root-package = "github.com/bitrise-io/addons-firebase-testlab"
   # go-version = "go1.8.3"
   # install = [ "./cmd/...", "./foo" ]
   ensure = "false"
