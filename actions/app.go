@@ -14,13 +14,13 @@ import (
 	"github.com/markbates/pop/nulls"
 	"github.com/pkg/errors"
 
-	"github.com/bitrise-io/addons-firebase-testlab-android/analyticsutils"
-	"github.com/bitrise-io/addons-firebase-testlab-android/database"
-	"github.com/bitrise-io/addons-firebase-testlab-android/firebaseutils"
-	"github.com/bitrise-io/addons-firebase-testlab-android/models"
-	"github.com/bitrise-io/addons-firebase-testlab-android/tasks"
+	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
+	"github.com/bitrise-io/addons-firebase-testlab/database"
+	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
+	"github.com/bitrise-io/addons-firebase-testlab/models"
+	"github.com/bitrise-io/addons-firebase-testlab/tasks"
 
-	"github.com/bitrise-io/addons-firebase-testlab-android/configs"
+	"github.com/bitrise-io/addons-firebase-testlab/configs"
 )
 
 const (
@@ -73,7 +73,7 @@ func App() *buffalo.App {
 
 		app = buffalo.Automatic(buffalo.Options{
 			Env:         configs.GetENV(),
-			SessionName: "_addons-firebase-testlab-android_session",
+			SessionName: "_addons-firebase-testlab_session",
 		})
 
 		if len(os.Args) > 1 {

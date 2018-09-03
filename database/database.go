@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bitrise-io/addons-firebase-testlab-android/configs"
-	"github.com/bitrise-io/addons-firebase-testlab-android/models"
+	"github.com/bitrise-io/addons-firebase-testlab/configs"
+	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/markbates/pop"
 )
 

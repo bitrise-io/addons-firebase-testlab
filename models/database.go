@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	"github.com/bitrise-io/addons-firebase-testlab-android/configs"
+	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/markbates/pop"
 )
 

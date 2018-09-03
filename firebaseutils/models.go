@@ -1,6 +1,6 @@
 package firebaseutils
 
-import "github.com/bitrise-io/addons-firebase-testlab-android/configs"
+import "github.com/bitrise-io/addons-firebase-testlab/configs"
 
 // APIModel ...
 type APIModel struct {

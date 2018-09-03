@@ -7,7 +7,7 @@ import (
 
 	testing "google.golang.org/api/testing/v1"
 
-	"github.com/bitrise-io/addons-firebase-testlab-android/configs"
+	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	amplitude "github.com/savaki/amplitude-go"
 )
 
