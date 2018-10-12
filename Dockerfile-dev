@@ -1,4 +1,4 @@
-FROM golang:1.8
+FROM golang:1.11
 
 RUN apt-get update -qq && apt-get upgrade -y && \
     apt-get install -y postgresql-client sqlite3
