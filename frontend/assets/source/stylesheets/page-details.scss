@@ -397,7 +397,7 @@
 						border: none;
 						background-color: transparent;
 						cursor: pointer;
-						
+
 						&.playing .svg-wrapper.play, &:not(.playing) .svg-wrapper.pause {
 							display: none;
 						}
@@ -416,7 +416,7 @@
 						}
 
 						&:hover, &:focus {
-							
+
 							.svg-wrapper svg {
 								fill: $def-green;
 							}
@@ -903,7 +903,7 @@
 				}
 			}
 		}
-		
+
 		.content {
 			padding: 16px $header-horizontalpadding;
 			text-align: center;
@@ -913,7 +913,7 @@
 				@include max-size(100%, none);
 			}
 		}
-	}		
+	}
 
 	section#logs {
 
@@ -1115,6 +1115,7 @@
 
 						.message {
 							@include flex-grow(1);
+							white-space: pre-wrap;
 						}
 					}
 
@@ -1292,7 +1293,7 @@
 							svg {
 								display: block;
 								@include size(15px, 18px);
-								fill: $def-green;							
+								fill: $def-green;
 							}
 						}
 

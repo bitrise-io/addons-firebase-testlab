@@ -11,7 +11,7 @@
 		</div>
 	</nav>
 </div>
-<main>	
+<main>
 	<div class="page-details">
 		<div class="notification load-test" ng-if="pageDetailsCtrl.loadTestProgress.isInProgress || pageDetailsCtrl.loadTestProgress.isError" ng-class="pageDetailsCtrl.loadTestProgress.cssClass">
 			<span class="icon in-progress">{{index .Svg "in_progress.svg"}}</span>
@@ -238,10 +238,11 @@
 									<span class="svg-wrapper debug">{{index .Svg "sign-d.svg"}}</span>
 									<span class="svg-wrapper info">{{index .Svg "sign-i.svg"}}</span>
 									<span class="svg-wrapper warning">{{index .Svg "sign-exclamation.svg"}}</span>
+									<span class="svg-wrapper notice">{{index .Svg "sign-exclamation.svg"}}</span>
 									<span class="svg-wrapper error">{{index .Svg "sign-cross.svg"}}</span>
 									<span class="svg-wrapper assert">{{index .Svg "sign-a.svg"}}</span>
 								</span>
-								<time ng-bind="logLine.date | date: 'HH:mm:ss:sss'" ng-if="logLine.date !== undefined"></time>
+								<time ng-bind="logLine.date | date: 'HH:mm:ss:sss'" title="&#123&#123 logLine.date | date: 'yyyy.MM.dd. HH:mm:ss:sss' &#125&#125" ng-if="logLine.date !== undefined"></time>
 								<strong class="tag" ng-bind="logLine.tag" title="&#123&#123 logLine.tag &#125&#125" ng-if="logLine.tag !== undefined"></strong>
 								<span class="message" ng-bind="logLine.message" title="&#123&#123 logLine.message &#125&#125"></span>
 							</span>

@@ -213,7 +213,7 @@ workflows:
 
               # compile scss
               rsync -r $source_css_path/ $compiled_css_path
-              find $compiled_css_path -type f -name "*.scss" | while read filename; do sass --no-source-map $filename "${filename/.scss/.css}"; done
+              find $compiled_css_path -type f -name "*.scss" | while read filename; do sass $filename "${filename/.scss/.css}"; done
               find $compiled_css_path -type f -name "*.scss" | while read filename; do rm $filename; done
   start-server:
     before_run:

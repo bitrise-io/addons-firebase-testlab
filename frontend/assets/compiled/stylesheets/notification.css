@@ -19,142 +19,122 @@
   -moz-border-radius: 3px;
   border-radius: 3px;
   padding: 10px;
-  font-size: 14px;
-}
-.notification .icon {
-  display: none;
-}
-.notification p.content {
-  -webkit-flex-grow: 1;
-  -moz-flex-grow: 1;
-  flex-grow: 1;
-  margin-top: 0;
-  margin-bottom: 0;
-  font-family: inherit;
-}
-.notification.in-progress {
-  border-color: #8151a8;
-  color: #8151a8;
-  background-color: #ebdef6;
-}
-.notification.in-progress .icon.in-progress {
-  -webkit-flex-shrink: 0;
-  -moz-flex-shrink: 0;
-  flex-shrink: 0;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-pack: center;
-  -moz-box-pack: center;
-  box-pack: center;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  justify-content: center;
-  width: 20px;
-  margin-right: 10px;
-}
-.notification.in-progress .icon.in-progress svg {
-  width: 20px;
-  height: 13px;
-  fill: #8151a8;
-}
-.notification.error {
-  border-color: #f17420;
-  color: #f17420;
-  background-color: #f4dfd1;
-}
-.notification.error .icon.error {
-  -webkit-flex-shrink: 0;
-  -moz-flex-shrink: 0;
-  flex-shrink: 0;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-pack: center;
-  -moz-box-pack: center;
-  box-pack: center;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  justify-content: center;
-  width: 20px;
-  margin-right: 10px;
-}
-.notification.error .icon.error svg {
-  width: 12px;
-  height: 12px;
-  fill: #f17420;
-}
-.notification.in-progress .icon.in-progress {
-  -webkit-animation: rotate 1s linear infinite;
-  -moz-animation: rotate 1s linear infinite;
-  -o-animation: rotate 1s linear infinite;
-  animation: rotate 1s linear infinite;
-}
+  font-size: 14px; }
+  .notification .icon {
+    display: none; }
+  .notification p.content {
+    -webkit-flex-grow: 1;
+    -moz-flex-grow: 1;
+    flex-grow: 1;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-family: inherit; }
+  .notification.in-progress {
+    border-color: #8151a8;
+    color: #8151a8;
+    background-color: #ebdef6; }
+    .notification.in-progress .icon.in-progress {
+      -webkit-flex-shrink: 0;
+      -moz-flex-shrink: 0;
+      flex-shrink: 0;
+      display: -webkit-box;
+      display: -moz-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-pack: center;
+      -moz-box-pack: center;
+      box-pack: center;
+      -webkit-justify-content: center;
+      -moz-justify-content: center;
+      justify-content: center;
+      width: 20px;
+      margin-right: 10px; }
+      .notification.in-progress .icon.in-progress svg {
+        width: 20px;
+        height: 13px;
+        fill: #8151a8; }
+  .notification.error {
+    border-color: #f17420;
+    color: #f17420;
+    background-color: #f4dfd1; }
+    .notification.error .icon.error {
+      -webkit-flex-shrink: 0;
+      -moz-flex-shrink: 0;
+      flex-shrink: 0;
+      display: -webkit-box;
+      display: -moz-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-pack: center;
+      -moz-box-pack: center;
+      box-pack: center;
+      -webkit-justify-content: center;
+      -moz-justify-content: center;
+      justify-content: center;
+      width: 20px;
+      margin-right: 10px; }
+      .notification.error .icon.error svg {
+        width: 12px;
+        height: 12px;
+        fill: #f17420; }
+  .notification.in-progress .icon.in-progress {
+    -webkit-animation: rotate 1s linear infinite;
+    -moz-animation: rotate 1s linear infinite;
+    -o-animation: rotate 1s linear infinite;
+    animation: rotate 1s linear infinite; }
 @-webkit-keyframes rotate {
   from {
     -webkit-transform: rotate(0deg);
     -moz-transform: rotate(0deg);
     -ms-transform: rotate(0deg);
     -o-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
+    transform: rotate(0deg); }
   to {
     -webkit-transform: rotate(360deg);
     -moz-transform: rotate(360deg);
     -ms-transform: rotate(360deg);
     -o-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
+    transform: rotate(360deg); } }
 @-moz-keyframes rotate {
   from {
     -webkit-transform: rotate(0deg);
     -moz-transform: rotate(0deg);
     -ms-transform: rotate(0deg);
     -o-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
+    transform: rotate(0deg); }
   to {
     -webkit-transform: rotate(360deg);
     -moz-transform: rotate(360deg);
     -ms-transform: rotate(360deg);
     -o-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
+    transform: rotate(360deg); } }
 @-o-keyframes rotate {
   from {
     -webkit-transform: rotate(0deg);
     -moz-transform: rotate(0deg);
     -ms-transform: rotate(0deg);
     -o-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
+    transform: rotate(0deg); }
   to {
     -webkit-transform: rotate(360deg);
     -moz-transform: rotate(360deg);
     -ms-transform: rotate(360deg);
     -o-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
+    transform: rotate(360deg); } }
 @keyframes rotate {
   from {
     -webkit-transform: rotate(0deg);
     -moz-transform: rotate(0deg);
     -ms-transform: rotate(0deg);
     -o-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
+    transform: rotate(0deg); }
   to {
     -webkit-transform: rotate(360deg);
     -moz-transform: rotate(360deg);
     -ms-transform: rotate(360deg);
     -o-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
+    transform: rotate(360deg); } }
+
+/*# sourceMappingURL=notification.css.map */
