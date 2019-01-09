@@ -181,10 +181,10 @@ func App() *buffalo.App {
 		// TESTING
 		test := app.Group("/test") // main addon test functionality
 		test.Use(authenticateRequestWithToken)
-		test.GET("/{app_slug}/{build_slug}/{token}", authorizeForBuild(TestGet))                                                       // get test matrix data
-		test.POST("/{app_slug}/{build_slug}/{token}", authorizeForRunningBuildViaBitriseAPI(authorizeForBuild(TestPost)))              // start test matrix
-		test.POST("/assets/{app_slug}/{build_slug}/{token}", authorizeForRunningBuildViaBitriseAPI(TestAssetsPost)) // get signed upload urls for assets
-		test.GET("/assets/{app_slug}/{build_slug}/{token}", authorizeForBuild(TestAssetsGet))                                          // get signed download urls for assets
+		test.GET("/{app_slug}/{build_slug}/{token}", authorizeForBuild(TestGet))                                          // get test matrix data
+		test.POST("/{app_slug}/{build_slug}/{token}", authorizeForRunningBuildViaBitriseAPI(authorizeForBuild(TestPost))) // start test matrix
+		test.POST("/assets/{app_slug}/{build_slug}/{token}", authorizeForRunningBuildViaBitriseAPI(TestAssetsPost))       // get signed upload urls for assets
+		test.GET("/assets/{app_slug}/{build_slug}/{token}", authorizeForBuild(TestAssetsGet))                             // get signed download urls for assets
 
 		//
 		// API

@@ -9,12 +9,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/renderers"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/gobuffalo/buffalo"
 	toolresults "google.golang.org/api/toolresults/v1beta3"
 )

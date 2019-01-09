@@ -10,9 +10,9 @@ import (
 	storage "google.golang.org/api/storage/v1"
 
 	storagesu "cloud.google.com/go/storage"
+	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/sliceutil"
-	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	testing "google.golang.org/api/testing/v1"
 	toolresults "google.golang.org/api/toolresults/v1beta3"
 )
