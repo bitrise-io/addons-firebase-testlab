@@ -187,6 +187,11 @@ func App() *buffalo.App {
 		test.GET("/assets/{app_slug}/{build_slug}/{token}", authorizeForBuild(TestAssetsGet))                             // get signed download urls for assets
 
 		//
+		// TEST REPORTS
+		test.POST("/apps/{app_slug}/builds/{build_slug}/test_reports/{token}", authorizeForRunningBuildViaBitriseAPI(TestReportsPostHandler))
+		test.PATCH("/apps/{app_slug}/builds/{build_slug}/test_reports/{test_report_id}/{token}", authorizeForRunningBuildViaBitriseAPI(authorizeForTestReport(TestReportPatchHandler)))
+
+		//
 		// API
 		api := app.Group("/api")                                           // api group
 		api.Use(validateUserLoginStatus)                                   // check if signature is valid
@@ -203,6 +208,7 @@ func App() *buffalo.App {
 		app.GET("/templates/details", DashboardDetailsGetHandler)                 // dashboard details page
 		app.POST("/login", DashboardLoginPostHandler)                             // sso login handler
 		app.ServeFiles("/assets", http.Dir("./frontend/assets/compiled"))         // serve assets for dashboard
+
 	}
 
 	return app

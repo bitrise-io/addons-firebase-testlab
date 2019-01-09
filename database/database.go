@@ -7,6 +7,8 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/markbates/pop"
+	"github.com/markbates/validate"
+	"github.com/pkg/errors"
 )
 
 // DB ...
@@ -114,6 +116,15 @@ func IsBuildExists(appSlug, buildSlug string) (bool, error) {
 	return ct > 0, nil
 }
 
+// IsTestReportExistsForBuild ...
+func IsTestReportExistsForBuild(buildSlug string, testReportID string) (bool, error) {
+	ct, err := DB.Q().Where("test_reports.build_slug = ? AND test_reports.id = ?", buildSlug, testReportID).Count(&models.TestReport{})
+	if err != nil {
+		return false, fmt.Errorf("failed to check if test report exists: %s", err)
+	}
+	return ct > 0, nil
+}
+
 // CloseBuildSession ...
 func CloseBuildSession(appSlug, buildSlug string) error {
 	build := &models.Build{}
@@ -173,4 +184,30 @@ func GetBuildsCount() (int, error) {
 		return 0, fmt.Errorf("failed to get builds from DB, error: %s", err)
 	}
 	return count, nil
+}
+
+// CreateTestReport ...
+func CreateTestReport(tr *models.TestReport) (*validate.Errors, error) {
+	verrs, err := DB.ValidateAndCreate(tr)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return verrs, nil
+}
+
+// FindTestReport ...
+func FindTestReport(tr *models.TestReport, id string) error {
+	if err := DB.Find(tr, id); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
+// UpdateTestReport ...
+func UpdateTestReport(tr *models.TestReport) (*validate.Errors, error) {
+	verrs, err := DB.ValidateAndUpdate(tr)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return verrs, nil
 }

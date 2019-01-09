@@ -246,6 +246,16 @@ func (api *APIModel) UploadTestAssets(buildSlug string) (*UploadURLRequest, erro
 	}, nil
 }
 
+// UploadURLforPath ...
+func (api *APIModel) UploadURLforPath(path string) (string, error) {
+	uploadURL, err := storagesu.SignedURL(configs.GetGCSBucket(), path, api.GetSignedURLCredentials("PUT"))
+	if err != nil {
+		return "", err
+	}
+
+	return uploadURL, nil
+}
+
 // GetSignedURLCredentials ...
 func (api *APIModel) GetSignedURLCredentials(method string) *storagesu.SignedURLOptions {
 	return &storagesu.SignedURLOptions{

@@ -86,6 +86,23 @@ func authorizeForBuild(next buffalo.Handler) buffalo.Handler {
 	}
 }
 
+func authorizeForTestReport(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		buildExists, err := database.IsTestReportExistsForBuild(c.Param("build_slug"), c.Param("test_report_id"))
+		if err != nil {
+			log.Errorf(" [!] Exception: Failed to check if test report exists: %+v", err)
+			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		}
+
+		if !buildExists {
+			log.Errorf("Test report doesn't exist")
+			return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Unauthorized request"}))
+		}
+
+		return next(c)
+	}
+}
+
 func authorizeForRunningBuildViaBitriseAPI(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		if configs.GetShouldSkipBuildAuthorizationWithBitriseAPI() {
