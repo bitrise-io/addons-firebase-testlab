@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bitrise-io/go-utils/log"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/internal"
@@ -76,9 +75,6 @@ func (c *Config) TokenSource(ctx context.Context) oauth2.TokenSource {
 //
 // The returned client and its Transport should not be modified.
 func (c *Config) Client(ctx context.Context) *http.Client {
-	t, _ := c.TokenSource(ctx).Token()
-
-	log.Warnf("t.AccessToken: %s", t.AccessToken)
 	return oauth2.NewClient(ctx, c.TokenSource(ctx))
 }
 

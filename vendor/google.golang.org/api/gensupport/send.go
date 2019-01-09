@@ -5,11 +5,9 @@
 package gensupport
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
-	"github.com/bitrise-io/go-utils/log"
 	"golang.org/x/net/context"
 	"golang.org/x/net/context/ctxhttp"
 )
@@ -40,9 +38,6 @@ func SendRequest(ctx context.Context, client *http.Client, req *http.Request) (*
 	if _, ok := req.Header["Accept-Encoding"]; ok {
 		return nil, errors.New("google api: custom Accept-Encoding headers not allowed")
 	}
-
-	log.Warnf("ctx req: %+v", req)
-	log.Warnf("header: %+v", req.Header)
 	if ctx == nil {
 		return client.Do(req)
 	}
@@ -53,7 +48,6 @@ func SendRequest(ctx context.Context, client *http.Client, req *http.Request) (*
 		post[i] = fn
 	}
 
-	log.Warnf("ctx req: %+v", req)
 	// Send request.
 	resp, err := ctxhttp.Do(ctx, client, req)
 
@@ -64,13 +58,4 @@ func SendRequest(ctx context.Context, client *http.Client, req *http.Request) (*
 		}
 	}
 	return resp, err
-}
-
-// DecodeResponse decodes the body of res into target. If there is no body,
-// target is unchanged.
-func DecodeResponse(target interface{}, res *http.Response) error {
-	if res.StatusCode == http.StatusNoContent {
-		return nil
-	}
-	return json.NewDecoder(res.Body).Decode(target)
 }
