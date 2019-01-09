@@ -498,11 +498,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9b44f1423859e68565fa148a2fb045a16c60f163c386cd19ec9875018f2eb482"
+  digest = "1:acd83b25cb8ee57a15b10156a02d4289ffb5db5b4674c35f5025ad4eef99fc7b"
   name = "github.com/shurcooL/github_flavored_markdown"
   packages = ["."]
   pruneopts = ""
-  revision = "cccd3ce4f8e394ae9f87de0bd8b37e00625913d9"
+  revision = "2122de53247006a637e59cf1c99d0770312d4be3"
 
 [[projects]]
   branch = "master"
@@ -552,7 +552,7 @@
 [[projects]]
   branch = "master"
   digest = "1:b2a0c956ad31cb5bc16b866b36048d3c3b513b83ecff8badcb0f90d377cc4c44"
-  name = "github.com/shurcooL/octiconssvg"
+  name = "github.com/shurcooL/octicon"
   packages = ["."]
   pruneopts = ""
   revision = "9ff1a4cf27f4a918862c3ffbd24371b3aed18f9d"
@@ -590,6 +590,29 @@
   revision = "bd320f5d308e1a3c4314c678d8227a0d72574ae7"
 
 [[projects]]
+  digest = "1:ad67dfd3799a2c58f6c65871dd141d8b53f61f600aec48ce8d7fa16a4d5476f8"
+  name = "go.opencensus.io"
+  packages = [
+    ".",
+    "exemplar",
+    "internal",
+    "internal/tagencoding",
+    "plugin/ochttp",
+    "plugin/ochttp/propagation/b3",
+    "stats",
+    "stats/internal",
+    "stats/view",
+    "tag",
+    "trace",
+    "trace/internal",
+    "trace/propagation",
+    "trace/tracestate",
+  ]
+  pruneopts = ""
+  revision = "b7bf3cdb64150a8c8c53b769fdeb2ba581bd4d4b"
+  version = "v0.18.0"
+
+[[projects]]
   branch = "master"
   digest = "1:a992f0c68fa56538ede286e9e3827341fab57b7532552a771f47a32db0e6117b"
   name = "golang.org/x/crypto"
@@ -622,7 +645,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3607c401db83333983b982a42f9871b6836d67fcf42e26385abd2f9781e48e1b"
+  digest = "1:ea010cdb976f9de0c763728a76278f9109fca3299abd0dc3e8f2ccb9ff347268"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
@@ -632,7 +655,7 @@
     "jwt",
   ]
   pruneopts = ""
-  revision = "bb50c06baba3d0c76f9d125c0719093e315b5b44"
+  revision = "d668ce993890a79bda886613ee587a69dd5da7a6"
 
 [[projects]]
   branch = "master"
@@ -678,7 +701,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1c468e44462b0f5c17fd88c88d02ada9923d8ffbe77a52f8134ad1005347b833"
+  digest = "1:39307642bd9020f272626c6bbe1850bd278f2b54f519edbfab4d9d10170e86de"
   name = "google.golang.org/api"
   packages = [
     "gensupport",
@@ -693,9 +716,10 @@
     "testing/v1",
     "toolresults/v1beta3",
     "transport/http",
+    "transport/http/internal/propagation",
   ]
   pruneopts = ""
-  revision = "672d215daf0631fcae4c08c2a4324a763aaaf789"
+  revision = "032faecc3e7e2c445ec37a1b1ec4e5a3016d96f2"
 
 [[projects]]
   digest = "1:934fb8966f303ede63aa405e2c8d7f0a427a05ea8df335dfdc1833dd4d40756f"
