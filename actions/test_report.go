@@ -101,7 +101,6 @@ func TestReportPatchHandler(c buffalo.Context) error {
 	if err := database.FindTestReport(&tr, id); err != nil {
 		if errors.Cause(err) == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Not found"}))
-
 		}
 		log.Errorf("Failed to find test report in DB, error: %+v", errors.WithStack(err))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
