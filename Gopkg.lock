@@ -25,6 +25,14 @@
   revision = "40e40b42552a9cb37d6e98f4ad31f63ae53ea43a"
 
 [[projects]]
+  digest = "1:e64fddc819e2abc68792a743dd857c379449a56f2b9eaf030c03fb0ec19de884"
+  name = "github.com/DataDog/datadog-go"
+  packages = ["statsd"]
+  pruneopts = ""
+  revision = "e67964b4021ad3a334e748e8811eb3cd6becbc6e"
+  version = "2.1.0"
+
+[[projects]]
   branch = "master"
   digest = "1:d4bd4e3d2d5c6e3de6e0735bc0d43fa5573c3a7cda0f0049ad4824dbecc36f04"
   name = "github.com/bitrise-io/go-utils"
@@ -563,6 +571,37 @@
   version = "v0.18.0"
 
 [[projects]]
+  digest = "1:74f86c458e82e1c4efbab95233e0cf51b7cc02dc03193be9f62cd81224e10401"
+  name = "go.uber.org/atomic"
+  packages = ["."]
+  pruneopts = ""
+  revision = "1ea20fb1cbb1cc08cbd0d913a96dead89aa18289"
+  version = "v1.3.2"
+
+[[projects]]
+  digest = "1:22c7effcb4da0eacb2bb1940ee173fac010e9ef3c691f5de4b524d538bd980f5"
+  name = "go.uber.org/multierr"
+  packages = ["."]
+  pruneopts = ""
+  revision = "3c4937480c32f4c13a875a1829af76c98ca3d40a"
+  version = "v1.1.0"
+
+[[projects]]
+  digest = "1:246f378f80fba6fcf0f191c486b6613265abd2bc0f2fa55a36b928c67352021e"
+  name = "go.uber.org/zap"
+  packages = [
+    ".",
+    "buffer",
+    "internal/bufferpool",
+    "internal/color",
+    "internal/exit",
+    "zapcore",
+  ]
+  pruneopts = ""
+  revision = "ff33455a0e382e8a81d14dd7c922020b6b5e7982"
+  version = "v1.9.1"
+
+[[projects]]
   branch = "master"
   digest = "1:a992f0c68fa56538ede286e9e3827341fab57b7532552a771f47a32db0e6117b"
   name = "golang.org/x/crypto"
@@ -741,6 +780,7 @@
   analyzer-version = 1
   input-imports = [
     "cloud.google.com/go/storage",
+    "github.com/DataDog/datadog-go/statsd",
     "github.com/bitrise-io/go-utils/fileutil",
     "github.com/bitrise-io/go-utils/log",
     "github.com/bitrise-io/go-utils/sliceutil",
@@ -754,6 +794,7 @@
     "github.com/pkg/errors",
     "github.com/satori/go.uuid",
     "github.com/savaki/amplitude-go",
+    "go.uber.org/zap",
     "golang.org/x/oauth2",
     "golang.org/x/oauth2/google",
     "golang.org/x/oauth2/jwt",

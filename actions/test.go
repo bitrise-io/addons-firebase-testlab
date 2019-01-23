@@ -207,7 +207,6 @@ func TestPost(c buffalo.Context) error {
 	if build.TestMatrixID != "" {
 		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "A Test Matrix has already been started for this build."}))
 	}
-
 	postTestrequestModel := &testing.TestMatrix{}
 	if err := json.NewDecoder(c.Request().Body).Decode(postTestrequestModel); err != nil {
 		log.Errorf("Failed to decode request body, error: %s", err)

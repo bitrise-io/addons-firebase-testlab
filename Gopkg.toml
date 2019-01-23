@@ -70,3 +70,7 @@
 [[constraint]]
   branch = "v2"
   name = "gopkg.in/yaml.v2"
+
+[[constraint]]
+  name = "github.com/DataDog/datadog-go"
+  version = "2.1.0"
