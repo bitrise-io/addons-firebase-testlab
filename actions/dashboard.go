@@ -15,6 +15,7 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/metrics"
 	"github.com/bitrise-io/addons-firebase-testlab/renderers"
+	"github.com/bitrise-io/addons-firebase-testlab/trackables"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/gobuffalo/buffalo"
 	toolresults "google.golang.org/api/toolresults/v1beta3"
@@ -60,30 +61,10 @@ type TestResults struct {
 	Total   int `json:"total,omitempty"`
 }
 
-// TrackMe ....
-type TrackMe struct {
-	Who string
-}
-
-// GetProfileName ...
-func (t TrackMe) GetProfileName() string {
-	return "Demoprofile"
-}
-
-// GetTagArray ...
-func (t TrackMe) GetTagArray() []string {
-	return []string{"tag1", "tag2"}
-}
-
-// GetRunTime ...
-func (t TrackMe) GetRunTime() time.Duration {
-	return 0
-}
-
 // RootGetHandler ...
 func RootGetHandler(c buffalo.Context) error {
 	client := metrics.NewDogStatsDMetrics("")
-	client.Track(TrackMe{}, "demoMetric")
+	client.Track(trackables.Root{}, "rootPathOpened")
 
 	return c.Render(http.StatusOK, r.String("Welcome to bitrise!"))
 }

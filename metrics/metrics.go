@@ -3,7 +3,6 @@ package metrics
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/pkg/errors"
@@ -12,12 +11,10 @@ import (
 
 // buffer up to 10 commands
 const (
-	dogStatsDefaultAddress          = "127.0.0.1:8125"
-	dogStatsDMetricsBufferSize      = 10
-	dogStatsDNamespace              = "bitrise"
-	dogStatsDSubsystem              = "step-analytics"
-	DogStatsDStepCounterMetricName  = "count_of_step_runs"
-	DogStatsDBuildCounterMetricName = "count_of_build_runs"
+	dogStatsDefaultAddress     = "127.0.0.1:8125"
+	dogStatsDMetricsBufferSize = 10
+	dogStatsDNamespace         = "bitrise"
+	dogStatsDSubsystem         = "addons-test"
 )
 
 // DogStatsDInterface ...
@@ -34,7 +31,6 @@ type DogStatsDMetrics struct {
 // Taggable represents an entity that has tags or labels attached to it
 type Taggable interface {
 	GetTagArray() []string
-	GetRunTime() time.Duration
 }
 
 // Trackable defines a configuration of a
@@ -88,7 +84,7 @@ func (b *DogStatsDMetrics) Track(t Trackable, metricName string) {
 
 	tags := b.createTagArray(t, fmt.Sprintf("name:%s", t.GetProfileName()))
 
-	if err := b.client.Gauge(metricName, float64(t.GetRunTime()), tags, 1.0); err == nil {
+	if err := b.client.Incr(metricName, tags, 1.0); err == nil {
 		logger.Error("DogStatsD Diagnostic backend has failed to track",
 			zap.String("profile_name", t.GetProfileName()),
 			zap.Any("error_details", errors.WithStack(err)),
