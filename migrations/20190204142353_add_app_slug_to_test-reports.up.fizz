@@ -1,1 +1,1 @@
-add_column("test_reports", "app_slug", "string")
+add_column("test_reports", "app_slug", "string", {"null": false})
