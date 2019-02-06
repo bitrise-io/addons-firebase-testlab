@@ -38,6 +38,7 @@ func newTestReportWithUploadURL(testReport models.TestReport, uploadURL string) 
 
 // TestReportsPostHandler ...
 func TestReportsPostHandler(c buffalo.Context) error {
+	appSlug := c.Param("app_slug")
 	buildSlug := c.Param("build_slug")
 
 	params := testReportsPostParams{}
@@ -50,6 +51,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 		Filename:  params.Filename,
 		Filesize:  params.Filesize,
 		Uploaded:  false,
+		AppSlug:   appSlug,
 		BuildSlug: buildSlug,
 	}
 

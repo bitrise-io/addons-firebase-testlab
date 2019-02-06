@@ -16,6 +16,7 @@ type TestReport struct {
 	Filename  string    `json:"filename" db:"filename"`
 	Filesize  int       `json:"filesize" db:"filesize"`
 	Uploaded  bool      `json:"uploaded" db:"uploaded"`
+	AppSlug   string    `json:"app_slug" db:"app_slug"`
 	BuildSlug string    `json:"build_slug" db:"build_slug"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"-" db:"updated_at"`
