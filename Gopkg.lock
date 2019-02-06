@@ -47,6 +47,14 @@
   revision = "961320f9011cedf55e1da0578949bf63450a96c0"
 
 [[projects]]
+  digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = ""
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
   branch = "master"
   digest = "1:42fb14ba477af7ccedc07d6864f73b32d4f858cf8ebf915bcea0b65bd3c5882c"
   name = "github.com/daviddengcn/go-colortext"
@@ -241,6 +249,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:b2ce448267ed96e793ed4cd4739937d18419d61ca763c62acca1f8562fc9d678"
+  name = "github.com/joshdk/go-junit"
+  packages = ["."]
+  pruneopts = ""
+  revision = "bf76511d08693cfcf6e5d1bd8b46b62518c496f3"
+
+[[projects]]
+  branch = "master"
   digest = "1:c7bbf42b56f999fc18f12707f6f9a3f47171de8bc6d4d7d3e8449093d55a4629"
   name = "github.com/lib/pq"
   packages = [
@@ -415,6 +431,14 @@
   version = "v0.8.0"
 
 [[projects]]
+  digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = ""
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   digest = "1:63a266eebc531df4b84cf52b1d999db90921e453d2de0166d3cd42372e238c18"
   name = "github.com/russross/blackfriday"
@@ -546,6 +570,17 @@
   packages = ["."]
   pruneopts = ""
   revision = "bd320f5d308e1a3c4314c678d8227a0d72574ae7"
+
+[[projects]]
+  digest = "1:381bcbeb112a51493d9d998bbba207a529c73dbb49b3fd789e48c63fac1f192c"
+  name = "github.com/stretchr/testify"
+  packages = [
+    "assert",
+    "require",
+  ]
+  pruneopts = ""
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:ad67dfd3799a2c58f6c65871dd141d8b53f61f600aec48ce8d7fa16a4d5476f8"
@@ -787,6 +822,7 @@
     "github.com/gobuffalo/buffalo",
     "github.com/gobuffalo/buffalo/render",
     "github.com/gobuffalo/envy",
+    "github.com/joshdk/go-junit",
     "github.com/markbates/pop",
     "github.com/markbates/pop/nulls",
     "github.com/markbates/validate",
@@ -794,6 +830,7 @@
     "github.com/pkg/errors",
     "github.com/satori/go.uuid",
     "github.com/savaki/amplitude-go",
+    "github.com/stretchr/testify/require",
     "go.uber.org/zap",
     "golang.org/x/oauth2",
     "golang.org/x/oauth2/google",
