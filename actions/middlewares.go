@@ -22,12 +22,12 @@ import (
 func validateUserLoginStatus(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		log.Printf("ValidateUserLoginStatus")
-		sessionAppSlug, ok := c.Session().Get("app_slug").(string)
 
 		if configs.GetShouldSkipSessionAuthentication() {
 			c.Session().Set("app_slug", os.Getenv("BITRISE_APP_SLUG"))
-			ok = true
 		}
+
+		sessionAppSlug, ok := c.Session().Get("app_slug").(string)
 
 		if ok {
 			fmt.Printf("stored appSlug: %s", sessionAppSlug)

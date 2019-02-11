@@ -211,3 +211,11 @@ func UpdateTestReport(tr *models.TestReport) (*validate.Errors, error) {
 	}
 	return verrs, nil
 }
+
+// GetTestReports ...
+func GetTestReports(trs *[]models.TestReport, appSlug string, buildSlug string) error {
+	if err := DB.Where("app_slug = ? AND build_slug = ? AND uploaded = ?", appSlug, buildSlug, true).All(trs); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}

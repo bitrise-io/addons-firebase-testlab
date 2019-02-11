@@ -256,6 +256,16 @@ func (api *APIModel) UploadURLforPath(path string) (string, error) {
 	return uploadURL, nil
 }
 
+// DownloadURLforPath ...
+func (api *APIModel) DownloadURLforPath(path string) (string, error) {
+	downloadURL, err := storagesu.SignedURL(configs.GetGCSBucket(), path, api.GetSignedURLCredentials("GET"))
+	if err != nil {
+		return "", err
+	}
+
+	return downloadURL, nil
+}
+
 // GetSignedURLCredentials ...
 func (api *APIModel) GetSignedURLCredentials(method string) *storagesu.SignedURLOptions {
 	return &storagesu.SignedURLOptions{
