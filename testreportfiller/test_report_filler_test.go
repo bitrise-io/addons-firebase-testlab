@@ -58,75 +58,74 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 		},
 	}
 
-	t.Run("when the test report files are found and valid", func(t *testing.T) {
+	testCases := []struct {
+		name    string
+		xml     string
+		status  int
+		expResp []testreportfiller.TestReportWithTestSuites
+		expErr  string
+	}{
+		{
 
-		xml := []byte(`
+			"when the test report files are found and valid",
+			`
 	    <?xml version="1.0" encoding="UTF-8"?>
 	    <testsuites>
-	        <testsuite>
-	        </testsuite>
+			<testsuite>
+			</testsuite>
 	    </testsuites>
-	`)
-
-		filler := testreportfiller.Filler{}
-		httpClient := NewTestClient(func(req *http.Request) *http.Response {
-			return &http.Response{
-				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewBuffer(xml)),
-			}
-		})
-
-		expSuites := []testreportfiller.TestReportWithTestSuites{
-			testreportfiller.TestReportWithTestSuites{
-				id1,
-				[]junit.Suite{
-					junit.Suite{},
+			`,
+			200,
+			[]testreportfiller.TestReportWithTestSuites{
+				testreportfiller.TestReportWithTestSuites{
+					id1,
+					[]junit.Suite{
+						junit.Suite{},
+					},
+				},
+				testreportfiller.TestReportWithTestSuites{
+					id2,
+					[]junit.Suite{
+						junit.Suite{},
+					},
 				},
 			},
-			testreportfiller.TestReportWithTestSuites{
-				id2,
-				[]junit.Suite{
-					junit.Suite{},
-				},
-			},
-		}
+			"",
+		},
+		{
+			"when the test report file is not found",
+			"",
+			404,
+			nil,
+			"Failed to get test report XML",
+		},
+		{
+			"when the test report file is not valid",
+			"<xml?>",
+			200,
+			nil,
+			"Failed to parse test report XML",
+		},
+	}
 
-		testReportsWithTestSuites, err := filler.Fill(trs, &TestFAPI{}, &junit.Client{}, httpClient)
-		require.NoError(t, err)
-		require.Equal(t, expSuites, testReportsWithTestSuites)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			filler := testreportfiller.Filler{}
+			httpClient := NewTestClient(func(req *http.Request) *http.Response {
+				return &http.Response{
+					StatusCode: tc.status,
+					Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(tc.xml))),
+				}
+			})
+			got, err := filler.Fill(trs, &TestFAPI{}, &junit.Client{}, httpClient)
 
-	})
-
-	t.Run("when the test report file is not found", func(t *testing.T) {
-		var resp []byte
-		filler := testreportfiller.Filler{}
-		httpClient := NewTestClient(func(req *http.Request) *http.Response {
-			return &http.Response{
-				StatusCode: 404,
-				Body:       ioutil.NopCloser(bytes.NewBuffer(resp)),
+			if len(tc.expErr) > 0 {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.expErr)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.expResp, got)
 			}
 		})
-
-		_, err := filler.Fill(trs, &TestFAPI{}, &junit.Client{}, httpClient)
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "Failed to get test report XML")
-	})
-
-	t.Run("when the test report file is not valid", func(t *testing.T) {
-		invalidXML := []byte(`
-	    <xml?>
-	`)
-
-		filler := testreportfiller.Filler{}
-		httpClient := NewTestClient(func(req *http.Request) *http.Response {
-			return &http.Response{
-				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewBuffer(invalidXML)),
-			}
-		})
-
-		_, err := filler.Fill(trs, &TestFAPI{}, &junit.Client{}, httpClient)
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "Failed to parse test report XML")
-	})
+	}
 }

@@ -2,6 +2,7 @@ package testreportfiller
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
@@ -55,7 +56,11 @@ func getContent(url string, httpClient *http.Client) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "GET request failed")
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Resp body close failed: %+v", err)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("Non-200 status code was returned")
