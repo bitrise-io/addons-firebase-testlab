@@ -16,8 +16,8 @@ func Test_Junitparser_Parse(t *testing.T) {
 		expErr  string
 	}{
 		{
-			"when XML is valid and has test suites",
-			`
+			name: "when XML is valid and has test suites",
+			xml: `
 			<?xml version="1.0" encoding="UTF-8"?>
 			<testsuites>
 				<testsuite name="JUnitXmlReporter.constructor" errors="0" skipped="1" tests="3" failures="1" time="0.006" timestamp="2013-05-24T10:23:58">
@@ -36,7 +36,7 @@ func Test_Junitparser_Parse(t *testing.T) {
 				</testsuite>
 			</testsuites>
 			`,
-			[]junit.Suite{
+			expResp: []junit.Suite{
 				junit.Suite{
 					Suite: junitparser.Suite{
 						Name:    "JUnitXmlReporter.constructor",
@@ -84,23 +84,22 @@ func Test_Junitparser_Parse(t *testing.T) {
 					},
 				},
 			},
-			"",
+			expErr: "",
 		},
 		{
-			"when test suites are empty",
-			`
+			name: "when test suites are empty",
+			xml: `
 			<?xml version="1.0" encoding="UTF-8"?>
 			<testsuites>
 			</testsuites>
 			`,
-			[]junit.Suite{},
-			"",
+			expResp: []junit.Suite{},
+			expErr:  "",
 		},
 		{
-			"when XML is invalid",
-			"<xml?>",
-			nil,
-			"Parsing of test report failed: XML syntax error on line 1: expected attribute name in element",
+			name:   "when XML is invalid",
+			xml:    "<xml?>",
+			expErr: "Parsing of test report failed: XML syntax error on line 1: expected attribute name in element",
 		},
 	}
 

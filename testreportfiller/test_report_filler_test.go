@@ -59,24 +59,24 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name    string
-		xml     string
-		status  int
-		expResp []testreportfiller.TestReportWithTestSuites
-		expErr  string
+		name                  string
+		xml                   string
+		statusFromXMLDownload int
+		expResp               []testreportfiller.TestReportWithTestSuites
+		expErr                string
 	}{
 		{
 
-			"when the test report files are found and valid",
-			`
+			name: "when the test report files are found and valid",
+			xml: `
 	    <?xml version="1.0" encoding="UTF-8"?>
 	    <testsuites>
 			<testsuite>
 			</testsuite>
 	    </testsuites>
 			`,
-			200,
-			[]testreportfiller.TestReportWithTestSuites{
+			statusFromXMLDownload: 200,
+			expResp: []testreportfiller.TestReportWithTestSuites{
 				testreportfiller.TestReportWithTestSuites{
 					id1,
 					[]junit.Suite{
@@ -90,21 +90,19 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 					},
 				},
 			},
-			"",
+			expErr: "",
 		},
 		{
-			"when the test report file is not found",
-			"",
-			404,
-			nil,
-			"Failed to get test report XML",
+			name:                  "when the test report file is not found",
+			xml:                   "",
+			statusFromXMLDownload: 404,
+			expErr:                "Failed to get test report XML",
 		},
 		{
-			"when the test report file is not valid",
-			"<xml?>",
-			200,
-			nil,
-			"Failed to parse test report XML",
+			name:                  "when the test report file is not valid",
+			xml:                   "<xml?>",
+			statusFromXMLDownload: 200,
+			expErr:                "Failed to parse test report XML",
 		},
 	}
 
@@ -113,7 +111,7 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 			filler := testreportfiller.Filler{}
 			httpClient := NewTestClient(func(req *http.Request) *http.Response {
 				return &http.Response{
-					StatusCode: tc.status,
+					StatusCode: tc.statusFromXMLDownload,
 					Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(tc.xml))),
 				}
 			})
