@@ -30,7 +30,7 @@ func TestGet(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
-	fAPI, err := firebaseutils.New()
+	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
 		log.Errorf("[!] Exception: Failed to create Firebase API model, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
@@ -76,9 +76,9 @@ func TestGet(c buffalo.Context) error {
 		build.TestExecutionID = matrix.TestExecutions[0].ToolResultsStep.ExecutionId
 	}
 
-	steps, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, "steps(state,name,outcome,dimensionValue,testExecutionStep)")
+	steps, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug, "steps(state,name,outcome,dimensionValue,testExecutionStep)")
 	if err != nil {
-		steps, err = fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, "steps(state,name,outcome,dimensionValue,testExecutionStep)")
+		steps, err = fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug, "steps(state,name,outcome,dimensionValue,testExecutionStep)")
 		if err != nil {
 			log.Errorf("[!] Exception: failed to get test by HistoryID(%s) and ExecutionID(%s) matrix:(%s) in build: %s, app: %s, error: %s. \nwith retry failed...", build.TestHistoryID, build.TestExecutionID, build.TestMatrixID, build.AppSlug, build.BuildSlug, err)
 			return c.Render(http.StatusInternalServerError, r.String("Failed to get test status"))
@@ -219,7 +219,7 @@ func TestPost(c buffalo.Context) error {
 		}
 	}
 
-	fAPI, err := firebaseutils.New()
+	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
 		log.Errorf("[!] Exception: Failed to create Firebase API model, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
@@ -287,7 +287,7 @@ func TestPost(c buffalo.Context) error {
 func TestAssetsGet(c buffalo.Context) error {
 	buildSlug := c.Param("build_slug")
 
-	fAPI, err := firebaseutils.New()
+	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
 		log.Errorf("Failed to create Firebase API model, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
@@ -318,7 +318,7 @@ func TestAssetsPost(c buffalo.Context) error {
 		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Build already exists"}))
 	}
 
-	fAPI, err := firebaseutils.New()
+	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
 		log.Errorf("Failed to create Firebase API model, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))

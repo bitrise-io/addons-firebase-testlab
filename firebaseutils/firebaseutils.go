@@ -11,6 +11,7 @@ import (
 
 	storagesu "cloud.google.com/go/storage"
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
+	"github.com/bitrise-io/addons-firebase-testlab/metrics"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/sliceutil"
 	testing "google.golang.org/api/testing/v1"
@@ -28,9 +29,13 @@ const (
 )
 
 // New ...
-func New() (*APIModel, error) {
+func New(tracker metrics.DogStatsDInterface) (*APIModel, error) {
+	if tracker == nil {
+		tracker = metrics.NewDogStatsDMetrics("")
+	}
 	return &APIModel{
-		JWT: configs.GetJWTModel(),
+		JWT:     configs.GetJWTModel(),
+		tracker: tracker,
 	}, nil
 }
 
@@ -91,6 +96,16 @@ func CancelTestMatrix(matrixID string) (string, error) {
 	return fmt.Sprintf("%+v", cancelResp.ServerResponse), nil
 }
 
+// GetTagArray ...
+func (api *APIModel) GetTagArray() []string {
+	return []string{}
+}
+
+// GetProfileName ...
+func (api *APIModel) GetProfileName() string {
+	return "FirebaseAPI"
+}
+
 // StartTestMatrix ...
 func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *testing.TestMatrix) (*testing.TestMatrix, error) {
 	testingService, err := testing.New(configs.GetJWTModel().Client)
@@ -109,6 +124,7 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 	if err != nil {
 		return nil, fmt.Errorf("Failed to list histories, error: %s", err)
 	}
+	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:", appSlug), fmt.Sprintf("buildSlug:", buildSlug))
 
 	historyID := ""
 
@@ -127,6 +143,7 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 		if err != nil {
 			return nil, fmt.Errorf("Failed to create history, error: %s", err)
 		}
+		api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:", appSlug), fmt.Sprintf("buildSlug:", buildSlug))
 		historyID = newHistory.HistoryId
 	}
 
@@ -157,6 +174,8 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create testing service, error: %s", err)
 	}
+	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:", appSlug), fmt.Sprintf("buildSlug:", buildSlug))
+	api.tracker.Track(api, "numberOfTests", fmt.Sprintf("appSlug:", appSlug))
 
 	return responseMatrix, nil
 }
@@ -306,7 +325,7 @@ func getAppBucketPath(buildSlug string, appFileName string) string {
 // TOOLRESULTS
 
 // GetTestsByHistoryAndExecutionID ...
-func (api *APIModel) GetTestsByHistoryAndExecutionID(historyID, executionID string, fields ...googleapi.Field) (*toolresults.ListStepsResponse, error) {
+func (api *APIModel) GetTestsByHistoryAndExecutionID(historyID, executionID, appSlug, buildSlug string, fields ...googleapi.Field) (*toolresults.ListStepsResponse, error) {
 	resultsService, err := toolresults.New(configs.GetJWTModel().Client)
 	if err != nil {
 		return nil, err
@@ -321,12 +340,13 @@ func (api *APIModel) GetTestsByHistoryAndExecutionID(historyID, executionID stri
 	if err != nil {
 		return nil, err
 	}
+	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:", appSlug), fmt.Sprintf("buildSlug:", buildSlug))
 
 	return steps, nil
 }
 
 // GetTestMetricSamples ...
-func (api *APIModel) GetTestMetricSamples(historyID, executionID, stepID string) (MetricSampleModel, error) {
+func (api *APIModel) GetTestMetricSamples(historyID, executionID, stepID, appSlug, buildSlug string) (MetricSampleModel, error) {
 	types := []int{sampleTypeCPU, sampleTypeRAM, sampleTypeNWUp, sampleTypeNWDown}
 
 	errChannel := make(chan error, 1)
@@ -355,6 +375,7 @@ func (api *APIModel) GetTestMetricSamples(historyID, executionID, stepID string)
 				}
 				return
 			}
+			api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:", appSlug), fmt.Sprintf("buildSlug:", buildSlug))
 
 			samples := MetricSampleModel{}
 
@@ -414,6 +435,7 @@ func (api *APIModel) DownloadTestAssets(buildSlug string) (map[string]string, er
 	if err != nil {
 		return nil, err
 	}
+	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("buildSlug:", buildSlug))
 
 	files := map[string]string{}
 

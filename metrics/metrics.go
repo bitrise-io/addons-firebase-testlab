@@ -19,7 +19,7 @@ const (
 
 // DogStatsDInterface ...
 type DogStatsDInterface interface {
-	Track(t Trackable, metricName string)
+	Track(t Trackable, metricName string, customTags ...string)
 	Close()
 }
 
@@ -70,7 +70,7 @@ func (b *DogStatsDMetrics) createTagArray(t Taggable, tags ...string) []string {
 }
 
 // Track ...
-func (b *DogStatsDMetrics) Track(t Trackable, metricName string) {
+func (b *DogStatsDMetrics) Track(t Trackable, metricName string, customTags ...string) {
 	logger, err := zap.NewProduction()
 	if err != nil {
 		fmt.Printf("Failed to initialize logger: %s", err)
@@ -82,7 +82,9 @@ func (b *DogStatsDMetrics) Track(t Trackable, metricName string) {
 		}
 	}()
 
-	tags := b.createTagArray(t, fmt.Sprintf("name:%s", t.GetProfileName()))
+	applicationTags := []string{fmt.Sprintf("name:%s", t.GetProfileName())}
+	applicationTags = append(applicationTags, customTags...)
+	tags := b.createTagArray(t, applicationTags...)
 
 	if err := b.client.Incr(metricName, tags, 1.0); err == nil {
 		logger.Error("DogStatsD Diagnostic backend has failed to track",

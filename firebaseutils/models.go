@@ -1,10 +1,14 @@
 package firebaseutils
 
-import "github.com/bitrise-io/addons-firebase-testlab/configs"
+import (
+	"github.com/bitrise-io/addons-firebase-testlab/configs"
+	"github.com/bitrise-io/addons-firebase-testlab/metrics"
+)
 
 // APIModel ...
 type APIModel struct {
-	JWT *configs.JWTModel
+	JWT     *configs.JWTModel
+	tracker metrics.DogStatsDInterface
 }
 
 /*

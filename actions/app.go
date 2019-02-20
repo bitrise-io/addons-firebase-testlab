@@ -48,7 +48,7 @@ func initApp() error {
 		log.Warnf("%s", err)
 	}
 
-	fAPI, err := firebaseutils.New()
+	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
 		return fmt.Errorf("Failed to create Firebase API model, error: %s", err)
 	}

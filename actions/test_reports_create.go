@@ -64,7 +64,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 		return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
 	}
 
-	fAPI, err := firebaseutils.New()
+	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
 		log.Errorf("Failed to create Firebase API model, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.String("Internal error"))

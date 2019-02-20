@@ -152,13 +152,13 @@ func StepAPIGetHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
-	fAPI, err := firebaseutils.New()
+	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
 		log.Errorf("Failed to create Firebase API model, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
-	samples, err := fAPI.GetTestMetricSamples(build.TestHistoryID, build.TestExecutionID, stepID)
+	samples, err := fAPI.GetTestMetricSamples(build.TestHistoryID, build.TestExecutionID, stepID, appSlug, buildSlug)
 	if err != nil {
 		log.Errorf("Failed to get sample data, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
@@ -183,7 +183,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 		return c.Render(http.StatusNoContent, r.String("Invalid request"))
 	}
 
-	fAPI, err := firebaseutils.New()
+	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
 		log.Errorf("Failed to create Firebase API model, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
@@ -194,7 +194,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 		return c.Render(http.StatusNoContent, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
-	details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID)
+	details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug)
 	if err != nil {
 		log.Errorf("Failed to get test details, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
