@@ -2,7 +2,9 @@ package actions
 
 import (
 	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
+	"hash"
 	"net/http"
 	"strconv"
 	"strings"
@@ -102,14 +104,21 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 	}
 	log.Printf("Token is still not expired")
 
-	s := sha1.New()
+	hashPrefix := "sha256-"
+	var hash hash.Hash
+	if strings.HasPrefix(token, hashPrefix) {
+		token = strings.TrimPrefix(token, hashPrefix)
+		hash = sha256.New()
+	} else {
+		hash = sha1.New()
+	}
 
-	_, err = s.Write([]byte(fmt.Sprintf("%s:%s:%s", appSlug, configs.GetAddonSSOToken(), timestamp)))
+	_, err = hash.Write([]byte(fmt.Sprintf("%s:%s:%s", appSlug, configs.GetAddonSSOToken(), timestamp)))
 	if err != nil {
 		log.Errorf("Failed to write into sha1 buffer, error: %s", err)
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
-	refToken := fmt.Sprintf("%x", s.Sum(nil))
+	refToken := fmt.Sprintf("%x", hash.Sum(nil))
 	log.Printf("refToken: %s", refToken)
 
 	if token != refToken {
