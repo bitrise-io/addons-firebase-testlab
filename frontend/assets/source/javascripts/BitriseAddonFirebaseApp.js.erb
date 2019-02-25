@@ -75,6 +75,10 @@
 
     requestService.getLogfromURL = function(logURL) {
       return $q(function(resolve, reject) {
+        if (!logURL) {
+          reject(new Error('logURL cannot be empty!'));
+        }
+
         $http.get(logURL).then(
           function(response) {
             resolve(response.data);

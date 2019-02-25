@@ -74,25 +74,27 @@
       function loadLogs() {
         viewModel.loadLogsProgress.start('Loading logs, wait a sec...');
 
-        requestService.getLogfromURL(pageDetailsService.test.logsURL).then(
-          function(data) {
-            currentProjectType = _.find(projectTypes, function(aProjectType) {
-              return aProjectType.isLogDataWithProjectType(data);
-            });
+        if (pageDetailsService.test && pageDetailsService.test.logsURL) {
+          requestService.getLogfromURL(pageDetailsService.test.logsURL).then(
+            function(data) {
+              currentProjectType = _.find(projectTypes, function(aProjectType) {
+                return aProjectType.isLogDataWithProjectType(data);
+              });
 
-            pageDetailsService.logs = currentProjectType.logProcessMethodForProjectType(data);
-            viewModel.pagination.selectedPage = 1;
+              pageDetailsService.logs = currentProjectType.logProcessMethodForProjectType(data);
+              viewModel.pagination.selectedPage = 1;
 
-            viewModel.loadLogsProgress.success();
+              viewModel.loadLogsProgress.success();
 
-            $timeout(function() {
-              iframeService.sendSize();
-            }, 50);
-          },
-          function(error) {
-            viewModel.loadLogsProgress.error(new Error('Error loading logs.'));
-          }
-        );
+              $timeout(function() {
+                iframeService.sendSize();
+              }, 50);
+            },
+            function(error) {
+              viewModel.loadLogsProgress.error(new Error('Error loading logs.'));
+            }
+          );
+        }
       }
 
       function detectorMethodForAndroid(rawLogs) {
