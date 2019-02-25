@@ -86,12 +86,7 @@ func (b *DogStatsDMetrics) Track(t Trackable, metricName string, customTags ...s
 	applicationTags = append(applicationTags, customTags...)
 	tags := b.createTagArray(t, applicationTags...)
 
-	if err := b.client.Incr(metricName, tags, 1.0); err == nil {
-		logger.Error("DogStatsD Diagnostic backend has failed to track",
-			zap.String("profile_name", t.GetProfileName()),
-			zap.Any("error_details", errors.WithStack(err)),
-		)
-	} else {
+	if err := b.client.Incr(metricName, tags, 1.0); err != nil {
 		logger.Error("DogStatsD Diagnostic backend has failed to track",
 			zap.String("profile_name", t.GetProfileName()),
 			zap.Any("error_details", errors.WithStack(err)),
