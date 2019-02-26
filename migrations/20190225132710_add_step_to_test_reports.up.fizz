@@ -1,0 +1,1 @@
+add_column("test_reports", "step", "json", {})
