@@ -16,8 +16,9 @@ import (
 )
 
 type testReportsPostParams struct {
-	Filename string `json:"filename"`
-	Filesize int    `json:"filesize"`
+	Filename string                    `json:"filename"`
+	Filesize int                       `json:"filesize"`
+	Step     models.TestResultStepInfo `json:"step"`
 }
 
 type testReportPatchParams struct {
@@ -50,6 +51,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 	testReport := &models.TestReport{
 		Filename:  params.Filename,
 		Filesize:  params.Filesize,
+		Step:      params.Step,
 		Uploaded:  false,
 		AppSlug:   appSlug,
 		BuildSlug: buildSlug,
