@@ -9,7 +9,6 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
-	bitriseModels "github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
@@ -17,9 +16,9 @@ import (
 )
 
 type testReportsPostParams struct {
-	Filename string                           `json:"filename"`
-	Filesize int                              `json:"filesize"`
-	Step     bitriseModels.TestResultStepInfo `json:"step"`
+	Filename string          `json:"filename"`
+	Filesize int             `json:"filesize"`
+	Step     models.StepInfo `json:"step"`
 }
 
 type testReportPatchParams struct {

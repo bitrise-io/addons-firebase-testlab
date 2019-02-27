@@ -27,36 +27,16 @@
   version = "2.1.0"
 
 [[projects]]
-  name = "github.com/bitrise-io/bitrise"
-  packages = ["models"]
-  revision = "5d52fad1a1fbe34417296f1fbf6d3672c5d5efc9"
-  version = "1.27.1"
-
-[[projects]]
-  name = "github.com/bitrise-io/envman"
-  packages = ["models"]
-  revision = "4a7ab5aae4a3db9a60dcc02ff472de7e47c82d71"
-  version = "2.2.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
     "fileutil",
     "log",
-    "parseutil",
     "pathutil",
-    "pointers",
     "sliceutil"
   ]
   revision = "961320f9011cedf55e1da0578949bf63450a96c0"
-
-[[projects]]
-  name = "github.com/bitrise-io/stepman"
-  packages = ["models"]
-  revision = "9a9514dd0aa576d51fffbd997d9b37d1660f4dd7"
-  version = "0.11.1"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -377,12 +357,6 @@
   revision = "6d1ef893fcb01b4f50cb6e57ed7df3e2e627b6b2"
 
 [[projects]]
-  name = "github.com/ryanuber/go-glob"
-  packages = ["."]
-  revision = "51a8f68e6c24dc43f1e371749c89a267de4ebc53"
-  version = "v1.0.0"
-
-[[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "879c5887cd475cd7864858769793b2ceb0d44feb"
@@ -687,6 +661,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "11e8653fe72570c36a3a57d52ae92b254ffe7d1663ca1ca78ccdf4fe7f7471e6"
+  inputs-digest = "6eb0044a44766b8640005a1ac3539dcbfaff0c677dd867efe04dce2714e3512e"
   solver-name = "gps-cdcl"
   solver-version = 1
