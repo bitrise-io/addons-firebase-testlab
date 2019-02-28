@@ -236,6 +236,18 @@ workflows:
               else
                 buffalo dev
               fi
+  start-server-2:
+    before_run:
+      - compile-assets
+    steps:
+    - script:
+        title: Start server with compiled assets
+        inputs:
+          - content: |-
+              export PORT=5000
+              export GO_ENV=development
+
+              docker-compose -f docker-compose.test.yml up
   # ----------------------------------------------------------------
   # --- Utility workflows
   dep-update:
