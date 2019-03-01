@@ -93,14 +93,14 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 			expErr: "",
 		},
 		{
-			name:                  "when the test report file is not found",
-			xml:                   "",
+			name: "when the test report file is not found",
+			xml:  "",
 			statusFromXMLDownload: 404,
 			expErr:                "Failed to get test report XML",
 		},
 		{
-			name:                  "when the test report file is not valid",
-			xml:                   "<xml?>",
+			name: "when the test report file is not valid",
+			xml:  "<xml?>",
 			statusFromXMLDownload: 200,
 			expErr:                "Failed to parse test report XML",
 		},
