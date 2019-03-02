@@ -8,7 +8,7 @@ import (
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // TestReport ...
