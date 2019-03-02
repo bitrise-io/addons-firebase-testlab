@@ -1,5 +1,5 @@
 create_table("test_report_assets") {
-	t.Column("id", "uuid", {primary: true})
+	t.Column("id", "uuid", {"primary": true})
 	t.Column("filename", "string", {})
 	t.Column("filesize", "integer", {})
 	t.Column("uploaded", "boolean", {})
