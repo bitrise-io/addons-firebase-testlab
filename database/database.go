@@ -219,3 +219,12 @@ func GetTestReports(trs *[]models.TestReport, appSlug string, buildSlug string) 
 	}
 	return nil
 }
+
+// CreateTestReportAsset ...
+func CreateTestReportAsset(tr *models.TestReportAsset) (*validate.Errors, error) {
+	verrs, err := DB.ValidateAndCreate(tr)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return verrs, nil
+}
