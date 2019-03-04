@@ -16,8 +16,9 @@ import (
 )
 
 type testReportsPostParams struct {
-	Filename string `json:"filename"`
-	Filesize int    `json:"filesize"`
+	Filename string          `json:"filename"`
+	Filesize int             `json:"filesize"`
+	Step     models.StepInfo `json:"step"`
 }
 
 type testReportPatchParams struct {
@@ -47,9 +48,16 @@ func TestReportsPostHandler(c buffalo.Context) error {
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Failed to decode test report data"}))
 	}
 
+	stepInfo, err := json.Marshal(params.Step)
+	if err != nil {
+		log.Errorf("Failed to marshal step info, error: %+v", errors.WithStack(err))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	}
+
 	testReport := &models.TestReport{
 		Filename:  params.Filename,
 		Filesize:  params.Filesize,
+		Step:      stepInfo,
 		Uploaded:  false,
 		AppSlug:   appSlug,
 		BuildSlug: buildSlug,

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -12,14 +13,15 @@ import (
 
 // TestReport ...
 type TestReport struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	Filename  string    `json:"filename" db:"filename"`
-	Filesize  int       `json:"filesize" db:"filesize"`
-	Uploaded  bool      `json:"uploaded" db:"uploaded"`
-	AppSlug   string    `json:"app_slug" db:"app_slug"`
-	BuildSlug string    `json:"build_slug" db:"build_slug"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"-" db:"updated_at"`
+	ID        uuid.UUID       `json:"id" db:"id"`
+	Filename  string          `json:"filename" db:"filename"`
+	Filesize  int             `json:"filesize" db:"filesize"`
+	Step      json.RawMessage `json:"step" db:"step"`
+	Uploaded  bool            `json:"uploaded" db:"uploaded"`
+	AppSlug   string          `json:"app_slug" db:"app_slug"`
+	BuildSlug string          `json:"build_slug" db:"build_slug"`
+	CreatedAt time.Time       `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time       `json:"-" db:"updated_at"`
 }
 
 // Validate ...
