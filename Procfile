@@ -1,2 +1,2 @@
-release: bin/buffalo db migrate
+release: buffalo-pop pop migrate
 web: addons-firebase-testlab
