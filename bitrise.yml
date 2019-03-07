@@ -75,9 +75,8 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            bin/buffalo db drop -a
-            bin/buffalo db create -a
-            bin/buffalo db migrate
+            buffalo-pop pop reset
+            buffalo-pop pop migrate
             go run main.go add-test-user $BITRISE_APP_SLUG
             go run main.go &> ./server.log &
             sleep 60
