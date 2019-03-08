@@ -3,13 +3,16 @@ package actions
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
+	"github.com/bitrise-io/addons-firebase-testlab/logger"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/pkg/errors"
@@ -39,18 +42,22 @@ func newTestReportWithUploadURL(testReport models.TestReport, uploadURL string) 
 
 // TestReportsPostHandler ...
 func TestReportsPostHandler(c buffalo.Context) error {
+	logger, err := logger.New()
+	if err != nil {
+		fmt.Printf("Failed to initialize logger: %s", err)
+	}
+	defer logger.Sync()
+
 	appSlug := c.Param("app_slug")
 	buildSlug := c.Param("build_slug")
-
 	params := testReportsPostParams{}
 	if err := json.NewDecoder(c.Request().Body).Decode(&params); err != nil {
-		log.Errorf("Failed to decode request body, error: %+v", errors.WithStack(err))
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Failed to decode test report data"}))
 	}
 
 	stepInfo, err := json.Marshal(params.Step)
 	if err != nil {
-		log.Errorf("Failed to marshal step info, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to marshal step info", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -65,7 +72,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 
 	verrs, err := database.CreateTestReport(testReport)
 	if err != nil {
-		log.Errorf("Failed to create test report in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to create test report in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	if verrs.HasAny() {
@@ -74,13 +81,13 @@ func TestReportsPostHandler(c buffalo.Context) error {
 
 	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
-		log.Errorf("Failed to create Firebase API model, error: %s", err)
+		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Internal error"))
 	}
 
 	preSignedURL, err := fAPI.UploadURLforPath(testReport.PathInBucket())
 	if err != nil {
-		log.Errorf("Failed to create upload url, error: %s", err)
+		logger.Error("Failed to create upload url, error: %s", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Internal error"))
 	}
 
@@ -99,11 +106,15 @@ func TestReportsPostHandler(c buffalo.Context) error {
 
 // TestReportPatchHandler ...
 func TestReportPatchHandler(c buffalo.Context) error {
-	id := c.Param("test_report_id")
+	logger, err := logger.New()
+	if err != nil {
+		fmt.Printf("Failed to initialize logger: %s", err)
+	}
+	defer logger.Sync()
 
+	id := c.Param("test_report_id")
 	params := testReportPatchParams{}
 	if err := json.NewDecoder(c.Request().Body).Decode(&params); err != nil {
-		log.Errorf("Failed to decode request body, error: %+v", errors.WithStack(err))
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Failed to decode test report data"}))
 	}
 
@@ -112,7 +123,7 @@ func TestReportPatchHandler(c buffalo.Context) error {
 		if errors.Cause(err) == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Not found"}))
 		}
-		log.Errorf("Failed to find test report in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to find test report in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -120,7 +131,7 @@ func TestReportPatchHandler(c buffalo.Context) error {
 
 	verrs, err := database.UpdateTestReport(&tr)
 	if err != nil {
-		log.Errorf("Failed to update test report in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to update test report in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	if verrs.HasAny() {

@@ -17,6 +17,7 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 func validateUserLoginStatus(next buffalo.Handler) buffalo.Handler {
@@ -56,9 +57,10 @@ func authenticateRequestWithToken(next buffalo.Handler) buffalo.Handler {
 			fmt.Printf("Failed to initialize logger: %s", err)
 		}
 		defer logger.Sync()
+
 		exists, err := database.IsAppExistsWithToken(c.Param("app_slug"), c.Param("token"))
 		if err != nil {
-			logger.Errorf("Failed to check if token valid under app, error: %s", err)
+			logger.Error("Failed to check if token valid under app", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 		}
 		if !exists {
@@ -74,14 +76,15 @@ func authorizeForBuild(next buffalo.Handler) buffalo.Handler {
 		if err != nil {
 			fmt.Printf("Failed to initialize logger: %s", err)
 		}
+		defer logger.Sync()
+
 		buildExists, err := database.IsBuildExists(c.Param("app_slug"), c.Param("build_slug"))
 		if err != nil {
-			logger.Errorf(" [!] Exception: Failed to check if build exists: %+v", err)
+			logger.Error(" [!] Exception: Failed to check if build exists", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
 
 		if !buildExists {
-			logger.Error("Build doesn't exist")
 			return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Unauthorized request"}))
 		}
 
@@ -95,14 +98,15 @@ func authorizeForTestReport(next buffalo.Handler) buffalo.Handler {
 		if err != nil {
 			fmt.Printf("Failed to initialize logger: %s", err)
 		}
+		defer logger.Sync()
+
 		testReportExists, err := database.IsTestReportExistsForBuild(c.Param("build_slug"), c.Param("test_report_id"))
 		if err != nil {
-			logger.Errorf(" [!] Exception: Failed to check if test report exists: %+v", err)
+			logger.Error(" [!] Exception: Failed to check if test report exists", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
 
 		if !testReportExists {
-			logger.Error("Test report doesn't exist")
 			return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Unauthorized request"}))
 		}
 
@@ -116,21 +120,22 @@ func authorizeForRunningBuildViaBitriseAPI(next buffalo.Handler) buffalo.Handler
 		if err != nil {
 			fmt.Printf("Failed to initialize logger: %s", err)
 		}
+		defer logger.Sync()
 		if configs.GetShouldSkipBuildAuthorizationWithBitriseAPI() {
 			return next(c)
 		}
 
 		app := &models.App{AppSlug: c.Param("app_slug")}
-		app, err := database.GetApp(app)
+		app, err = database.GetApp(app)
 		if err != nil {
-			logger.Errorf("Failed to get app from DB, error: %+v", errors.WithStack(err))
+			logger.Error("Failed to get app from DB", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
 
 		client := bitrise.NewClient(app.BitriseAPIToken)
 		resp, build, err := client.GetBuildOfApp(c.Param("build_slug"), c.Param("app_slug"))
 		if err != nil {
-			logger.Errorf("Failed to get build from Bitrise API, error: %+v", err)
+			logger.Errorf("Failed to get build from Bitrise API", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
 
@@ -156,14 +161,14 @@ func serveSVGs(next buffalo.Handler) buffalo.Handler {
 		svgAssetsBaseDir := "./frontend/assets/compiled/images"
 		files, err := ioutil.ReadDir(svgAssetsBaseDir)
 		if err != nil {
-			return logger.Errorf("Failed to read dir, error: %+v", err)
+			return logger.Errorf("Failed to read dir", zap.Any("error", errors.WithStack(err)))
 		}
 		svgContents := map[string]template.HTML{}
 		for _, file := range files {
 			if !file.IsDir() && strings.HasSuffix(file.Name(), ".svg") {
 				content, err := fileutil.ReadStringFromFile(filepath.Join(svgAssetsBaseDir, file.Name()))
 				if err != nil {
-					return logger.Errorf("Failed to get svg data, error: %s", err)
+					return logger.Error("Failed to get svg data", zap.Any("error", errors.WithStack(err)))
 				}
 				svgContents[file.Name()] = template.HTML(content)
 			}

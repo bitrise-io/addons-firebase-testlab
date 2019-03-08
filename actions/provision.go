@@ -7,11 +7,12 @@ import (
 	"net/http"
 
 	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
+	"github.com/bitrise-io/addons-firebase-testlab/logger"
+	"go.uber.org/zap"
 
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
 )
@@ -31,21 +32,26 @@ type Env struct {
 
 // ProvisionPostHandler ...
 func ProvisionPostHandler(c buffalo.Context) error {
+	logger, err := logger.New()
+	if err != nil {
+		fmt.Printf("Failed to initialize logger: %s", err)
+	}
+	defer logger.Sync()
+
 	provData := &ProvisionData{}
 
-	err := json.NewDecoder(c.Request().Body).Decode(provData)
+	err = json.NewDecoder(c.Request().Body).Decode(provData)
 	if err != nil {
-		log.Errorf("Failed to decode request body, error: %+v", errors.WithStack(err))
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Failed to decode provisioning data"}))
 	}
 
 	exists, err := database.IsAppExists(provData.AppSlug)
 	if err != nil {
-		log.Errorf("Failed to check if App exists in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to check if App exists in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	if exists {
-		log.Warnf("  [!] App already exists")
+		logger.Warn("  [!] App already exists")
 		//return c.Render(http.StatusConflict, r.JSON(map[string]string{"error": "App already exists"}))
 	}
 
@@ -64,7 +70,7 @@ func ProvisionPostHandler(c buffalo.Context) error {
 
 		err = database.AddApp(app)
 		if err != nil {
-			log.Errorf("Failed to add app to DB, error: %+v", errors.WithStack(err))
+			logger.Error("Failed to add app to DB", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
 
@@ -76,7 +82,7 @@ func ProvisionPostHandler(c buffalo.Context) error {
 
 	app, err = database.GetApp(app)
 	if err != nil {
-		log.Errorf("Failed to get app from DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to get app from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -86,13 +92,17 @@ func ProvisionPostHandler(c buffalo.Context) error {
 
 // ProvisionPutHandler ...
 func ProvisionPutHandler(c buffalo.Context) error {
-	appSlug := c.Param("app_slug")
-
-	provData := &ProvisionData{}
-
-	err := json.NewDecoder(c.Request().Body).Decode(provData)
+	logger, err := logger.New()
 	if err != nil {
-		log.Errorf("Failed to decode request body, error: %+v", errors.WithStack(err))
+		fmt.Printf("Failed to initialize logger: %s", err)
+	}
+	defer logger.Sync()
+
+	appSlug := c.Param("app_slug")
+	provData := &ProvisionData{}
+	err = json.NewDecoder(c.Request().Body).Decode(provData)
+	if err != nil {
+		logger.Error("Failed to decode request body", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -100,17 +110,16 @@ func ProvisionPutHandler(c buffalo.Context) error {
 
 	exists, err := database.IsAppExists(app.AppSlug)
 	if err != nil {
-		log.Errorf("Failed to check if App exists in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to check if App exists in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	if !exists {
-		log.Errorf("App doesn't exists")
 		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "App doesn't exists exists"}))
 	}
 
 	err = database.UpdateApp(app)
 	if err != nil {
-		log.Errorf("Failed to update app in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to update app in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -119,11 +128,16 @@ func ProvisionPutHandler(c buffalo.Context) error {
 
 // ProvisionDeleteHandler ...
 func ProvisionDeleteHandler(c buffalo.Context) error {
-	appSlug := c.Param("app_slug")
-
-	err := database.DeleteApp(appSlug)
+	logger, err := logger.New()
 	if err != nil {
-		log.Errorf("Failed to delete App from DB, error: %+v", errors.WithStack(err))
+		fmt.Printf("Failed to initialize logger: %s", err)
+	}
+	defer logger.Sync()
+
+	appSlug := c.Param("app_slug")
+	err = database.DeleteApp(appSlug)
+	if err != nil {
+		logger.Error("Failed to delete App from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 

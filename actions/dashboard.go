@@ -20,6 +20,8 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/renderers"
 	"github.com/bitrise-io/addons-firebase-testlab/trackables"
 	"github.com/gobuffalo/buffalo"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	toolresults "google.golang.org/api/toolresults/v1beta3"
 )
 
@@ -83,7 +85,12 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 	}
 	defer logger.Sync()
 
-	logger.Infof("Login form data - timestamp: %s, token: %s, appSlug: %s, buildSlug: %s", timestamp, token, appSlug, buildSlug)
+	logger.Info("Login form data",
+		zap.String("timestamp", timestamp),
+		zap.String("token", token),
+		zap.String("app_slug", appSlug),
+		zap.String("build_slug", buildSlug),
+	)
 
 	analyticsutils.SendAddonEvent(analyticsutils.EventAddonSSOLogin, appSlug, "", "")
 
@@ -96,13 +103,13 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 
 	i, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
-		logger.Errorf("Failed to parse timestamp int, error: %s", err)
+		logger.Error("Failed to parse timestamp int", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	tm := time.Unix(i, 0)
 
 	if time.Now().After(tm.Add(5 * time.Minute)) {
-		logger.Errorf("Token expired, error: %s", err)
+		logger.Error("Token expired", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Token expired"}))
 	}
 
@@ -117,7 +124,7 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 
 	_, err = hash.Write([]byte(fmt.Sprintf("%s:%s:%s", appSlug, configs.GetAddonSSOToken(), timestamp)))
 	if err != nil {
-		logger.Errorf("Failed to write into sha1 buffer, error: %s", err)
+		logger.Error("Failed to write into sha1 buffer", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	refToken := fmt.Sprintf("%x", hash.Sum(nil))
@@ -132,7 +139,7 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 
 	err = c.Session().Save()
 	if err != nil {
-		logger.Errorf("Failed to save session, error: %s", err)
+		logger.Error("Failed to save session", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -154,25 +161,25 @@ func StepAPIGetHandler(c buffalo.Context) error {
 
 	appSlug, ok := c.Session().Get("app_slug").(string)
 	if !ok {
-		logger.Errorf("Failed to get session data(app_slug)")
+		logger.Error("Failed to get session data(app_slug)")
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
 	build, err := database.GetBuild(appSlug, buildSlug)
 	if err != nil {
-		logger.Errorf("Failed to get build from DB, error: %s", err)
+		logger.Error("Failed to get build from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
 	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
-		logger.Errorf("Failed to create Firebase API model, error: %s", err)
+		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
 	samples, err := fAPI.GetTestMetricSamples(build.TestHistoryID, build.TestExecutionID, stepID, appSlug, buildSlug)
 	if err != nil {
-		logger.Errorf("Failed to get sample data, error: %s", err)
+		logger.Error("Failed to get sample data", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
@@ -190,30 +197,30 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 
 	appSlug, ok := c.Session().Get("app_slug").(string)
 	if !ok {
-		logger.Errorf("Failed to get session data(app_slug)")
+		logger.Error("Failed to get session data(app_slug)")
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
 	build, err := database.GetBuild(appSlug, buildSlug)
 	if err != nil {
-		logger.Errorf("Failed to get build from DB, error: %s", err)
+		logger.Error("Failed to get build from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusNoContent, r.String("Invalid request"))
 	}
 
 	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
-		logger.Errorf("Failed to create Firebase API model, error: %s", err)
+		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
 	if build.TestHistoryID == "" || build.TestExecutionID == "" {
-		logger.Errorf("No TestHistoryID or TestExecutionID found for build: %s", build.BuildSlug)
+		logger.Error("No TestHistoryID or TestExecutionID found for build: %s", build.BuildSlug)
 		return c.Render(http.StatusNoContent, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
 	details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug)
 	if err != nil {
-		logger.Errorf("Failed to get test details, error: %s", err)
+		logger.Error("Failed to get test details", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
@@ -287,7 +294,10 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 						//create signed url for assets
 						signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(testlog.FileUri)
 						if err != nil {
-							logger.Errorf("Failed to get signed url for: %s, error: %s", testlog.FileUri, err)
+							logger.Error("Failed to get signed url",
+								zap.String("file_uri", testlog.FileUri),
+								zap.Any("error", errors.WithStack(err)),
+							)
 							if len(errChannel) == 0 {
 								errChannel <- err
 							}
@@ -304,7 +314,10 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 								//create signed url for asset
 								signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 								if err != nil {
-									logger.Errorf("Failed to get signed url for: %s, error: %s", output.Output.FileUri, err)
+									logger.Error("Failed to get signed url",
+										zap.String("output_file_uri", output.Output.FileUri),
+										zap.Any("error", errors.WithStack(err)),
+									)
 									if len(errChannel) == 0 {
 										errChannel <- err
 									}
@@ -319,7 +332,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 							//create signed url for asset
 							signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 							if err != nil {
-								logger.Errorf("Failed to get signed url for: %s, error: %s", output.Output.FileUri, err)
+								logger.Error("Failed to get signed url for: %s, error: %s", output.Output.FileUri, err)
 								if len(errChannel) == 0 {
 									errChannel <- err
 								}
@@ -332,7 +345,10 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 							//create signed url for asset
 							signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 							if err != nil {
-								logger.Errorf("Failed to get signed url for: %s, error: %s", output.Output.FileUri, err)
+								logger.Error("Failed to get signed url",
+									zap.String("output_file_uri", output.Output.FileUri),
+									zap.Any("error", errors.WithStack(err)),
+								)
 								if len(errChannel) == 0 {
 									errChannel <- err
 								}
@@ -345,7 +361,10 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 							//create signed url for asset
 							signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 							if err != nil {
-								logger.Errorf("Failed to get signed url for: %s, error: %s", output.Output.FileUri, err)
+								logger.Error("Failed to get signed url",
+									zap.String("output_file_uri", output.Output.FileUri),
+									zap.Any("error", errors.WithStack(err)),
+								)
 								if len(errChannel) == 0 {
 									errChannel <- err
 								}
@@ -361,7 +380,10 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 						//create signed url for assets
 						signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(overview.XmlSource.FileUri)
 						if err != nil {
-							logger.Errorf("Failed to get signed url for: %s, error: %s", overview.XmlSource.FileUri, err)
+							logger.Error("Failed to get signed url",
+								zap.String("xml_source_file_uri", overview.XmlSource.FileUri),
+								zap.Any("error", errors.WithStack(err)),
+							)
 							if len(errChannel) == 0 {
 								errChannel <- err
 							}
@@ -389,7 +411,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 
 	err = <-errChannel
 	if err != nil {
-		logger.Errorf("One of the requests is failed. Error: %s", err)
+		logger.Error("One of the requests is failed", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 	return c.Render(200, renderers.JSON(testDetails))

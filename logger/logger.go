@@ -36,11 +36,6 @@ func (l *Logger) Error(msg string, fields ...zap.Field) {
 	l.logger.Error(msg, fields...)
 }
 
-// Errorf ...
-func (l *Logger) Errorf(msg string, fields ...interface{}) {
-	l.logger.Error(fmt.Sprintf(msg, fields...))
-}
-
 // Warn ...
 func (l *Logger) Warn(msg string, fields ...zap.Field) {
 	l.logger.Warn(msg, fields...)
@@ -49,9 +44,4 @@ func (l *Logger) Warn(msg string, fields ...zap.Field) {
 // Info ...
 func (l *Logger) Info(msg string, fields ...zap.Field) {
 	l.logger.Info(msg, fields...)
-}
-
-// Infof ...
-func (l *Logger) Infof(msg string, fields ...interface{}) {
-	l.logger.Info(fmt.Sprintf(msg, fields...))
 }
