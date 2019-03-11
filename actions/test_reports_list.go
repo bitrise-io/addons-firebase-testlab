@@ -1,13 +1,12 @@
 package actions
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
-	"github.com/bitrise-io/addons-firebase-testlab/logger"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/testreportfiller"
 	"github.com/bitrise-io/go-utils/log"
@@ -18,11 +17,8 @@ import (
 
 // TestReportsListHandler ...
 func TestReportsListHandler(c buffalo.Context) error {
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	buildSlug := c.Param("build_slug")
 	appSlug, ok := c.Session().Get("app_slug").(string)

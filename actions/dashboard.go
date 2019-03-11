@@ -15,7 +15,7 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
-	"github.com/bitrise-io/addons-firebase-testlab/logger"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/metrics"
 	"github.com/bitrise-io/addons-firebase-testlab/renderers"
 	"github.com/bitrise-io/addons-firebase-testlab/trackables"
@@ -79,11 +79,8 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 	token := c.Request().FormValue("token")
 	appSlug := c.Request().FormValue("app_slug")
 	buildSlug := c.Param("build_slug")
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	logger.Info("Login form data",
 		zap.String("timestamp", timestamp),
@@ -153,11 +150,8 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 func StepAPIGetHandler(c buffalo.Context) error {
 	stepID := c.Param("step_id")
 	buildSlug := c.Param("build_slug")
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	appSlug, ok := c.Session().Get("app_slug").(string)
 	if !ok {
@@ -189,11 +183,8 @@ func StepAPIGetHandler(c buffalo.Context) error {
 // DashboardAPIGetHandler ...
 func DashboardAPIGetHandler(c buffalo.Context) error {
 	buildSlug := c.Param("build_slug")
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	appSlug, ok := c.Session().Get("app_slug").(string)
 	if !ok {

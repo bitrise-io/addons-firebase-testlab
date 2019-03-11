@@ -13,12 +13,22 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/logger"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
+
+func addLogger(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		reqID := uuid.NewV2()
+		ctx := logging.NewContext(c, zap.String("reqID", reqID.String()))
+		return next(ctx)
+	}
+}
 
 func validateUserLoginStatus(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {

@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -18,7 +17,7 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
-	"github.com/bitrise-io/addons-firebase-testlab/logger"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/tasks"
 
@@ -35,10 +34,8 @@ var app *buffalo.App
 var r *render.Engine
 
 func initApp() error {
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
 
 	err := configs.Setup()
 	if err != nil {
@@ -71,10 +68,9 @@ func initApp() error {
 
 // App ...
 func App() *buffalo.App {
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
+
 	if app == nil {
 		r = render.New(render.Options{TemplateEngine: render.GoTemplateEngine})
 
@@ -179,6 +175,7 @@ func App() *buffalo.App {
 		//
 		// ROOT
 		app.GET("/", RootGetHandler)
+		app.Use(addLogger)
 
 		//
 		// PROVISIONING

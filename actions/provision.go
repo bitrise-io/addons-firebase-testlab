@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
-	"github.com/bitrise-io/addons-firebase-testlab/logger"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"go.uber.org/zap"
 
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
@@ -32,11 +32,8 @@ type Env struct {
 
 // ProvisionPostHandler ...
 func ProvisionPostHandler(c buffalo.Context) error {
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	provData := &ProvisionData{}
 
@@ -92,11 +89,8 @@ func ProvisionPostHandler(c buffalo.Context) error {
 
 // ProvisionPutHandler ...
 func ProvisionPutHandler(c buffalo.Context) error {
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	appSlug := c.Param("app_slug")
 	provData := &ProvisionData{}
@@ -128,11 +122,8 @@ func ProvisionPutHandler(c buffalo.Context) error {
 
 // ProvisionDeleteHandler ...
 func ProvisionDeleteHandler(c buffalo.Context) error {
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	appSlug := c.Param("app_slug")
 	err = database.DeleteApp(appSlug)

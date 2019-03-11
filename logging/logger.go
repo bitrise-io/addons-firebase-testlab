@@ -1,16 +1,13 @@
-package logger
+package logging
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/gobuffalo/buffalo"
 	"go.uber.org/zap"
 )
 
-type ctxKeyType string
-
-const loggerKey ctxKeyType = "ctx-logger"
+const loggerKey string = "ctx-logger"
 
 var logger *zap.Logger
 
@@ -23,8 +20,9 @@ func init() {
 }
 
 // NewContext ...
-func NewContext(ctx buffalo.Context, fields ...zap.Field) context.Context {
-	return context.WithValue(ctx, loggerKey, WithContext(ctx).With(fields...))
+func NewContext(ctx buffalo.Context, fields ...zap.Field) buffalo.Context {
+	ctx.Set(loggerKey, WithContext(ctx).With(fields...))
+	return ctx
 }
 
 // WithContext ...
@@ -36,4 +34,12 @@ func WithContext(ctx buffalo.Context) *zap.Logger {
 		return ctxLogger
 	}
 	return logger
+}
+
+// Sync ...
+func Sync(logger *zap.Logger) {
+	err := logger.Sync()
+	if err != nil {
+		fmt.Printf("Failed to sync logger")
+	}
 }

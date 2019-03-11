@@ -3,7 +3,6 @@ package actions
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -11,7 +10,7 @@ import (
 
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
-	"github.com/bitrise-io/addons-firebase-testlab/logger"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
@@ -42,11 +41,8 @@ func newTestReportWithUploadURL(testReport models.TestReport, uploadURL string) 
 
 // TestReportsPostHandler ...
 func TestReportsPostHandler(c buffalo.Context) error {
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	appSlug := c.Param("app_slug")
 	buildSlug := c.Param("build_slug")
@@ -106,11 +102,8 @@ func TestReportsPostHandler(c buffalo.Context) error {
 
 // TestReportPatchHandler ...
 func TestReportPatchHandler(c buffalo.Context) error {
-	logger, err := logger.New()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer logger.Sync()
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
 	id := c.Param("test_report_id")
 	params := testReportPatchParams{}
