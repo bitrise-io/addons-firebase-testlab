@@ -205,7 +205,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 	}
 
 	if build.TestHistoryID == "" || build.TestExecutionID == "" {
-		logger.Error("No TestHistoryID or TestExecutionID found for build: %s", build.BuildSlug)
+		logger.Error("No TestHistoryID or TestExecutionID found for build", zap.String("build_slug", build.BuildSlug))
 		return c.Render(http.StatusNoContent, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
@@ -323,7 +323,10 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 							//create signed url for asset
 							signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 							if err != nil {
-								logger.Error("Failed to get signed url for: %s, error: %s", output.Output.FileUri, err)
+								logger.Error("Failed to get signed url",
+									zap.String("output_file_uri", output.Output.FileUri),
+									zap.Any("error", errors.WithStack(err)),
+								)
 								if len(errChannel) == 0 {
 									errChannel <- err
 								}

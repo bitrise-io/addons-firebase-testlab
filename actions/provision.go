@@ -37,7 +37,7 @@ func ProvisionPostHandler(c buffalo.Context) error {
 
 	provData := &ProvisionData{}
 
-	err = json.NewDecoder(c.Request().Body).Decode(provData)
+	err := json.NewDecoder(c.Request().Body).Decode(provData)
 	if err != nil {
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Failed to decode provisioning data"}))
 	}
@@ -94,7 +94,7 @@ func ProvisionPutHandler(c buffalo.Context) error {
 
 	appSlug := c.Param("app_slug")
 	provData := &ProvisionData{}
-	err = json.NewDecoder(c.Request().Body).Decode(provData)
+	err := json.NewDecoder(c.Request().Body).Decode(provData)
 	if err != nil {
 		logger.Error("Failed to decode request body", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
@@ -126,7 +126,7 @@ func ProvisionDeleteHandler(c buffalo.Context) error {
 	defer logging.Sync(logger)
 
 	appSlug := c.Param("app_slug")
-	err = database.DeleteApp(appSlug)
+	err := database.DeleteApp(appSlug)
 	if err != nil {
 		logger.Error("Failed to delete App from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))

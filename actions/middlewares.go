@@ -12,7 +12,6 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/bitrise"
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
-	"github.com/bitrise-io/addons-firebase-testlab/logger"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/go-utils/fileutil"
@@ -24,7 +23,10 @@ import (
 
 func addLogger(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		reqID := uuid.NewV2()
+		reqID, err := uuid.NewV4()
+		if err != nil {
+			fmt.Printf("Failed to generate request ID")
+		}
 		ctx := logging.NewContext(c, zap.String("reqID", reqID.String()))
 		return next(ctx)
 	}
@@ -62,11 +64,8 @@ func authenticateWithAccessToken(next buffalo.Handler) buffalo.Handler {
 
 func authenticateRequestWithToken(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		logger, err := logger.New()
-		if err != nil {
-			fmt.Printf("Failed to initialize logger: %s", err)
-		}
-		defer logger.Sync()
+		logger := logging.WithContext(c)
+		defer logging.Sync(logger)
 
 		exists, err := database.IsAppExistsWithToken(c.Param("app_slug"), c.Param("token"))
 		if err != nil {
@@ -82,11 +81,8 @@ func authenticateRequestWithToken(next buffalo.Handler) buffalo.Handler {
 
 func authorizeForBuild(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		logger, err := logger.New()
-		if err != nil {
-			fmt.Printf("Failed to initialize logger: %s", err)
-		}
-		defer logger.Sync()
+		logger := logging.WithContext(c)
+		defer logging.Sync(logger)
 
 		buildExists, err := database.IsBuildExists(c.Param("app_slug"), c.Param("build_slug"))
 		if err != nil {
@@ -104,11 +100,8 @@ func authorizeForBuild(next buffalo.Handler) buffalo.Handler {
 
 func authorizeForTestReport(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		logger, err := logger.New()
-		if err != nil {
-			fmt.Printf("Failed to initialize logger: %s", err)
-		}
-		defer logger.Sync()
+		logger := logging.WithContext(c)
+		defer logging.Sync(logger)
 
 		testReportExists, err := database.IsTestReportExistsForBuild(c.Param("build_slug"), c.Param("test_report_id"))
 		if err != nil {
@@ -126,17 +119,14 @@ func authorizeForTestReport(next buffalo.Handler) buffalo.Handler {
 
 func authorizeForRunningBuildViaBitriseAPI(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		logger, err := logger.New()
-		if err != nil {
-			fmt.Printf("Failed to initialize logger: %s", err)
-		}
-		defer logger.Sync()
+		logger := logging.WithContext(c)
+		defer logging.Sync(logger)
 		if configs.GetShouldSkipBuildAuthorizationWithBitriseAPI() {
 			return next(c)
 		}
 
 		app := &models.App{AppSlug: c.Param("app_slug")}
-		app, err = database.GetApp(app)
+		app, err := database.GetApp(app)
 		if err != nil {
 			logger.Error("Failed to get app from DB", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
@@ -145,7 +135,7 @@ func authorizeForRunningBuildViaBitriseAPI(next buffalo.Handler) buffalo.Handler
 		client := bitrise.NewClient(app.BitriseAPIToken)
 		resp, build, err := client.GetBuildOfApp(c.Param("build_slug"), c.Param("app_slug"))
 		if err != nil {
-			logger.Errorf("Failed to get build from Bitrise API", zap.Any("error", errors.WithStack(err)))
+			logger.Error("Failed to get build from Bitrise API", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
 
@@ -163,22 +153,21 @@ func authorizeForRunningBuildViaBitriseAPI(next buffalo.Handler) buffalo.Handler
 
 func serveSVGs(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		logger, err := logger.New()
-		if err != nil {
-			fmt.Printf("Failed to initialize logger: %s", err)
-		}
+		logger := logging.WithContext(c)
+		defer logging.Sync(logger)
+
 		// read and serve svg contents as html
 		svgAssetsBaseDir := "./frontend/assets/compiled/images"
 		files, err := ioutil.ReadDir(svgAssetsBaseDir)
 		if err != nil {
-			return logger.Errorf("Failed to read dir", zap.Any("error", errors.WithStack(err)))
+			return errors.Wrap(err, "Failed to read dir")
 		}
 		svgContents := map[string]template.HTML{}
 		for _, file := range files {
 			if !file.IsDir() && strings.HasSuffix(file.Name(), ".svg") {
 				content, err := fileutil.ReadStringFromFile(filepath.Join(svgAssetsBaseDir, file.Name()))
 				if err != nil {
-					return logger.Error("Failed to get svg data", zap.Any("error", errors.WithStack(err)))
+					return errors.Wrap(err, "Failed to get svg data")
 				}
 				svgContents[file.Name()] = template.HTML(content)
 			}
