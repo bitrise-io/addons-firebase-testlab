@@ -20,7 +20,7 @@ type testReportAssetPostParams struct {
 	Filesize int    `json:"filesize"`
 }
 
-type testReportsPostParams struct {
+type testReportPostParams struct {
 	Filename         string                      `json:"filename"`
 	Filesize         int                         `json:"filesize"`
 	Step             models.StepInfo             `json:"step"`
@@ -58,7 +58,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 	appSlug := c.Param("app_slug")
 	buildSlug := c.Param("build_slug")
 
-	params := testReportsPostParams{}
+	params := testReportPostParams{}
 	if err := json.NewDecoder(c.Request().Body).Decode(&params); err != nil {
 		log.Errorf("Failed to decode request body, error: %+v", errors.WithStack(err))
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Failed to decode test report data"}))
