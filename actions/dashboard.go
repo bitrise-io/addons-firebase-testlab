@@ -69,6 +69,24 @@ type TestResults struct {
 func RootGetHandler(c buffalo.Context) error {
 	client := metrics.NewDogStatsDMetrics("")
 	client.Track(trackables.Root{}, "rootPathOpened")
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
+	logger.Error("Just a test print from staging")
+	logger.Warn("Just a test print from staging")
+	logger.Info("Just a test print from staging")
+
+	return c.Render(http.StatusOK, r.String("Welcome to bitrise!"))
+}
+
+// LoggerWithoutContextHandler ...
+func LoggerWithoutContextHandler(c buffalo.Context) error {
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
+	logger.Error("Just a test print from staging")
+	logger.Warn("Just a test print from staging")
+	logger.Info("Just a test print from staging")
 
 	return c.Render(http.StatusOK, r.String("Welcome to bitrise!"))
 }
