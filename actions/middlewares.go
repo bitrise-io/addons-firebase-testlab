@@ -22,7 +22,7 @@ import (
 
 func addLogger(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		ctx := logging.NewContext(c, zap.String("request_id", uuid.NewV4()))
+		ctx := logging.NewContext(c, zap.String("request_id", uuid.NewV4().String()))
 		return next(ctx)
 	}
 }
