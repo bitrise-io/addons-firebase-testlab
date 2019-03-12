@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -16,18 +15,14 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
 
 func addLogger(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		reqID, err := uuid.NewV4()
-		if err != nil {
-			fmt.Printf("Failed to generate request ID")
-		}
-		ctx := logging.NewContext(c, zap.String("request_id", reqID.String()))
+		ctx := logging.NewContext(c, zap.String("request_id", uuid.NewV4()))
 		return next(ctx)
 	}
 }
