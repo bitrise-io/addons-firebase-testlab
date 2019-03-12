@@ -174,7 +174,6 @@ func App() *buffalo.App {
 
 		//
 		// ROOT
-		app.GET("/logger-test", LoggerWithoutContextHandler)
 		app.Use(addLogger)
 		app.GET("/", RootGetHandler)
 
