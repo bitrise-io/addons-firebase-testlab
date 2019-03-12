@@ -27,7 +27,7 @@ func addLogger(next buffalo.Handler) buffalo.Handler {
 		if err != nil {
 			fmt.Printf("Failed to generate request ID")
 		}
-		ctx := logging.NewContext(c, zap.String("reqID", reqID.String()))
+		ctx := logging.NewContext(c, zap.String("request_id", reqID.String()))
 		return next(ctx)
 	}
 }
