@@ -89,16 +89,8 @@ func (b *DogStatsDMetrics) Track(t Trackable, metricName string, customTags ...s
 
 // Close ...
 func (b *DogStatsDMetrics) Close() {
-	logger, err := zap.NewProduction()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			fmt.Printf("Failed to sync logger: %s", err)
-		}
-	}()
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
 
 	if err := b.client.Flush(); err != nil {
 		logger.Error("DogStatsD Diagnostic backend has failed to flush its metrics",

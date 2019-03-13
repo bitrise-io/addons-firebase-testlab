@@ -2,8 +2,10 @@ package logging
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
@@ -40,6 +42,8 @@ func WithContext(ctx buffalo.Context) *zap.Logger {
 func Sync(logger *zap.Logger) {
 	err := logger.Sync()
 	if err != nil {
-		fmt.Printf("Failed to sync logger")
+		if !strings.Contains(err.Error(), "invalid argument") {
+			fmt.Printf("Failed to sync logger: %s", errors.WithStack(err))
+		}
 	}
 }
