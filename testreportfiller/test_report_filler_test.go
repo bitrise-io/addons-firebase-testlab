@@ -2,6 +2,7 @@ package testreportfiller_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -9,7 +10,7 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/testreportfiller"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -50,11 +51,23 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 			ID:        id1,
 			Filename:  "test1.xml",
 			BuildSlug: "buildslug1",
+			Step:      json.RawMessage(`{"id":"an-awesome-step"}`),
+			TestReportAssets: []models.TestReportAsset{
+				models.TestReportAsset{
+					Filename: "my-important-asset",
+					Filesize: 121,
+				},
+				models.TestReportAsset{
+					Filename: "another-important-asset",
+					Filesize: 534,
+				},
+			},
 		},
 		models.TestReport{
 			ID:        id2,
 			Filename:  "test1.xml",
 			BuildSlug: "buildslug1",
+			Step:      json.RawMessage(`{"version":"1.0"}`),
 		},
 	}
 
@@ -78,29 +91,44 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 			statusFromXMLDownload: 200,
 			expResp: []testreportfiller.TestReportWithTestSuites{
 				testreportfiller.TestReportWithTestSuites{
-					id1,
-					[]junit.Suite{
+					ID: id1,
+					TestSuites: []junit.Suite{
 						junit.Suite{},
+					},
+					StepInfo: models.StepInfo{ID: "an-awesome-step"},
+					TestAssets: []testreportfiller.TestReportAssetInfo{
+						testreportfiller.TestReportAssetInfo{
+							Filename:    "my-important-asset",
+							Filesize:    121,
+							DownloadURL: "http://dont.call.me.pls",
+						},
+						testreportfiller.TestReportAssetInfo{
+							Filename:    "another-important-asset",
+							Filesize:    534,
+							DownloadURL: "http://dont.call.me.pls",
+						},
 					},
 				},
 				testreportfiller.TestReportWithTestSuites{
-					id2,
-					[]junit.Suite{
+					ID: id2,
+					TestSuites: []junit.Suite{
 						junit.Suite{},
 					},
+					StepInfo:   models.StepInfo{Version: "1.0"},
+					TestAssets: []testreportfiller.TestReportAssetInfo{},
 				},
 			},
 			expErr: "",
 		},
 		{
-			name: "when the test report file is not found",
-			xml:  "",
+			name:                  "when the test report file is not found",
+			xml:                   "",
 			statusFromXMLDownload: 404,
 			expErr:                "Failed to get test report XML",
 		},
 		{
-			name: "when the test report file is not valid",
-			xml:  "<xml?>",
+			name:                  "when the test report file is not valid",
+			xml:                   "<xml?>",
 			statusFromXMLDownload: 200,
 			expErr:                "Failed to parse test report XML",
 		},
