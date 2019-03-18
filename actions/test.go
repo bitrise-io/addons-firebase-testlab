@@ -9,30 +9,34 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/renderers"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/sliceutil"
 	"github.com/gobuffalo/buffalo"
 	"github.com/markbates/pop/nulls"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	testing "google.golang.org/api/testing/v1"
 )
 
 // TestGet ...
 func TestGet(c buffalo.Context) error {
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
 	buildSlug := c.Param("build_slug")
 	appSlug := c.Param("app_slug")
 
 	build, err := database.GetBuild(appSlug, buildSlug)
 	if err != nil {
-		log.Errorf("[!] Exception: Failed to get build from DB, error: %s", err)
+		logger.Error("[!] Exception: Failed to get build from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
 	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
-		log.Errorf("[!] Exception: Failed to create Firebase API model, error: %s", err)
+		logger.Error("[!] Exception: Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
@@ -41,7 +45,12 @@ func TestGet(c buffalo.Context) error {
 		if err != nil {
 			matrix, err = fAPI.GetHistoryAndExecutionIDByMatrixID(build.TestMatrixID)
 			if err != nil {
-				log.Errorf("[!] Exception: failed to get test matrix(%s) in build: %s, app: %s, error: %s \nwith retry...", build.TestMatrixID, build.AppSlug, build.BuildSlug, err)
+				logger.Error("[!] Exception: failed to get test matrix\nwith retry...",
+					zap.String("test_matrix_id", build.TestMatrixID),
+					zap.String("app_slug", build.AppSlug),
+					zap.String("build_slug", build.BuildSlug),
+					zap.Any("error", errors.WithStack(err)),
+				)
 				return c.Render(http.StatusInternalServerError, r.String("Failed to get test status"))
 			}
 		}
@@ -55,7 +64,7 @@ func TestGet(c buffalo.Context) error {
 
 			err = database.UpdateBuild(build)
 			if err != nil {
-				log.Errorf("[!] Exception: Failed to update last request timestamp: %+v", build)
+				logger.Error("[!] Exception: Failed to update last request timestamp", zap.Any("build_details", build), zap.Any("error", errors.WithStack(err)))
 				return c.Render(http.StatusInternalServerError, r.String("Failed to get test status"))
 			}
 			return c.Render(http.StatusOK, r.JSON(map[string]string{"state": matrix.State}))
@@ -66,7 +75,7 @@ func TestGet(c buffalo.Context) error {
 
 			err = database.UpdateBuild(build)
 			if err != nil {
-				log.Errorf("[!] Exception: Failed to update last request timestamp: %+v", build)
+				logger.Error("[!] Exception: Failed to update last request timestamp", zap.Any("build_details", build), zap.Any("error", errors.WithStack(err)))
 				return c.Render(http.StatusInternalServerError, r.String("Failed to get test status"))
 			}
 			return c.Render(http.StatusOK, r.JSON(map[string]string{"state": matrix.State}))
@@ -80,7 +89,14 @@ func TestGet(c buffalo.Context) error {
 	if err != nil {
 		steps, err = fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug, "steps(state,name,outcome,dimensionValue,testExecutionStep)")
 		if err != nil {
-			log.Errorf("[!] Exception: failed to get test by HistoryID(%s) and ExecutionID(%s) matrix:(%s) in build: %s, app: %s, error: %s. \nwith retry failed...", build.TestHistoryID, build.TestExecutionID, build.TestMatrixID, build.AppSlug, build.BuildSlug, err)
+			logger.Error("[!] Exception: failed to get test by HistoryID and ExecutionID\nwith retry failed...",
+				zap.String("test_history_id", build.TestHistoryID),
+				zap.String("test_execution_id", build.TestExecutionID),
+				zap.String("test_matrix_id", build.TestMatrixID),
+				zap.String("app_slug", build.AppSlug),
+				zap.String("build_slug", build.BuildSlug),
+				zap.Any("error", errors.WithStack(err)),
+			)
 			return c.Render(http.StatusInternalServerError, r.String("Failed to get test status"))
 		}
 	}
@@ -186,7 +202,7 @@ func TestGet(c buffalo.Context) error {
 
 	err = database.UpdateBuild(build)
 	if err != nil {
-		log.Errorf("[!] Exception: Failed to update last request timestamp: %+v", build)
+		logger.Error("[!] Exception: Failed to update last request timestamp", zap.Any("build_details", build), zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Failed to get test status"))
 	}
 
@@ -195,12 +211,15 @@ func TestGet(c buffalo.Context) error {
 
 // TestPost ...
 func TestPost(c buffalo.Context) error {
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
 	buildSlug := c.Param("build_slug")
 	appSlug := c.Param("app_slug")
 
 	build, err := database.GetBuild(appSlug, buildSlug)
 	if err != nil {
-		log.Errorf("[!] Exception: Failed to get build from DB, error: %s", err)
+		logger.Error("[!] Exception: Failed to get build from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Internal error"))
 	}
 
@@ -209,7 +228,7 @@ func TestPost(c buffalo.Context) error {
 	}
 	postTestrequestModel := &testing.TestMatrix{}
 	if err := json.NewDecoder(c.Request().Body).Decode(postTestrequestModel); err != nil {
-		log.Errorf("Failed to decode request body, error: %s", err)
+		logger.Error("Failed to decode request body", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
@@ -221,13 +240,13 @@ func TestPost(c buffalo.Context) error {
 
 	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
-		log.Errorf("[!] Exception: Failed to create Firebase API model, error: %s", err)
+		logger.Error("[!] Exception: Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
 	startResp, err := fAPI.StartTestMatrix(appSlug, buildSlug, postTestrequestModel)
 	if err != nil {
-		log.Errorf("[!] Exception: Failed to start Test Matrix, error: %s", err)
+		logger.Error("[!] Exception: Failed to start Test Matrix", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("%s", err))
 	}
 
@@ -235,7 +254,7 @@ func TestPost(c buffalo.Context) error {
 
 	startTime, err := time.Parse("2006-01-02T15:04:05.999Z", startResp.Timestamp)
 	if err != nil {
-		log.Errorf("[!] Exception: Failed to parse startTime, error: %s", err)
+		logger.Error("[!] Exception: Failed to parse startTime", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -245,7 +264,7 @@ func TestPost(c buffalo.Context) error {
 
 	err = database.UpdateBuild(build)
 	if err != nil {
-		log.Errorf("[!] Exception: Failed to update DB, error: %s", err)
+		logger.Error("[!] Exception: Failed to update DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -285,17 +304,20 @@ func TestPost(c buffalo.Context) error {
 
 // TestAssetsGet ...
 func TestAssetsGet(c buffalo.Context) error {
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
 	buildSlug := c.Param("build_slug")
 
 	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
-		log.Errorf("Failed to create Firebase API model, error: %s", err)
+		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
 	downloadUrlsModel, err := fAPI.DownloadTestAssets(buildSlug)
 	if err != nil {
-		log.Errorf("Failed to get asset download urls, error: %s", err)
+		logger.Error("Failed to get asset download urls", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
@@ -304,35 +326,37 @@ func TestAssetsGet(c buffalo.Context) error {
 
 // TestAssetsPost ...
 func TestAssetsPost(c buffalo.Context) error {
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
 	buildSlug := c.Param("build_slug")
 	appSlug := c.Param("app_slug")
 
 	buildExists, err := database.IsBuildExists(appSlug, buildSlug)
 	if err != nil {
-		log.Errorf("Failed to check if build exists")
+		logger.Error("Failed to check if build exists", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
 	if buildExists {
-		log.Errorf("Build already exists")
 		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Build already exists"}))
 	}
 
 	fAPI, err := firebaseutils.New(nil)
 	if err != nil {
-		log.Errorf("Failed to create Firebase API model, error: %s", err)
+		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
 	resp, err := fAPI.UploadTestAssets(buildSlug)
 	if err != nil {
-		log.Errorf("Failed to get upload urls, error: %s", err)
+		logger.Error("Failed to get upload urls", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
 	err = database.AddBuild(&models.Build{BuildSlug: buildSlug, AppSlug: appSlug, LastRequest: nulls.NewTime(time.Now()), BuildSessionEnabled: true})
 	if err != nil {
-		log.Errorf("Failed to save build, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to save build", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 

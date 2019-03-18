@@ -12,7 +12,6 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/pkg/errors"
@@ -116,7 +115,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 		}
 		verrs, err := database.CreateTestReportAsset(&testReportAsset)
 		if err != nil {
-			log.Errorf("Failed to create test report asset in DB, error: %+v", errors.WithStack(err))
+			logger.Error("Failed to create test report asset in DB", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
 		if verrs.HasAny() {
@@ -124,7 +123,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 		}
 		preSignedURL, err := fAPI.UploadURLforPath(testReportAsset.PathInBucket())
 		if err != nil {
-			log.Errorf("Failed to create upload url, error: %s", err)
+			logger.Error("Failed to create upload url", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.String("Internal error"))
 		}
 		testReportAssets = append(testReportAssets, testReportAssetWithUploadURL{
