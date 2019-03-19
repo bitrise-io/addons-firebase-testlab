@@ -34,7 +34,7 @@ func TestGet(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("[!] Exception: Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
@@ -238,7 +238,7 @@ func TestPost(c buffalo.Context) error {
 		}
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("[!] Exception: Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
@@ -309,7 +309,7 @@ func TestAssetsGet(c buffalo.Context) error {
 
 	buildSlug := c.Param("build_slug")
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
@@ -342,7 +342,7 @@ func TestAssetsPost(c buffalo.Context) error {
 		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Build already exists"}))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))

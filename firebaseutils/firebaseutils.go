@@ -29,13 +29,9 @@ const (
 )
 
 // New ...
-func New(tracker metrics.DogStatsDInterface) (*APIModel, error) {
-	if tracker == nil {
-		tracker = metrics.NewDogStatsDMetrics("")
-	}
+func New() (*APIModel, error) {
 	return &APIModel{
-		JWT:     configs.GetJWTModel(),
-		tracker: tracker,
+		JWT: configs.GetJWTModel(),
 	}, nil
 }
 

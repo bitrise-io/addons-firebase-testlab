@@ -16,11 +16,11 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
+	"github.com/bitrise-io/addons-firebase-testlab/metrics"
 	"github.com/bitrise-io/addons-firebase-testlab/renderers"
 	"github.com/bitrise-io/addons-firebase-testlab/trackables"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
-	"github.com/slapec93/bitrise-step-analytics/metrics"
 	"go.uber.org/zap"
 	toolresults "google.golang.org/api/toolresults/v1beta3"
 )
@@ -166,7 +166,7 @@ func StepAPIGetHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
@@ -199,7 +199,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 		return c.Render(http.StatusNoContent, r.String("Invalid request"))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
