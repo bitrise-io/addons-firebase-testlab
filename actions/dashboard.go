@@ -17,8 +17,10 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/renderers"
+	"github.com/bitrise-io/addons-firebase-testlab/trackables"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
+	"github.com/slapec93/bitrise-step-analytics/metrics"
 	"go.uber.org/zap"
 	toolresults "google.golang.org/api/toolresults/v1beta3"
 )
@@ -65,8 +67,9 @@ type TestResults struct {
 
 // RootGetHandler ...
 func RootGetHandler(c buffalo.Context) error {
-	// client := metrics.NewDogStatsDMetrics("")
-	// client.Track(trackables.Root{}, "rootPathOpened")
+	client := metrics.NewDogStatsDMetrics("")
+	defer client.Close()
+	client.Track(trackables.Root{}, "rootPathOpened")
 
 	return c.Render(http.StatusOK, r.String("Welcome to bitrise!"))
 }
