@@ -124,7 +124,7 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 	if err != nil {
 		return nil, fmt.Errorf("Failed to list histories, error: %s", err)
 	}
-	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+	// api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
 
 	historyID := ""
 
@@ -143,7 +143,7 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 		if err != nil {
 			return nil, fmt.Errorf("Failed to create history, error: %s", err)
 		}
-		api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+		// api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
 		historyID = newHistory.HistoryId
 	}
 
@@ -174,8 +174,8 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create testing service, error: %s", err)
 	}
-	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
-	api.tracker.Track(api, "numberOfTests", fmt.Sprintf("appSlug:%s", appSlug))
+	// api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+	// api.tracker.Track(api, "numberOfTests", fmt.Sprintf("appSlug:%s", appSlug))
 
 	return responseMatrix, nil
 }
@@ -340,7 +340,7 @@ func (api *APIModel) GetTestsByHistoryAndExecutionID(historyID, executionID, app
 	if err != nil {
 		return nil, err
 	}
-	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+	// api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
 
 	return steps, nil
 }
@@ -375,7 +375,7 @@ func (api *APIModel) GetTestMetricSamples(historyID, executionID, stepID, appSlu
 				}
 				return
 			}
-			api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+			// api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
 
 			samples := MetricSampleModel{}
 
@@ -435,7 +435,7 @@ func (api *APIModel) DownloadTestAssets(buildSlug string) (map[string]string, er
 	if err != nil {
 		return nil, err
 	}
-	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("buildSlug:%s", buildSlug))
+	// api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("buildSlug:%s", buildSlug))
 
 	files := map[string]string{}
 
