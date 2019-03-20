@@ -33,7 +33,7 @@ func TestReportsListHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Internal error"))

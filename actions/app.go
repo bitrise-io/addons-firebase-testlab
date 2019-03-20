@@ -52,7 +52,7 @@ func initApp() error {
 		logger.Warn("Failed to initialize Analytics utils", zap.Any("error", errors.WithStack(err)))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		return errors.Wrap(err, "Failed to create Firebase API model")
 	}

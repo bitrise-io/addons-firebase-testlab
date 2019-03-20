@@ -16,13 +16,12 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
 
 func addLogger(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		ctx := logging.NewContext(c, zap.String("request_id", uuid.NewV4().String()))
+		ctx := logging.NewContext(c, zap.String("request_id", c.Request().Header.Get("X-Request-ID")))
 		return next(ctx)
 	}
 }

@@ -68,6 +68,7 @@ type TestResults struct {
 // RootGetHandler ...
 func RootGetHandler(c buffalo.Context) error {
 	client := metrics.NewDogStatsDMetrics("")
+	defer client.Close()
 	client.Track(trackables.Root{}, "rootPathOpened")
 
 	return c.Render(http.StatusOK, r.String("Welcome to bitrise!"))
@@ -165,7 +166,7 @@ func StepAPIGetHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
@@ -198,7 +199,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 		return c.Render(http.StatusNoContent, r.String("Invalid request"))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
 		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
