@@ -810,6 +810,8 @@
     -webkit-align-items: center;
     align-items: center;
     font-weight: 200; }
+    .page-details header.test .duration.unavailable, .page-details header.test .orientation.unavailable, .page-details header.test .locale.unavailable {
+      visibility: hidden; }
     .page-details header.test .duration svg, .page-details header.test .orientation svg, .page-details header.test .locale svg {
       margin-right: 12px;
       fill: #959595; }

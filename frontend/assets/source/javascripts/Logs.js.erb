@@ -54,7 +54,10 @@
             return;
           }
 
-          loadLogs();
+          if (test.logsURL) {
+            loadLogs();
+          }
+
           unwatchTest();
         }
       );

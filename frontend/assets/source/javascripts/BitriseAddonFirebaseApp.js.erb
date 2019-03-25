@@ -77,6 +77,8 @@
       return $q(function(resolve, reject) {
         if (!logURL) {
           reject(new Error('logURL cannot be empty!'));
+
+          return;
         }
 
         $http.get(logURL).then(

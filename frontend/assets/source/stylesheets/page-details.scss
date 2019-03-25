@@ -82,6 +82,10 @@
 			@include align-items(center);
 			font-weight: 200;
 
+			&.unavailable {
+				visibility: hidden;
+			}
+
 			svg {
 				margin-right: 12px;
 				fill: $def-darkgrey;
