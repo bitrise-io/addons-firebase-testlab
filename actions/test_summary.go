@@ -15,11 +15,11 @@ import (
 )
 
 type totalsModel struct {
-	tests        int64 `json:"tests'`
-	passed       int64 `json:"passed'`
-	skipped      int64 `json:"skipped'`
-	failure      int64 `json:"failure'`
-	inconclusive int64 `json:"inconclusive'`
+	tests        int `json:"tests'`
+	passed       int `json:"passed'`
+	skipped      int `json:"skipped'`
+	failure      int `json:"failure'`
+	inconclusive int `json:"inconclusive'`
 }
 
 // TestSummaryResponseModel ...
