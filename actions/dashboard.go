@@ -196,7 +196,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 	build, err := database.GetBuild(appSlug, buildSlug)
 	if err != nil {
 		logger.Error("Failed to get build from DB", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusNoContent, r.String("Invalid request"))
+		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Not found"}))
 	}
 
 	fAPI, err := firebaseutils.New()
@@ -207,7 +207,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 
 	if build.TestHistoryID == "" || build.TestExecutionID == "" {
 		logger.Error("No TestHistoryID or TestExecutionID found for build", zap.String("build_slug", build.BuildSlug))
-		return c.Render(http.StatusNoContent, r.JSON(map[string]string{"error": "Invalid request"}))
+		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Not found"}))
 	}
 
 	details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug)

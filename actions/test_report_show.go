@@ -11,25 +11,41 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/testreportfiller"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
 
-// TestReportsListHandler ...
-func TestReportsListHandler(c buffalo.Context) error {
+// TestReportResponseItem ...
+type TestReportResponseItem struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
+// TestReportShowHandler ...
+func TestReportShowHandler(c buffalo.Context) error {
 	logger := logging.WithContext(c)
 	defer logging.Sync(logger)
 
 	buildSlug := c.Param("build_slug")
+	testReportID := c.Param("test_report_id")
 	appSlug, ok := c.Session().Get("app_slug").(string)
 	if !ok {
 		logger.Error("Failed to get session data(app_slug)")
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
-	testReportRecords := []models.TestReport{}
-	err := database.GetTestReports(&testReportRecords, appSlug, buildSlug)
+	// Authorize for access via appSlug and buildSlug
+	ok, err := database.TestReportExistsForAppAndBuild(testReportID, appSlug, buildSlug)
 	if err != nil {
-		logger.Error("Failed to find test reports in DB", zap.Any("error", errors.WithStack(err)))
+		logger.Error("Failed to find test report in DB", zap.Any("error", errors.WithStack(err)))
+	}
+	if !ok {
+		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Not found"}))
+	}
+
+	testReport := models.TestReport{}
+	if err := database.FindTestReport(&testReport, testReportID); err != nil {
+		logger.Error("Failed to find test report in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -41,11 +57,11 @@ func TestReportsListHandler(c buffalo.Context) error {
 	parser := &junit.Client{}
 	testReportFiller := testreportfiller.Filler{}
 
-	testReportsWithTestSuites, err := testReportFiller.FillMore(testReportRecords, fAPI, parser, &http.Client{})
+	testReportWithTestSuite, err := testReportFiller.FillOne(testReport, fAPI, parser, &http.Client{})
 	if err != nil {
-		logger.Error("Failed to enrich test reports with JUNIT results", zap.Any("error", errors.WithStack(err)))
+		logger.Error("Failed to enrich test report with JUNIT results", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
-	return c.Render(http.StatusOK, r.JSON(testReportsWithTestSuites))
+	return c.Render(http.StatusOK, r.JSON(testReportWithTestSuite))
 }

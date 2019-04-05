@@ -35,7 +35,7 @@ func NewTestClient(fn RoundTripFunc) *http.Client {
 	}
 }
 
-func Test_TestReportFiller_Fill(t *testing.T) {
+func Test_TestReportFiller_FillMore(t *testing.T) {
 	id1, err := uuid.FromString("aaaaaaaa-18d6-11e9-ab14-d663bd873d93")
 	if err != nil {
 		t.Fatal(err)
@@ -143,7 +143,7 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 					Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(tc.xml))),
 				}
 			})
-			got, err := filler.Fill(trs, &TestFAPI{}, &junit.Client{}, httpClient)
+			got, err := filler.FillMore(trs, &TestFAPI{}, &junit.Client{}, httpClient)
 
 			if len(tc.expErr) > 0 {
 				require.Error(t, err)
