@@ -28,6 +28,7 @@ func TestReportShowHandler(c buffalo.Context) error {
 
 	buildSlug := c.Param("build_slug")
 	testReportID := c.Param("test_report_id")
+	status := c.Param("status")
 	appSlug, ok := c.Session().Get("app_slug").(string)
 	if !ok {
 		logger.Error("Failed to get session data(app_slug)")
@@ -57,7 +58,7 @@ func TestReportShowHandler(c buffalo.Context) error {
 	parser := &junit.Client{}
 	testReportFiller := testreportfiller.Filler{}
 
-	testReportWithTestSuite, err := testReportFiller.FillOne(testReport, fAPI, parser, &http.Client{})
+	testReportWithTestSuite, err := testReportFiller.FillOne(testReport, fAPI, parser, &http.Client{}, status)
 	if err != nil {
 		logger.Error("Failed to enrich test report with JUNIT results", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))

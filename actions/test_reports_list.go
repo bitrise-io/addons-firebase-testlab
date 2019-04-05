@@ -41,7 +41,7 @@ func TestReportsListHandler(c buffalo.Context) error {
 	parser := &junit.Client{}
 	testReportFiller := testreportfiller.Filler{}
 
-	testReportsWithTestSuites, err := testReportFiller.FillMore(testReportRecords, fAPI, parser, &http.Client{})
+	testReportsWithTestSuites, err := testReportFiller.FillMore(testReportRecords, fAPI, parser, &http.Client{}, "")
 	if err != nil {
 		logger.Error("Failed to enrich test reports with JUNIT results", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))

@@ -112,14 +112,14 @@ workflows:
             reset=`tput sgr0`
             echo ""
             echo "You will be able to review the test results here:"
-            echo "${green}http://localhost:5000/builds/$BITRISE_BUILD_SLUG${reset}"
+            echo "${green}http://localhost:5001/builds/$BITRISE_BUILD_SLUG${reset}"
             echo ""
     - virtual-device-testing-for-android:
         inputs:
         - apk_path: "$APP_APK_PATH"
         - test_type: instrumentation
         - test_apk_path: "$TEST_APK_PATH"
-        - api_base_url: http://localhost:5000/test
+        - api_base_url: http://localhost:5001/test
         - api_token: test-api-token
 
   test-with-docker-compose:
@@ -235,6 +235,17 @@ workflows:
               else
                 buffalo dev
               fi
+  start-server-2:
+    before_run:
+      - compile-assets
+    steps:
+    - script:
+        title: Start server with compiled assets
+        inputs:
+          - content: |-
+              export PORT=5000
+              export GO_ENV=development
+              docker-compose -f docker-compose.test.yml up
   # ----------------------------------------------------------------
   # --- Utility workflows
   dep-update:

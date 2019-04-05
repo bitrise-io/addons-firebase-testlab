@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
-	junitparser "github.com/joshdk/go-junit"
+	junitmodels "github.com/joshdk/go-junit"
 	"github.com/stretchr/testify/require"
 )
 
@@ -12,7 +12,7 @@ func Test_Junitparser_Parse(t *testing.T) {
 	testCases := []struct {
 		name    string
 		xml     string
-		expResp []junit.Suite
+		expResp []junitmodels.Suite
 		expErr  string
 	}{
 		{
@@ -36,50 +36,48 @@ func Test_Junitparser_Parse(t *testing.T) {
 				</testsuite>
 			</testsuites>
 			`,
-			expResp: []junit.Suite{
-				junit.Suite{
-					Suite: junitparser.Suite{
-						Name:    "JUnitXmlReporter.constructor",
-						Package: "",
-						Properties: map[string]string{
-							"java.vendor":           "Sun Microsystems Inc.",
-							"compiler.debug":        "on",
-							"project.jdk.classpath": "jdk.classpath.1.6"},
-						Tests: []junitparser.Test{
-							junitparser.Test{
-								Name:      "should default path to an empty string",
-								Classname: "JUnitXmlReporter.constructor",
-								Duration:  6000000, Status: "failed",
-								Error: junitparser.Error{
-									Message: "test failure",
-									Type:    "",
-									Body:    "Assertion failed",
-								},
-							},
-							junitparser.Test{
-								Name:      "should default consolidate to true",
-								Classname: "JUnitXmlReporter.constructor",
-								Duration:  0,
-								Status:    "skipped",
-								Error:     error(nil),
-							},
-							junitparser.Test{
-								Name:      "should default useDotNotation to true",
-								Classname: "JUnitXmlReporter.constructor",
-								Duration:  0,
-								Status:    "passed",
-								Error:     error(nil),
+			expResp: []junitmodels.Suite{
+				junitmodels.Suite{
+					Name:    "JUnitXmlReporter.constructor",
+					Package: "",
+					Properties: map[string]string{
+						"java.vendor":           "Sun Microsystems Inc.",
+						"compiler.debug":        "on",
+						"project.jdk.classpath": "jdk.classpath.1.6"},
+					SystemOut: "",
+					SystemErr: "",
+					Totals: junitmodels.Totals{
+						Tests:    3,
+						Passed:   1,
+						Skipped:  1,
+						Failed:   1,
+						Error:    0,
+						Duration: 6000000,
+					},
+					Tests: []junitmodels.Test{
+						junitmodels.Test{
+							Name:      "should default path to an empty string",
+							Classname: "JUnitXmlReporter.constructor",
+							Duration:  6000000, Status: "failed",
+							Error: junitmodels.Error{
+								Message: "test failure",
+								Type:    "",
+								Body:    "Assertion failed",
 							},
 						},
-						SystemOut: "",
-						SystemErr: "",
-						Totals: junitparser.Totals{
-							Tests:    3,
-							Passed:   1,
-							Skipped:  1,
-							Failed:   1,
-							Error:    0,
-							Duration: 6000000,
+						junitmodels.Test{
+							Name:      "should default consolidate to true",
+							Classname: "JUnitXmlReporter.constructor",
+							Duration:  0,
+							Status:    "skipped",
+							Error:     error(nil),
+						},
+						junitmodels.Test{
+							Name:      "should default useDotNotation to true",
+							Classname: "JUnitXmlReporter.constructor",
+							Duration:  0,
+							Status:    "passed",
+							Error:     error(nil),
 						},
 					},
 				},
@@ -93,7 +91,7 @@ func Test_Junitparser_Parse(t *testing.T) {
 			<testsuites>
 			</testsuites>
 			`,
-			expResp: []junit.Suite{},
+			expResp: []junitmodels.Suite(nil),
 			expErr:  "",
 		},
 		{
