@@ -184,6 +184,8 @@ func StepAPIGetHandler(c buffalo.Context) error {
 // DashboardAPIGetHandler ...
 func DashboardAPIGetHandler(c buffalo.Context) error {
 	buildSlug := c.Param("build_slug")
+	status := c.Param("status")
+
 	logger := logging.WithContext(c)
 	defer logging.Sync(logger)
 
@@ -409,6 +411,11 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 		logger.Error("One of the requests is failed", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
+
+	if status != "" {
+		testDetails = filterTestsByStatus(testDetails, status)
+	}
+
 	return c.Render(200, renderers.JSON(testDetails))
 }
 
@@ -428,4 +435,28 @@ func DashboardDetailsGetHandler(c buffalo.Context) error {
 // DashboardIndexGetHandler ...
 func DashboardIndexGetHandler(c buffalo.Context) error {
 	return c.Render(200, r.HTML("frontend/index.html"))
+}
+
+func filterTestsByStatus(tests []*Test, status string) []*Test {
+	filteredTests := []*Test{}
+
+	for _, test := range tests {
+		if statusMatch(test.Outcome, status) || test.Status == "inProgress" { // include currently running tests too
+			filteredTests = append(filteredTests, test)
+		}
+	}
+
+	return filteredTests
+}
+
+func statusMatch(testStatus string, expected string) bool {
+	if testStatus == expected {
+		return true
+	}
+
+	if testStatus == "failure" && expected == "failed" {
+		return true
+	}
+
+	return false
 }
