@@ -223,7 +223,7 @@ func GetTestReports(trs *[]models.TestReport, appSlug string, buildSlug string) 
 // TestReportExistsForAppAndBuild ...
 func TestReportExistsForAppAndBuild(testReportID string, appSlug string, buildSlug string) (bool, error) {
 	trs := []models.TestReport{}
-	if err := DB.Where("id = ? AND app_slug = ? AND build_slug = ? AND uploaded = ?", appSlug, buildSlug, testReportID, true).Limit(1).All(&trs); err != nil {
+	if err := DB.Where("id = ? AND app_slug = ? AND build_slug = ? AND uploaded = ?", testReportID, appSlug, buildSlug, true).Limit(1).All(&trs); err != nil {
 		return false, errors.WithStack(err)
 	}
 	return len(trs) > 0, nil

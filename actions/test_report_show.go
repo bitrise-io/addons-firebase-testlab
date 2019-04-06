@@ -11,15 +11,8 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/testreportfiller"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
-
-// TestReportResponseItem ...
-type TestReportResponseItem struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
-}
 
 // TestReportShowHandler ...
 func TestReportShowHandler(c buffalo.Context) error {
