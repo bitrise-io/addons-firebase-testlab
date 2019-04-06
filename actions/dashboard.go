@@ -454,6 +454,10 @@ func statusMatch(testStatus string, expected string) bool {
 		return true
 	}
 
+	if testStatus == "success" && expected == "passed" {
+		return true
+	}
+
 	if testStatus == "failure" && expected == "failed" {
 		return true
 	}
