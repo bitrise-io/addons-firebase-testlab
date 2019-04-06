@@ -1,29 +1,35 @@
+// Copyright Josh Komoroske. All rights reserved.
+// Use of this source code is governed by the MIT license,
+// a copy of which can be found in the LICENSE.txt file.
+
 package junit
 
 import (
 	"time"
 )
 
-type status string
+// Status represents the result of a single a JUnit testcase. Indicates if a
+// testcase was run, and if it was successful.
+type Status string
 
 const (
 	// StatusPassed represents a JUnit testcase that was run, and did not
 	// result in an error or a failure.
-	StatusPassed status = "passed"
+	StatusPassed Status = "passed"
 
 	// StatusSkipped represents a JUnit testcase that was intentionally
 	// skipped.
-	StatusSkipped status = "skipped"
+	StatusSkipped Status = "skipped"
 
 	// StatusFailed represents a JUnit testcase that was run, but resulted in
 	// a failure. Failures are violations of declared test expectations,
 	// such as a failed assertion.
-	StatusFailed status = "failed"
+	StatusFailed Status = "failed"
 
 	// StatusError represents a JUnit testcase that was run, but resulted in
 	// an error. Errors are unexpected violations of the test itself, such as
 	// an uncaught exception.
-	StatusError status = "error"
+	StatusError Status = "error"
 )
 
 // Totals contains aggregated results across a set of test runs. Is usually
@@ -62,18 +68,18 @@ type Suite struct {
 
 	// Properties is a mapping of key-value pairs that were available when the
 	// tests were run.
-	Properties map[string]string `json:"properties,omitempty" yaml:"properties"`
+	Properties map[string]string `json:"properties,omitempty" yaml:"properties,omitempty"`
 
 	// Tests is an ordered collection of tests with associated results.
-	Tests []Test `json:"tests,omitempty" yaml:"tests"`
+	Tests []Test `json:"tests,omitempty" yaml:"tests,omitempty"`
 
 	// SystemOut is textual test output for the suite. Usually output that is
 	// written to stdout.
-	SystemOut string `json:"stdout,omitempty"`
+	SystemOut string `json:"stdout,omitempty" yaml:"stdout,omitempty"`
 
 	// SystemErr is textual test error output for the suite. Usually output that is
 	// written to stderr.
-	SystemErr string `json:"stderr,omitempty"`
+	SystemErr string `json:"stderr,omitempty" yaml:"stderr,omitempty"`
 
 	// Totals is the aggregated results of all tests.
 	Totals Totals `json:"totals" yaml:"totals"`
@@ -113,29 +119,29 @@ type Test struct {
 
 	// Status is the result of the test. Status values are passed, skipped,
 	// failure, & error.
-	Status status
+	Status Status `json:"status" yaml:"status"`
 
 	// Error is a record of the failure or error of a test, if applicable.
 	//
 	// The following relations should hold true.
 	//   Error == nil && (Status == Passed || Status == Skipped)
 	//   Error != nil && (Status == Failed || Status == Error)
-	Error error
+	Error error `json:"error" yaml:"error"`
 }
 
 // Error represents an erroneous test result.
 type Error struct {
 	// Message is a descriptor given to the error. Purpose and values differ by
 	// environment.
-	Message string `json:"message,omitempty" yaml:"message"`
+	Message string `json:"message,omitempty" yaml:"message,omitempty"`
 
 	// Type is a descriptor given to the error. Purpose and values differ by
 	// framework. Value is typically an exception class, such as an assertion.
-	Type string `json:"type,omitempty" yaml:"type"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 
 	// Body is extended text for the error. Purpose and values differ by
 	// framework. Value is typically a stacktrace.
-	Body string `json:"body,omitempty" yaml:"body"`
+	Body string `json:"body,omitempty" yaml:"body,omitempty"`
 }
 
 // Error returns a textual description of the test error.
