@@ -67,7 +67,7 @@ func TestSummaryHandler(c buffalo.Context) error {
 			totals.passed = totals.passed + testSuite.Totals.Passed
 			totals.failure = totals.failure + testSuite.Totals.Failed + testSuite.Totals.Error
 			totals.skipped = totals.skipped + testSuite.Totals.Skipped
-			totals.tests++
+			totals.tests = totals.tests + testSuite.Totals.Tests
 		}
 	}
 
@@ -91,6 +91,12 @@ func TestSummaryHandler(c buffalo.Context) error {
 	}
 
 	testDetails := make([]*Test, len(details.Steps))
+
+	err = fillTestDetails(testDetails, details)
+	if err != nil {
+		logger.Error("One of the requests is failed", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
+	}
 
 	for _, testDetail := range testDetails {
 		switch testDetail.Outcome {
