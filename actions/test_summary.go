@@ -92,7 +92,7 @@ func TestSummaryHandler(c buffalo.Context) error {
 
 	testDetails := make([]*Test, len(details.Steps))
 
-	err = fillTestDetails(testDetails, details)
+	err = fillTestDetails(testDetails, details, fAPI)
 	if err != nil {
 		logger.Error("One of the requests is failed", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
