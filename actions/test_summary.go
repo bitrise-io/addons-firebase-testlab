@@ -73,7 +73,7 @@ func TestSummaryHandler(c buffalo.Context) error {
 			totals.passed = totals.passed + testSuite.Totals.Passed
 			totals.failure = totals.failure + testSuite.Totals.Failed
 			totals.failure = totals.failure + testSuite.Totals.Error
-			totals.skipped = totals.passed + testSuite.Totals.Skipped
+			totals.skipped = totals.skipped + testSuite.Totals.Skipped
 			totals.tests++
 		}
 	}
