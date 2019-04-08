@@ -45,7 +45,7 @@ type testReportAssetWithUploadURL struct {
 
 type testReportPostResponse struct {
 	testReportWithUploadURL
-	TestReportAssets []testReportAssetWithUploadURL `json:"assets`
+	TestReportAssets []testReportAssetWithUploadURL `json:"assets"`
 }
 
 func newTestReportWithUploadURL(testReport models.TestReport, uploadURL string) testReportWithUploadURL {

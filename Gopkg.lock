@@ -249,11 +249,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b2ce448267ed96e793ed4cd4739937d18419d61ca763c62acca1f8562fc9d678"
+  digest = "1:77c629debceea9f5f3dd313dcdd11e6e97d820ca2852e383d8f0afb340bbf8f0"
   name = "github.com/joshdk/go-junit"
   packages = ["."]
   pruneopts = ""
-  revision = "bf76511d08693cfcf6e5d1bd8b46b62518c496f3"
+  revision = "6ce6523876d326121854e6ee3a43afd3aa4fb7af"
 
 [[projects]]
   branch = "master"
