@@ -66,7 +66,7 @@ func TestSummaryHandler(c buffalo.Context) error {
 		for _, testSuite := range testReport.TestSuites {
 			totals.passed = totals.passed + testSuite.Totals.Passed
 			totals.failure = totals.failure + testSuite.Totals.Failed + testSuite.Totals.Error
-			totals.skipped = totals.passed + testSuite.Totals.Skipped
+			totals.skipped = totals.skipped + testSuite.Totals.Skipped
 			totals.tests++
 		}
 	}
