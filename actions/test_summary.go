@@ -39,14 +39,8 @@ func TestSummaryHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
-	build, err := database.GetBuild(appSlug, buildSlug)
-	if err != nil {
-		logger.Error("Failed to get build from DB", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusNoContent, r.String("Invalid request"))
-	}
-
 	testReportRecords := []models.TestReport{}
-	err = database.GetTestReports(&testReportRecords, appSlug, buildSlug)
+	err := database.GetTestReports(&testReportRecords, appSlug, buildSlug)
 	if err != nil {
 		logger.Error("Failed to find test reports in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
@@ -60,7 +54,7 @@ func TestSummaryHandler(c buffalo.Context) error {
 	parser := &junit.Client{}
 	testReportFiller := testreportfiller.Filler{}
 
-	testReportsWithTestSuites, err := testReportFiller.Fill(testReportRecords, fAPI, parser, &http.Client{})
+	testReportsWithTestSuites, err := testReportFiller.FillMore(testReportRecords, fAPI, parser, &http.Client{}, "")
 	if err != nil {
 		logger.Error("Failed to enrich test reports with JUNIT results", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
@@ -71,24 +65,29 @@ func TestSummaryHandler(c buffalo.Context) error {
 	for _, testReport := range testReportsWithTestSuites {
 		for _, testSuite := range testReport.TestSuites {
 			totals.passed = totals.passed + testSuite.Totals.Passed
-			totals.failure = totals.failure + testSuite.Totals.Failed
-			totals.failure = totals.failure + testSuite.Totals.Error
+			totals.failure = totals.failure + testSuite.Totals.Failed + testSuite.Totals.Error
 			totals.skipped = totals.passed + testSuite.Totals.Skipped
 			totals.tests++
 		}
 	}
 
-	if build.TestHistoryID == "" || build.TestExecutionID == "" {
-		logger.Error("No TestHistoryID or TestExecutionID found for build", zap.String("build_slug", build.BuildSlug))
-		return c.Render(http.StatusNoContent, r.JSON(map[string]string{"error": "Invalid request"}))
-	}
-
-	details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug)
+	build, err := database.GetBuild(appSlug, buildSlug)
 	if err != nil {
 		// no Firebase tests, it's fine, we can return
 		return c.Render(http.StatusOK, r.JSON(TestSummaryResponseModel{
 			Totals: totals,
 		}))
+	}
+
+	if build.TestHistoryID == "" || build.TestExecutionID == "" {
+		logger.Error("No TestHistoryID or TestExecutionID found for build", zap.String("build_slug", build.BuildSlug))
+		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Invalid request"}))
+	}
+
+	details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug)
+	if err != nil {
+		logger.Error("Failed to get test details", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
 	testDetails := make([]*Test, len(details.Steps))
