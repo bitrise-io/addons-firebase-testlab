@@ -220,11 +220,9 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 
 	//
 	// prepare data structure
-	testDetails := make([]*Test, len(details.Steps))
-
-	err = fillTestDetails(testDetails, details, fAPI)
+	testDetails, err := fillTestDetails(details, fAPI, logger)
 	if err != nil {
-		logger.Error("One of the requests is failed", zap.Any("error", errors.WithStack(err)))
+		logger.Error("Failed to prepare test details data structure", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
@@ -281,7 +279,9 @@ func statusMatch(testStatus string, expected string) bool {
 	return false
 }
 
-func fillTestDetails(testDetails []*Test, details *toolresults.ListStepsResponse, fAPI *firebaseutils.APIModel) error {
+func fillTestDetails(details *toolresults.ListStepsResponse, fAPI *firebaseutils.APIModel, logger *zap.Logger) ([]*Test, error) {
+	testDetails := make([]*Test, len(details.Steps))
+
 	var wg sync.WaitGroup
 	wg.Add(len(details.Steps))
 	errChannel := make(chan error, 1)
@@ -347,6 +347,10 @@ func fillTestDetails(testDetails []*Test, details *toolresults.ListStepsResponse
 						//create signed url for assets
 						signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(testlog.FileUri)
 						if err != nil {
+							logger.Error("Failed to get signed url",
+								zap.String("file_uri", testlog.FileUri),
+								zap.Any("error", errors.WithStack(err)),
+							)
 							if len(errChannel) == 0 {
 								errChannel <- err
 							}
@@ -363,6 +367,10 @@ func fillTestDetails(testDetails []*Test, details *toolresults.ListStepsResponse
 								//create signed url for asset
 								signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 								if err != nil {
+									logger.Error("Failed to get signed url",
+										zap.String("output_file_uri", output.Output.FileUri),
+										zap.Any("error", errors.WithStack(err)),
+									)
 									if len(errChannel) == 0 {
 										errChannel <- err
 									}
@@ -377,6 +385,10 @@ func fillTestDetails(testDetails []*Test, details *toolresults.ListStepsResponse
 							//create signed url for asset
 							signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 							if err != nil {
+								logger.Error("Failed to get signed url",
+									zap.String("output_file_uri", output.Output.FileUri),
+									zap.Any("error", errors.WithStack(err)),
+								)
 								if len(errChannel) == 0 {
 									errChannel <- err
 								}
@@ -389,6 +401,10 @@ func fillTestDetails(testDetails []*Test, details *toolresults.ListStepsResponse
 							//create signed url for asset
 							signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 							if err != nil {
+								logger.Error("Failed to get signed url",
+									zap.String("output_file_uri", output.Output.FileUri),
+									zap.Any("error", errors.WithStack(err)),
+								)
 								if len(errChannel) == 0 {
 									errChannel <- err
 								}
@@ -401,6 +417,10 @@ func fillTestDetails(testDetails []*Test, details *toolresults.ListStepsResponse
 							//create signed url for asset
 							signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(output.Output.FileUri)
 							if err != nil {
+								logger.Error("Failed to get signed url",
+									zap.String("output_file_uri", output.Output.FileUri),
+									zap.Any("error", errors.WithStack(err)),
+								)
 								if len(errChannel) == 0 {
 									errChannel <- err
 								}
@@ -416,6 +436,10 @@ func fillTestDetails(testDetails []*Test, details *toolresults.ListStepsResponse
 						//create signed url for assets
 						signedURL, err := fAPI.GetSignedURLOfLegacyBucketPath(overview.XmlSource.FileUri)
 						if err != nil {
+							logger.Error("Failed to get signed url",
+								zap.String("xml_source_file_uri", overview.XmlSource.FileUri),
+								zap.Any("error", errors.WithStack(err)),
+							)
 							if len(errChannel) == 0 {
 								errChannel <- err
 							}
@@ -443,5 +467,5 @@ func fillTestDetails(testDetails []*Test, details *toolresults.ListStepsResponse
 
 	var err error
 	err = <-errChannel
-	return err
+	return nil, err
 }

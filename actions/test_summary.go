@@ -14,17 +14,17 @@ import (
 	"go.uber.org/zap"
 )
 
-type totalsModel struct {
+type totals struct {
 	tests        int `json:"tests'`
 	passed       int `json:"passed'`
 	skipped      int `json:"skipped'`
-	failure      int `json:"failure'`
+	failed       int `json:"failed'`
 	inconclusive int `json:"inconclusive'`
 }
 
 // TestSummaryResponseModel ...
 type TestSummaryResponseModel struct {
-	Totals totalsModel `json:"totals"`
+	Totals totals `json:"totals"`
 }
 
 // TestSummaryHandler ...
@@ -60,12 +60,12 @@ func TestSummaryHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
-	totals := totalsModel{}
+	totals := totals{}
 
 	for _, testReport := range testReportsWithTestSuites {
 		for _, testSuite := range testReport.TestSuites {
 			totals.passed = totals.passed + testSuite.Totals.Passed
-			totals.failure = totals.failure + testSuite.Totals.Failed + testSuite.Totals.Error
+			totals.failed = totals.failed + testSuite.Totals.Failed + testSuite.Totals.Error
 			totals.skipped = totals.skipped + testSuite.Totals.Skipped
 			totals.tests = totals.tests + testSuite.Totals.Tests
 		}
@@ -80,8 +80,10 @@ func TestSummaryHandler(c buffalo.Context) error {
 	}
 
 	if build.TestHistoryID == "" || build.TestExecutionID == "" {
-		logger.Error("No TestHistoryID or TestExecutionID found for build", zap.String("build_slug", build.BuildSlug))
-		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Invalid request"}))
+		// no Firebase tests, it's fine, we can return
+		return c.Render(http.StatusOK, r.JSON(TestSummaryResponseModel{
+			Totals: totals,
+		}))
 	}
 
 	details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug)
@@ -90,11 +92,9 @@ func TestSummaryHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
-	testDetails := make([]*Test, len(details.Steps))
-
-	err = fillTestDetails(testDetails, details, fAPI)
+	testDetails, err := fillTestDetails(details, fAPI, logger)
 	if err != nil {
-		logger.Error("One of the requests is failed", zap.Any("error", errors.WithStack(err)))
+		logger.Error("Failed to prepare test details data structure", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
@@ -102,8 +102,8 @@ func TestSummaryHandler(c buffalo.Context) error {
 		switch testDetail.Outcome {
 		case "success":
 			totals.passed++
-		case "failure":
-			totals.failure++
+		case "failed":
+			totals.failed++
 		case "skipped":
 			totals.skipped++
 		case "inconclusive":
