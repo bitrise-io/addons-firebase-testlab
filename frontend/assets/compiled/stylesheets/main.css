@@ -3,11 +3,59 @@
 /* Media Queries */
 /* Attributes */
 /* Others */
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_7_0.ttf") format("truetype");
+  font-weight: 100; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_C_0.ttf") format("truetype");
+  font-weight: 200; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_F_0.ttf") format("truetype");
+  font-weight: 400; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_D_0.ttf") format("truetype");
+  font-weight: 500; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_1_0.ttf") format("truetype");
+  font-weight: 700; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_3_0.ttf") format("truetype");
+  font-weight: 900; }
 /* Functions */
 /* Screen sizes */
 /* Media Queries */
 /* Attributes */
 /* Others */
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_7_0.ttf") format("truetype");
+  font-weight: 100; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_C_0.ttf") format("truetype");
+  font-weight: 200; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_F_0.ttf") format("truetype");
+  font-weight: 400; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_D_0.ttf") format("truetype");
+  font-weight: 500; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_1_0.ttf") format("truetype");
+  font-weight: 700; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_3_0.ttf") format("truetype");
+  font-weight: 900; }
 .notification {
   display: -webkit-box;
   display: -moz-box;
@@ -146,6 +194,30 @@
 /* Media Queries */
 /* Attributes */
 /* Others */
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_7_0.ttf") format("truetype");
+  font-weight: 100; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_C_0.ttf") format("truetype");
+  font-weight: 200; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_F_0.ttf") format("truetype");
+  font-weight: 400; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_D_0.ttf") format("truetype");
+  font-weight: 500; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_1_0.ttf") format("truetype");
+  font-weight: 700; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_3_0.ttf") format("truetype");
+  font-weight: 900; }
 .page-dashboard .notification.load-tests {
   height: 50px;
   -webkit-box-sizing: border-box;
@@ -731,6 +803,30 @@
 /* Media Queries */
 /* Attributes */
 /* Others */
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_7_0.ttf") format("truetype");
+  font-weight: 100; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_C_0.ttf") format("truetype");
+  font-weight: 200; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_F_0.ttf") format("truetype");
+  font-weight: 400; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_D_0.ttf") format("truetype");
+  font-weight: 500; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_1_0.ttf") format("truetype");
+  font-weight: 700; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_3_0.ttf") format("truetype");
+  font-weight: 900; }
 .page-details .notification.load-test, .page-details .notification.load-test-cases {
   height: 50px;
   -webkit-box-sizing: border-box;
@@ -2006,7 +2102,7 @@ body {
   -webkit-align-items: flex-start;
   align-items: flex-start;
   margin: 0;
-  font-family: "Gotham SSm A", "Gotham SSm B", sans-serif;
+  font-family: TTNorms, sans-serif;
   letter-spacing: 0.015em;
   -webkit-font-smoothing: subpixel-antialiased; }
   body:not(.iframe) {
