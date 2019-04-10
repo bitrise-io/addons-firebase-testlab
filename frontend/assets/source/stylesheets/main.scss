@@ -10,7 +10,7 @@ body {
 	@include display-flex;
 	@include align-items(flex-start);
 	margin: 0;
-	@include GothamWithFallback;
+	@include TTNormsWithFallback;
 	letter-spacing: 0.015em;
 	-webkit-font-smoothing: subpixel-antialiased;
 
