@@ -28,10 +28,26 @@ $zindex-dashboard_test_link: 500;
 $zindex-metric_seek_value: 110;
 $zindex-metric_seek_pin: 100;
 
-@mixin GothamWithFallback {
-	font-family: "Gotham SSm A", "Gotham SSm B", sans-serif;
-}
-
 @mixin SourceCodeProWithFallback {
 	font-family: "Source Code Pro", monospace;
 }
+
+@mixin font-face($font-family, $font-file-url-without-extension, $font-weight) {
+  @font-face {
+    font-family: $font-family;
+    src: url($font-file-url-without-extension+'.ttf') format('truetype');
+    font-weight: $font-weight;
+  }
+}
+
+@include font-face("TTNorms", "/assets/fonts/ttnorms/35C30F_7_0", 100);
+@include font-face("TTNorms", "/assets/fonts/ttnorms/35C30F_C_0", 200);
+@include font-face("TTNorms", "/assets/fonts/ttnorms/35C30F_F_0", 400);
+@include font-face("TTNorms", "/assets/fonts/ttnorms/35C30F_D_0", 500);
+@include font-face("TTNorms", "/assets/fonts/ttnorms/35C30F_1_0", 700);
+@include font-face("TTNorms", "/assets/fonts/ttnorms/35C30F_3_0", 900);
+
+@mixin TTNormsWithFallback {
+	font-family: TTNorms, sans-serif;
+}
+
