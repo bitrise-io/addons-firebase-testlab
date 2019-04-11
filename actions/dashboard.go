@@ -467,5 +467,5 @@ func fillTestDetails(details *toolresults.ListStepsResponse, fAPI *firebaseutils
 
 	var err error
 	err = <-errChannel
-	return nil, err
+	return testDetails, err
 }

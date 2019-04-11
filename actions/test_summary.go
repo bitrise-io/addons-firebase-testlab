@@ -102,7 +102,7 @@ func TestSummaryHandler(c buffalo.Context) error {
 		switch testDetail.Outcome {
 		case "success":
 			totals.passed++
-		case "failed":
+		case "failure":
 			totals.failed++
 		case "skipped":
 			totals.skipped++
