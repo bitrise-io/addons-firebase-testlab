@@ -34,6 +34,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:2527e8173e63cf7d9dd1f93ac20b617e17f0225f1788fdf52a78f185ec370ab4"
+  name = "github.com/bitrise-io/go-crypto"
+  packages = ["crypto"]
+  pruneopts = ""
+  revision = "e098f6cdea35bff5b54ce022b8451e6eb9a2603d"
+
+[[projects]]
+  branch = "master"
   digest = "1:d4bd4e3d2d5c6e3de6e0735bc0d43fa5573c3a7cda0f0049ad4824dbecc36f04"
   name = "github.com/bitrise-io/go-utils"
   packages = [
@@ -423,12 +431,12 @@
   version = "v3.0"
 
 [[projects]]
-  digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
+  digest = "1:1d7e1867c49a6dd9856598ef7c3123604ea3daabf5b83f303ff457bcbc410b1d"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = ""
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
@@ -816,6 +824,7 @@
   input-imports = [
     "cloud.google.com/go/storage",
     "github.com/DataDog/datadog-go/statsd",
+    "github.com/bitrise-io/go-crypto/crypto",
     "github.com/bitrise-io/go-utils/fileutil",
     "github.com/bitrise-io/go-utils/log",
     "github.com/bitrise-io/go-utils/sliceutil",
