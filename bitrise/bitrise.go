@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-team/addons-rolling-build/models"
 	"github.com/pkg/errors"
 )
 
@@ -107,4 +108,46 @@ func (c *Client) GetBuildOfApp(buildSlug string, appSlug string) (*http.Response
 	}
 
 	return resp, &build, nil
+}
+
+// RegisterWebhook ...
+func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
+	appSecret, err := app.Secret()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	testingAddonHost, ok := os.LookupEnv("TESTING_ADDON_HOST")
+	if !ok {
+		return nil, errors.New("No TESTING_ADDON_HOST env var is set")
+	}
+	payloadStruct := map[string]interface{}{
+		"url":    fmt.Sprintf("%s/webhook", testingAddonHost),
+		"events": []string{"build"},
+		"secret": appSecret,
+	}
+
+	payload, err := json.Marshal(payloadStruct)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	action := fmt.Sprintf("/v0.1/apps/%s/outgoing-webhooks", appSlug)
+	req, err := c.newRequest("POST", action)
+	if err != nil {
+		return nil, nil, errors.WithStack(err)
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	response, err := client.Do(req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusCreated {
+		return nil, errors.New("Internal error: Failed to register webhook")
+	}
+
+	return response, nil
 }
