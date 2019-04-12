@@ -145,7 +145,12 @@ func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer response.Body.Close()
+	defer func() {
+		err := response.Body.Close()
+		if err != nil {
+			fmt.Println(errors.WithStack(err))
+		}
+	}()
 
 	if response.StatusCode != http.StatusCreated {
 		return nil, errors.New("Internal error: Failed to register webhook")
