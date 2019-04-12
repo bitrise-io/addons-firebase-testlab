@@ -2,11 +2,13 @@ package actions
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"go.uber.org/zap"
 
 	"github.com/bitrise-io/addons-firebase-testlab/database"
+	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/gobuffalo/buffalo"
@@ -64,7 +66,17 @@ func WebhookHandler(c buffalo.Context) error {
 		// Don't care
 	case "build/finished":
 		if appData.BuildStatus == abortedBuildStatus {
-			// will do something
+			build, err := database.GetBuild(app.AppSlug, appData.BuildSlug)
+			if err != nil {
+				logger.Error("Failed to get build from database", zap.Any("error", errors.WithStack(err)))
+				return c.Render(http.StatusInternalServerError, r.String("Internal error"))
+			}
+			if build.TestExecutionID != "" {
+				_, err := firebaseutils.CancelTestMatrix(build.TestMatrixID)
+				if err != nil {
+					return fmt.Errorf("Failed to cancel test matrix(id: %s), error: %+v", build.TestMatrixID, err)
+				}
+			}
 		}
 	default:
 		logger.Error("Invalid build type", zap.String("build_event_type", buildType))
