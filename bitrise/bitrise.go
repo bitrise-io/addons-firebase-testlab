@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-team/addons-rolling-build/models"
 	"github.com/pkg/errors"
 )
 
