@@ -83,5 +83,5 @@ func WebhookHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
-	return c.Render(200, nil)
+	return c.Render(200, r.JSON(app))
 }
