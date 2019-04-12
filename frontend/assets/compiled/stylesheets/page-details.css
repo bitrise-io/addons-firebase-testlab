@@ -3,6 +3,30 @@
 /* Media Queries */
 /* Attributes */
 /* Others */
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_7_0.ttf") format("truetype");
+  font-weight: 100; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_C_0.ttf") format("truetype");
+  font-weight: 200; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_F_0.ttf") format("truetype");
+  font-weight: 400; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_D_0.ttf") format("truetype");
+  font-weight: 500; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_1_0.ttf") format("truetype");
+  font-weight: 700; }
+@font-face {
+  font-family: "TTNorms";
+  src: url("/assets/fonts/ttnorms/35C30F_3_0.ttf") format("truetype");
+  font-weight: 900; }
 .page-details .notification.load-test, .page-details .notification.load-test-cases {
   height: 50px;
   -webkit-box-sizing: border-box;
@@ -82,6 +106,8 @@
     -webkit-align-items: center;
     align-items: center;
     font-weight: 200; }
+    .page-details header.test .duration.unavailable, .page-details header.test .orientation.unavailable, .page-details header.test .locale.unavailable {
+      visibility: hidden; }
     .page-details header.test .duration svg, .page-details header.test .orientation svg, .page-details header.test .locale svg {
       margin-right: 12px;
       fill: #959595; }

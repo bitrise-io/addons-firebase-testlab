@@ -2,6 +2,7 @@ package testreportfiller_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -9,7 +10,8 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/testreportfiller"
-	"github.com/satori/go.uuid"
+	junitmodels "github.com/joshdk/go-junit"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,7 +36,7 @@ func NewTestClient(fn RoundTripFunc) *http.Client {
 	}
 }
 
-func Test_TestReportFiller_Fill(t *testing.T) {
+func Test_TestReportFiller_FillMore(t *testing.T) {
 	id1, err := uuid.FromString("aaaaaaaa-18d6-11e9-ab14-d663bd873d93")
 	if err != nil {
 		t.Fatal(err)
@@ -50,23 +52,35 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 			ID:        id1,
 			Filename:  "test1.xml",
 			BuildSlug: "buildslug1",
+			Step:      json.RawMessage(`{"id":"an-awesome-step"}`),
+			TestReportAssets: []models.TestReportAsset{
+				models.TestReportAsset{
+					Filename: "my-important-asset",
+					Filesize: 121,
+				},
+				models.TestReportAsset{
+					Filename: "another-important-asset",
+					Filesize: 534,
+				},
+			},
 		},
 		models.TestReport{
 			ID:        id2,
 			Filename:  "test1.xml",
 			BuildSlug: "buildslug1",
+			Step:      json.RawMessage(`{"version":"1.0"}`),
 		},
 	}
 
 	testCases := []struct {
 		name                  string
 		xml                   string
+		statusFilter          string
 		statusFromXMLDownload int
 		expResp               []testreportfiller.TestReportWithTestSuites
 		expErr                string
 	}{
 		{
-
 			name: "when the test report files are found and valid",
 			xml: `
 	    <?xml version="1.0" encoding="UTF-8"?>
@@ -78,29 +92,136 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 			statusFromXMLDownload: 200,
 			expResp: []testreportfiller.TestReportWithTestSuites{
 				testreportfiller.TestReportWithTestSuites{
-					id1,
-					[]junit.Suite{
-						junit.Suite{},
+					ID: id1,
+					TestSuites: []junitmodels.Suite{
+						junitmodels.Suite{},
+					},
+					StepInfo: models.StepInfo{ID: "an-awesome-step"},
+					TestAssets: []testreportfiller.TestReportAssetInfo{
+						testreportfiller.TestReportAssetInfo{
+							Filename:    "my-important-asset",
+							Filesize:    121,
+							DownloadURL: "http://dont.call.me.pls",
+						},
+						testreportfiller.TestReportAssetInfo{
+							Filename:    "another-important-asset",
+							Filesize:    534,
+							DownloadURL: "http://dont.call.me.pls",
+						},
 					},
 				},
 				testreportfiller.TestReportWithTestSuites{
-					id2,
-					[]junit.Suite{
-						junit.Suite{},
+					ID: id2,
+					TestSuites: []junitmodels.Suite{
+						junitmodels.Suite{},
 					},
+					StepInfo:   models.StepInfo{Version: "1.0"},
+					TestAssets: []testreportfiller.TestReportAssetInfo{},
 				},
 			},
 			expErr: "",
 		},
 		{
-			name:                  "when the test report file is not found",
-			xml:                   "",
+			name: "when filtering is on",
+			xml: `
+	    <?xml version="1.0" encoding="UTF-8"?>
+			  <testsuites>
+				  <testsuite>
+			      <testcase name="successful test"></testcase>
+            <testcase name="failing test">
+						  <failure/>
+						</testcase>
+			      <testcase name="skipped test">
+						  <skipped />
+							</testcase>
+						<testcase name="erroneous test">
+						  <error />
+            </testcase>
+			    </testsuite>
+	    </testsuites>
+			`,
+			statusFilter:          "failed",
+			statusFromXMLDownload: 200,
+			expResp: []testreportfiller.TestReportWithTestSuites{
+				testreportfiller.TestReportWithTestSuites{
+					ID: id1,
+					TestSuites: []junitmodels.Suite{
+						junitmodels.Suite{
+							Totals: junitmodels.Totals{
+								Tests:   4,
+								Passed:  1,
+								Skipped: 1,
+								Failed:  1,
+								Error:   1,
+							},
+							Tests: []junitmodels.Test{
+								junitmodels.Test{
+									Name:   "failing test",
+									Status: "failed",
+									Error:  junitmodels.Error{},
+								},
+								junitmodels.Test{
+									Name:   "erroneous test",
+									Status: "error",
+									Error:  junitmodels.Error{},
+								},
+							},
+						},
+					},
+					StepInfo: models.StepInfo{ID: "an-awesome-step"},
+					TestAssets: []testreportfiller.TestReportAssetInfo{
+						testreportfiller.TestReportAssetInfo{
+							Filename:    "my-important-asset",
+							Filesize:    121,
+							DownloadURL: "http://dont.call.me.pls",
+						},
+						testreportfiller.TestReportAssetInfo{
+							Filename:    "another-important-asset",
+							Filesize:    534,
+							DownloadURL: "http://dont.call.me.pls",
+						},
+					},
+				},
+				testreportfiller.TestReportWithTestSuites{
+					ID: id2,
+					TestSuites: []junitmodels.Suite{
+						junitmodels.Suite{
+							Totals: junitmodels.Totals{
+								Tests:   4,
+								Passed:  1,
+								Skipped: 1,
+								Failed:  1,
+								Error:   1,
+							},
+							Tests: []junitmodels.Test{
+								junitmodels.Test{
+									Name:   "failing test",
+									Status: "failed",
+									Error:  junitmodels.Error{},
+								},
+								junitmodels.Test{
+									Name:   "erroneous test",
+									Status: "error",
+									Error:  junitmodels.Error{},
+								},
+							},
+						},
+					},
+					StepInfo:   models.StepInfo{Version: "1.0"},
+					TestAssets: []testreportfiller.TestReportAssetInfo{},
+				},
+			},
+			expErr: "",
+		},
+		{
+			name: "when the test report file is not found",
+			xml:  "",
 			statusFromXMLDownload: 404,
 			expErr:                "Failed to get test report XML",
 		},
 		{
-			name:                  "when the test report file is not valid",
-			xml:                   "<xml?>",
+			name: "when the test report file is not valid",
+			xml:  "<xml?>",
 			statusFromXMLDownload: 200,
 			expErr:                "Failed to parse test report XML",
 		},
@@ -115,7 +236,7 @@ func Test_TestReportFiller_Fill(t *testing.T) {
 					Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(tc.xml))),
 				}
 			})
-			got, err := filler.Fill(trs, &TestFAPI{}, &junit.Client{}, httpClient)
+			got, err := filler.FillMore(trs, &TestFAPI{}, &junit.Client{}, httpClient, tc.statusFilter)
 
 			if len(tc.expErr) > 0 {
 				require.Error(t, err)

@@ -1,0 +1,2 @@
+drop_foreign_key("test_report_assets_test_reports_test_report_id_fk")
+drop_table("test_report_assets")

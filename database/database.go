@@ -219,3 +219,21 @@ func GetTestReports(trs *[]models.TestReport, appSlug string, buildSlug string) 
 	}
 	return nil
 }
+
+// TestReportExistsForAppAndBuild ...
+func TestReportExistsForAppAndBuild(testReportID string, appSlug string, buildSlug string) (bool, error) {
+	trs := []models.TestReport{}
+	if err := DB.Where("id = ? AND app_slug = ? AND build_slug = ? AND uploaded = ?", testReportID, appSlug, buildSlug, true).Limit(1).All(&trs); err != nil {
+		return false, errors.WithStack(err)
+	}
+	return len(trs) > 0, nil
+}
+
+// CreateTestReportAsset ...
+func CreateTestReportAsset(tra *models.TestReportAsset) (*validate.Errors, error) {
+	verrs, err := DB.ValidateAndCreate(tra)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return verrs, nil
+}

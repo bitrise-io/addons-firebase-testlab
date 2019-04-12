@@ -6,18 +6,27 @@ import (
 	"io"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
-	"github.com/bitrise-io/go-utils/log"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/pkg/errors"
 )
 
-type testReportsPostParams struct {
+type testReportAssetPostParams struct {
 	Filename string `json:"filename"`
 	Filesize int    `json:"filesize"`
+}
+
+type testReportPostParams struct {
+	Filename         string                      `json:"filename"`
+	Filesize         int                         `json:"filesize"`
+	Step             models.StepInfo             `json:"step"`
+	TestReportAssets []testReportAssetPostParams `json:"assets"`
 }
 
 type testReportPatchParams struct {
@@ -29,6 +38,16 @@ type testReportWithUploadURL struct {
 	UploadURL string `json:"upload_url"`
 }
 
+type testReportAssetWithUploadURL struct {
+	models.TestReportAsset
+	UploadURL string `json:"upload_url"`
+}
+
+type testReportPostResponse struct {
+	testReportWithUploadURL
+	TestReportAssets []testReportAssetWithUploadURL `json:"assets"`
+}
+
 func newTestReportWithUploadURL(testReport models.TestReport, uploadURL string) testReportWithUploadURL {
 	return testReportWithUploadURL{
 		testReport,
@@ -38,18 +57,27 @@ func newTestReportWithUploadURL(testReport models.TestReport, uploadURL string) 
 
 // TestReportsPostHandler ...
 func TestReportsPostHandler(c buffalo.Context) error {
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
 	appSlug := c.Param("app_slug")
 	buildSlug := c.Param("build_slug")
 
-	params := testReportsPostParams{}
+	params := testReportPostParams{}
 	if err := json.NewDecoder(c.Request().Body).Decode(&params); err != nil {
-		log.Errorf("Failed to decode request body, error: %+v", errors.WithStack(err))
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Failed to decode test report data"}))
+	}
+
+	stepInfo, err := json.Marshal(params.Step)
+	if err != nil {
+		logger.Error("Failed to marshal step info", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
 	testReport := &models.TestReport{
 		Filename:  params.Filename,
 		Filesize:  params.Filesize,
+		Step:      stepInfo,
 		Uploaded:  false,
 		AppSlug:   appSlug,
 		BuildSlug: buildSlug,
@@ -57,33 +85,64 @@ func TestReportsPostHandler(c buffalo.Context) error {
 
 	verrs, err := database.CreateTestReport(testReport)
 	if err != nil {
-		log.Errorf("Failed to create test report in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to create test report in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	if verrs.HasAny() {
 		return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
-		log.Errorf("Failed to create Firebase API model, error: %s", err)
+		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Internal error"))
 	}
 
 	preSignedURL, err := fAPI.UploadURLforPath(testReport.PathInBucket())
 	if err != nil {
-		log.Errorf("Failed to create upload url, error: %s", err)
+		logger.Error("Failed to create upload url, error: %s", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.String("Internal error"))
 	}
 
 	testReportWithUploadURL := newTestReportWithUploadURL(*testReport, preSignedURL)
 
+	testReportAssets := []testReportAssetWithUploadURL{}
+	for _, testReportAssetParam := range params.TestReportAssets {
+		testReportAsset := models.TestReportAsset{
+			TestReportID: testReport.ID,
+			Filename:     testReportAssetParam.Filename,
+			Filesize:     testReportAssetParam.Filesize,
+		}
+		verrs, err := database.CreateTestReportAsset(&testReportAsset)
+		if err != nil {
+			logger.Error("Failed to create test report asset in DB", zap.Any("error", errors.WithStack(err)))
+			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		}
+		if verrs.HasAny() {
+			return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
+		}
+		preSignedURL, err := fAPI.UploadURLforPath(testReportAsset.PathInBucket())
+		if err != nil {
+			logger.Error("Failed to create upload url", zap.Any("error", errors.WithStack(err)))
+			return c.Render(http.StatusInternalServerError, r.String("Internal error"))
+		}
+		testReportAssets = append(testReportAssets, testReportAssetWithUploadURL{
+			TestReportAsset: testReportAsset,
+			UploadURL:       preSignedURL,
+		})
+	}
+
+	response := testReportPostResponse{
+		testReportWithUploadURL: testReportWithUploadURL,
+		TestReportAssets:        testReportAssets,
+	}
+
 	// Default JSON renderer would mess up the URL encoding
 	return c.Render(201, r.Func("application/json", func(w io.Writer, d render.Data) error {
 		encoder := json.NewEncoder(w)
 		encoder.SetEscapeHTML(false)
-		if err := encoder.Encode(testReportWithUploadURL); err != nil {
-			return errors.Wrapf(err, "Failed to respond (encode) with JSON for response model: %#v", testReportWithUploadURL)
+		if err := encoder.Encode(response); err != nil {
+			return errors.Wrapf(err, "Failed to respond (encode) with JSON for response model: %#v", response)
 		}
 		return nil
 	}))
@@ -91,11 +150,12 @@ func TestReportsPostHandler(c buffalo.Context) error {
 
 // TestReportPatchHandler ...
 func TestReportPatchHandler(c buffalo.Context) error {
-	id := c.Param("test_report_id")
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
 
+	id := c.Param("test_report_id")
 	params := testReportPatchParams{}
 	if err := json.NewDecoder(c.Request().Body).Decode(&params); err != nil {
-		log.Errorf("Failed to decode request body, error: %+v", errors.WithStack(err))
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Failed to decode test report data"}))
 	}
 
@@ -104,7 +164,7 @@ func TestReportPatchHandler(c buffalo.Context) error {
 		if errors.Cause(err) == sql.ErrNoRows {
 			return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Not found"}))
 		}
-		log.Errorf("Failed to find test report in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to find test report in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
@@ -112,7 +172,7 @@ func TestReportPatchHandler(c buffalo.Context) error {
 
 	verrs, err := database.UpdateTestReport(&tr)
 	if err != nil {
-		log.Errorf("Failed to update test report in DB, error: %+v", errors.WithStack(err))
+		logger.Error("Failed to update test report in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	if verrs.HasAny() {

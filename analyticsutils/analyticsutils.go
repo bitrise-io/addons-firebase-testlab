@@ -2,12 +2,14 @@ package analyticsutils
 
 import (
 	"fmt"
-	"log"
 	"time"
 
+	"go.uber.org/zap"
 	testing "google.golang.org/api/testing/v1"
 
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
+	"github.com/pkg/errors"
 	amplitude "github.com/savaki/amplitude-go"
 )
 
@@ -52,6 +54,9 @@ func Init() error {
 
 // SendTestingEvent ...
 func SendTestingEvent(event, appSlug, buildSlug, testType string, eventProperties map[string]interface{}) {
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
+
 	if Client == nil {
 		return
 	}
@@ -70,13 +75,16 @@ func SendTestingEvent(event, appSlug, buildSlug, testType string, eventPropertie
 		}
 
 		if err := client.Publish(evt); err != nil {
-			log.Printf("[!] Exception: failed to send analytics event, error: %s", err)
+			logger.Error("[!] Exception: failed to send analytics event", zap.Any("error", errors.WithStack(err)))
 		}
 	}(Client, event, appSlug, buildSlug, testType, eventProperties)
 }
 
 // SendTestingEventDevices ...
 func SendTestingEventDevices(event, appSlug, buildSlug, testType string, devices []*testing.AndroidDevice, eventProperties map[string]interface{}) {
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
+
 	if Client == nil {
 		return
 	}
@@ -101,7 +109,7 @@ func SendTestingEventDevices(event, appSlug, buildSlug, testType string, devices
 			evt.EventProperties["device_orientation"] = device.Orientation
 
 			if err := client.Publish(evt); err != nil {
-				log.Printf("[!] Exception: failed to send analytics event, error: %s", err)
+				logger.Error("[!] Exception: failed to send analytics event", zap.Any("error", errors.WithStack(err)))
 			}
 		}
 	}(Client, event, appSlug, buildSlug, testType, devices, eventProperties)
@@ -109,6 +117,9 @@ func SendTestingEventDevices(event, appSlug, buildSlug, testType string, devices
 
 // SendIOSTestingEventDevices ...
 func SendIOSTestingEventDevices(event, appSlug, buildSlug, testType string, devices []*testing.IosDevice, eventProperties map[string]interface{}) {
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
+
 	if Client == nil {
 		return
 	}
@@ -133,7 +144,7 @@ func SendIOSTestingEventDevices(event, appSlug, buildSlug, testType string, devi
 			evt.EventProperties["device_orientation"] = device.Orientation
 
 			if err := client.Publish(evt); err != nil {
-				log.Printf("[!] Exception: failed to send analytics event, error: %s", err)
+				logger.Error("[!] Exception: failed to send analytics event", zap.Any("error", errors.WithStack(err)))
 			}
 		}
 	}(Client, event, appSlug, buildSlug, testType, devices, eventProperties)
@@ -141,6 +152,9 @@ func SendIOSTestingEventDevices(event, appSlug, buildSlug, testType string, devi
 
 // SendUploadEvent ...
 func SendUploadEvent(event, appSlug, buildSlug string) {
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
+
 	if Client == nil {
 		return
 	}
@@ -149,13 +163,16 @@ func SendUploadEvent(event, appSlug, buildSlug string) {
 		evt := amplitude.Event{UserId: appSlug, EventType: event, Time: time.Now(), EventProperties: map[string]interface{}{"build_slug": buildSlug}}
 
 		if err := Client.Publish(evt); err != nil {
-			log.Printf("[!] Exception: failed to send analytics event, error: %s", err)
+			logger.Error("[!] Exception: failed to send analytics event", zap.Any("error", errors.WithStack(err)))
 		}
 	}(Client, event, appSlug, buildSlug)
 }
 
 // SendAddonEvent ...
 func SendAddonEvent(event, appSlug, currentPlan, newPlan string) {
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
+
 	if Client == nil {
 		return
 	}
@@ -184,7 +201,7 @@ func SendAddonEvent(event, appSlug, currentPlan, newPlan string) {
 		}
 
 		if err := Client.Publish(evt); err != nil {
-			log.Printf("[!] Exception: failed to send analytics event, error: %s", err)
+			logger.Error("[!] Exception: failed to send analytics event", zap.Any("error", errors.WithStack(err)))
 		}
 	}(Client, event, appSlug, currentPlan, newPlan)
 }

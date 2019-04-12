@@ -1,11 +1,11 @@
 package actions
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
 
+	"go.uber.org/zap"
 	testing "google.golang.org/api/testing/v1"
 
 	"github.com/bitrise-io/go-utils/log"
@@ -17,6 +17,7 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/tasks"
 
@@ -33,30 +34,33 @@ var app *buffalo.App
 var r *render.Engine
 
 func initApp() error {
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
+
 	err := configs.Setup()
 	if err != nil {
-		return fmt.Errorf("Failed to init configs, error: %+v", err)
+		return errors.Wrap(err, "Failed to init configs")
 	}
 
 	err = database.InitDB()
 	if err != nil {
-		return fmt.Errorf("Failed to init DB, error: %s", err)
+		return errors.Wrap(err, "Failed to init DB")
 	}
 
 	err = analyticsutils.Init()
 	if err != nil {
-		log.Warnf("%s", err)
+		logger.Warn("Failed to initialize Analytics utils", zap.Any("error", errors.WithStack(err)))
 	}
 
-	fAPI, err := firebaseutils.New(nil)
+	fAPI, err := firebaseutils.New()
 	if err != nil {
-		return fmt.Errorf("Failed to create Firebase API model, error: %s", err)
+		return errors.Wrap(err, "Failed to create Firebase API model")
 	}
 
 	// init devices catalog
 	firebaseutils.DevicesCatalog, err = fAPI.GetDeviceCatalog()
 	if err != nil {
-		return fmt.Errorf("Failed to get devices catalog, error: %s", err)
+		return errors.Wrap(err, "Failed to get devices catalog")
 	}
 
 	return nil
@@ -64,11 +68,14 @@ func initApp() error {
 
 // App ...
 func App() *buffalo.App {
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
+
 	if app == nil {
 		r = render.New(render.Options{TemplateEngine: render.GoTemplateEngine})
 
 		if err := initApp(); err != nil {
-			fmt.Printf("[!] Exception: Failed to init app, error: %+v", err)
+			logger.Error("[!] Exception: Failed to init app", zap.Any("error", errors.WithStack(err)))
 		}
 
 		app = buffalo.Automatic(buffalo.Options{
@@ -167,6 +174,7 @@ func App() *buffalo.App {
 
 		//
 		// ROOT
+		app.Use(addLogger)
 		app.GET("/", RootGetHandler)
 
 		//
@@ -198,6 +206,9 @@ func App() *buffalo.App {
 		api.GET("/builds/{build_slug}", DashboardAPIGetHandler)            // return dashboard resources
 		api.GET("/builds/{build_slug}/steps/{step_id}", StepAPIGetHandler) // return step resources
 		api.GET("/builds/{build_slug}/test_reports", TestReportsListHandler)
+		api.GET("/builds/{build_slug}/test_summary", TestSummaryHandler)
+		api.GET("/builds/{build_slug}/test_reports/ftl", DashboardAPIGetHandler) // Alternative route for FTL reports keeping the legacy route intact
+		api.GET("/builds/{build_slug}/test_reports/{test_report_id}", TestReportShowHandler)
 
 		//
 		// DASHBOARD

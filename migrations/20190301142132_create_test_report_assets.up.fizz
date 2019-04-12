@@ -1,0 +1,11 @@
+create_table("test_report_assets", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("filename", "string", {})
+	t.Column("filesize", "integer", {})
+	t.Column("uploaded", "boolean", {})
+	t.Column("test_report_id", "uuid")
+})
+
+add_foreign_key("test_report_assets", "test_report_id", {"test_reports": ["id"]}, {
+    "on_delete": "CASCADE",
+})

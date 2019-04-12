@@ -32,7 +32,7 @@
 				<div class="device-info">
 					<span ng-bind="pageDetailsService.test.deviceName"></span><span>, </span><span ng-bind="pageDetailsService.test.apiLevel"></span>
 				</div>
-				<div class="duration">
+				<div class="duration" ng-class="{'unavailable': pageDetailsService.test.durationInSeconds === undefined}">
 					{{index .Svg "clock.svg"}}
 					<time datetime="&#123&#123 pageDetailsService.test.durationInSeconds | datetimeDurationValue &#125&#125">
 						<span ng-bind="pageDetailsService.test.durationInSeconds"></span><span> sec</span>
@@ -88,7 +88,7 @@
 					<code class="stack-trace" ng-if="testIssue == pageDetailsCtrl.selectedTestIssue" ng-bind="testIssue.stacktrace"></code>
 				</div>
 			</section>
-			<div ng-controller="VideoController as videoCtrl">
+			<div ng-controller="VideoController as videoCtrl" ng-if="pageDetailsService.test.videoURL">
 				<div class="notification" ng-if="videoService.loadProgress.isInProgress || videoService.loadProgress.isError" ng-class="videoService.loadProgress.cssClass">
 					<span class="icon in-progress">{{index .Svg "in_progress.svg"}}</span>
 					<span class="icon error">{{index .Svg "cross.svg"}}</span>
@@ -207,7 +207,7 @@
 					</div>
 				</section>
 			</div> -->
-			<div ng-controller="LogsController as logsCtrl">
+			<div ng-controller="LogsController as logsCtrl" ng-if="pageDetailsService.test.logsURL">
 				<div class="notification" ng-if="logsCtrl.loadLogsProgress.isInProgress || logsCtrl.loadLogsProgress.isError" ng-class="logsCtrl.loadLogsProgress.cssClass">
 					<span class="icon in-progress">{{index .Svg "in_progress.svg"}}</span>
 					<span class="icon error">{{index .Svg "cross.svg"}}</span>

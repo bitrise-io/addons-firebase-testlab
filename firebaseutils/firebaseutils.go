@@ -29,13 +29,9 @@ const (
 )
 
 // New ...
-func New(tracker metrics.DogStatsDInterface) (*APIModel, error) {
-	if tracker == nil {
-		tracker = metrics.NewDogStatsDMetrics("")
-	}
+func New() (*APIModel, error) {
 	return &APIModel{
-		JWT:     configs.GetJWTModel(),
-		tracker: tracker,
+		JWT: configs.GetJWTModel(),
 	}, nil
 }
 
@@ -108,6 +104,9 @@ func (api *APIModel) GetProfileName() string {
 
 // StartTestMatrix ...
 func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *testing.TestMatrix) (*testing.TestMatrix, error) {
+	tracker := metrics.NewDogStatsDMetrics("")
+	defer tracker.Close()
+
 	testingService, err := testing.New(configs.GetJWTModel().Client)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create testing service, error: %s", err)
@@ -124,7 +123,7 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 	if err != nil {
 		return nil, fmt.Errorf("Failed to list histories, error: %s", err)
 	}
-	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+	tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
 
 	historyID := ""
 
@@ -143,7 +142,7 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 		if err != nil {
 			return nil, fmt.Errorf("Failed to create history, error: %s", err)
 		}
-		api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+		tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
 		historyID = newHistory.HistoryId
 	}
 
@@ -174,8 +173,8 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create testing service, error: %s", err)
 	}
-	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
-	api.tracker.Track(api, "numberOfTests", fmt.Sprintf("appSlug:%s", appSlug))
+	tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+	tracker.Track(api, "numberOfTests", fmt.Sprintf("appSlug:%s", appSlug))
 
 	return responseMatrix, nil
 }
@@ -326,6 +325,9 @@ func getAppBucketPath(buildSlug string, appFileName string) string {
 
 // GetTestsByHistoryAndExecutionID ...
 func (api *APIModel) GetTestsByHistoryAndExecutionID(historyID, executionID, appSlug, buildSlug string, fields ...googleapi.Field) (*toolresults.ListStepsResponse, error) {
+	tracker := metrics.NewDogStatsDMetrics("")
+	defer tracker.Close()
+
 	resultsService, err := toolresults.New(configs.GetJWTModel().Client)
 	if err != nil {
 		return nil, err
@@ -340,7 +342,7 @@ func (api *APIModel) GetTestsByHistoryAndExecutionID(historyID, executionID, app
 	if err != nil {
 		return nil, err
 	}
-	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+	tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
 
 	return steps, nil
 }
@@ -365,6 +367,8 @@ func (api *APIModel) GetTestMetricSamples(historyID, executionID, stepID, appSlu
 			defer func() {
 				wg.Done()
 			}()
+			tracker := metrics.NewDogStatsDMetrics("")
+			defer tracker.Close()
 
 			samplesListCall := toolresultsService.Projects.Histories.Executions.Steps.PerfSampleSeries.Samples.List(configs.GetProjectID(), historyID, executionID, stepID, fmt.Sprintf("%d", id))
 
@@ -375,7 +379,7 @@ func (api *APIModel) GetTestMetricSamples(historyID, executionID, stepID, appSlu
 				}
 				return
 			}
-			api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
+			tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("appSlug:%s", appSlug), fmt.Sprintf("buildSlug:%s", buildSlug))
 
 			samples := MetricSampleModel{}
 
@@ -422,6 +426,9 @@ func fillUnixTimeDataHash(metricsData *toolresults.ListPerfSamplesResponse) map[
 
 // DownloadTestAssets ...
 func (api *APIModel) DownloadTestAssets(buildSlug string) (map[string]string, error) {
+	tracker := metrics.NewDogStatsDMetrics("")
+	defer tracker.Close()
+
 	storageService, err := storage.New(api.JWT.Client)
 	if err != nil {
 		return nil, err
@@ -435,7 +442,7 @@ func (api *APIModel) DownloadTestAssets(buildSlug string) (map[string]string, er
 	if err != nil {
 		return nil, err
 	}
-	api.tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("buildSlug:%s", buildSlug))
+	tracker.Track(api, "numberOfOutgoingRequests", fmt.Sprintf("buildSlug:%s", buildSlug))
 
 	files := map[string]string{}
 

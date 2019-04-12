@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/DataDog/datadog-go/statsd"
+	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -71,16 +72,8 @@ func (b *DogStatsDMetrics) createTagArray(t Taggable, tags ...string) []string {
 
 // Track ...
 func (b *DogStatsDMetrics) Track(t Trackable, metricName string, customTags ...string) {
-	logger, err := zap.NewProduction()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			fmt.Printf("Failed to sync logger: %s", err)
-		}
-	}()
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
 
 	applicationTags := []string{fmt.Sprintf("name:%s", t.GetProfileName())}
 	applicationTags = append(applicationTags, customTags...)
@@ -96,16 +89,8 @@ func (b *DogStatsDMetrics) Track(t Trackable, metricName string, customTags ...s
 
 // Close ...
 func (b *DogStatsDMetrics) Close() {
-	logger, err := zap.NewProduction()
-	if err != nil {
-		fmt.Printf("Failed to initialize logger: %s", err)
-	}
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			fmt.Printf("Failed to sync logger: %s", err)
-		}
-	}()
+	logger := logging.WithContext(nil)
+	defer logging.Sync(logger)
 
 	if err := b.client.Flush(); err != nil {
 		logger.Error("DogStatsD Diagnostic backend has failed to flush its metrics",
