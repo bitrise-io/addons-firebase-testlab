@@ -15,11 +15,11 @@ import (
 )
 
 type totals struct {
-	tests        int `json:"tests'`
-	passed       int `json:"passed'`
-	skipped      int `json:"skipped'`
-	failed       int `json:"failed'`
-	inconclusive int `json:"inconclusive'`
+	Tests        int `json:"tests"`
+	Passed       int `json:"passed"`
+	Skipped      int `json:"skipped"`
+	Failed       int `json:"failed"`
+	Inconclusive int `json:"inconclusive"`
 }
 
 // TestSummaryResponseModel ...
@@ -64,10 +64,10 @@ func TestSummaryHandler(c buffalo.Context) error {
 
 	for _, testReport := range testReportsWithTestSuites {
 		for _, testSuite := range testReport.TestSuites {
-			totals.passed = totals.passed + testSuite.Totals.Passed
-			totals.failed = totals.failed + testSuite.Totals.Failed + testSuite.Totals.Error
-			totals.skipped = totals.skipped + testSuite.Totals.Skipped
-			totals.tests = totals.tests + testSuite.Totals.Tests
+			totals.Passed = totals.Passed + testSuite.Totals.Passed
+			totals.Failed = totals.Failed + testSuite.Totals.Failed + testSuite.Totals.Error
+			totals.Skipped = totals.Skipped + testSuite.Totals.Skipped
+			totals.Tests = totals.Tests + testSuite.Totals.Tests
 		}
 	}
 
@@ -101,13 +101,13 @@ func TestSummaryHandler(c buffalo.Context) error {
 	for _, testDetail := range testDetails {
 		switch testDetail.Outcome {
 		case "success":
-			totals.passed++
+			totals.Passed++
 		case "failure":
-			totals.failed++
+			totals.Failed++
 		case "skipped":
-			totals.skipped++
+			totals.Skipped++
 		case "inconclusive":
-			totals.inconclusive++
+			totals.Inconclusive++
 		}
 	}
 	return c.Render(http.StatusOK, r.JSON(TestSummaryResponseModel{
