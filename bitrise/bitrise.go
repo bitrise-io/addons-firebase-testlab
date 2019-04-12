@@ -133,17 +133,15 @@ func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-
-	action := fmt.Sprintf("/apps/%s/outgoing-webhooks", app.AppSlug)
-	req, err := c.newRequest("POST", action, payload)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/v0.1/apps/%s/outgoing-webhooks", c.BaseURL, app.AppSlug), bytes.NewBuffer(payload))
+	req.Header.Set("Bitrise-Addon-Auth-Token", c.apiToken)
+	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	req.Close = true
-	fmt.Println(action)
 	fmt.Printf("%#v\n", req)
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: 10 * time.Second}
 	response, err := client.Do(req)
 	if err != nil {
 		return nil, errors.WithStack(err)
