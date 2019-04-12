@@ -220,9 +220,68 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 
 	//
 	// prepare data structure
+	testDetails, err := fillTestDetails(details, fAPI, logger)
+	if err != nil {
+		logger.Error("Failed to prepare test details data structure", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
+	}
+
+	if status != "" {
+		testDetails = filterTestsByStatus(testDetails, status)
+	}
+
+	return c.Render(200, renderers.JSON(testDetails))
+}
+
+//
+// STATIC endpoints
+
+// DashboardGetHandler ...
+func DashboardGetHandler(c buffalo.Context) error {
+	return c.Render(200, r.HTML("frontend/dashboard.html"))
+}
+
+// DashboardDetailsGetHandler ...
+func DashboardDetailsGetHandler(c buffalo.Context) error {
+	return c.Render(200, r.HTML("frontend/details.html"))
+}
+
+// DashboardIndexGetHandler ...
+func DashboardIndexGetHandler(c buffalo.Context) error {
+	return c.Render(200, r.HTML("frontend/index.html"))
+}
+
+func filterTestsByStatus(tests []*Test, status string) []*Test {
+	filteredTests := []*Test{}
+
+	for _, test := range tests {
+		if statusMatch(test.Outcome, status) || test.Status == "inProgress" { // include currently running tests too
+			filteredTests = append(filteredTests, test)
+		}
+	}
+
+	return filteredTests
+}
+
+func statusMatch(testStatus string, expected string) bool {
+	if testStatus == expected {
+		return true
+	}
+
+	if testStatus == "success" && expected == "passed" {
+		return true
+	}
+
+	if testStatus == "failure" && expected == "failed" {
+		return true
+	}
+
+	return false
+}
+
+func fillTestDetails(details *toolresults.ListStepsResponse, fAPI *firebaseutils.APIModel, logger *zap.Logger) ([]*Test, error) {
 	testDetails := make([]*Test, len(details.Steps))
 
-	// wait group
 	var wg sync.WaitGroup
 	wg.Add(len(details.Steps))
 	errChannel := make(chan error, 1)
@@ -406,61 +465,7 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 	wg.Wait()
 	close(errChannel)
 
+	var err error
 	err = <-errChannel
-	if err != nil {
-		logger.Error("One of the requests is failed", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
-	}
-
-	if status != "" {
-		testDetails = filterTestsByStatus(testDetails, status)
-	}
-
-	return c.Render(200, renderers.JSON(testDetails))
-}
-
-//
-// STATIC endpoints
-
-// DashboardGetHandler ...
-func DashboardGetHandler(c buffalo.Context) error {
-	return c.Render(200, r.HTML("frontend/dashboard.html"))
-}
-
-// DashboardDetailsGetHandler ...
-func DashboardDetailsGetHandler(c buffalo.Context) error {
-	return c.Render(200, r.HTML("frontend/details.html"))
-}
-
-// DashboardIndexGetHandler ...
-func DashboardIndexGetHandler(c buffalo.Context) error {
-	return c.Render(200, r.HTML("frontend/index.html"))
-}
-
-func filterTestsByStatus(tests []*Test, status string) []*Test {
-	filteredTests := []*Test{}
-
-	for _, test := range tests {
-		if statusMatch(test.Outcome, status) || test.Status == "inProgress" { // include currently running tests too
-			filteredTests = append(filteredTests, test)
-		}
-	}
-
-	return filteredTests
-}
-
-func statusMatch(testStatus string, expected string) bool {
-	if testStatus == expected {
-		return true
-	}
-
-	if testStatus == "success" && expected == "passed" {
-		return true
-	}
-
-	if testStatus == "failure" && expected == "failed" {
-		return true
-	}
-
-	return false
+	return testDetails, err
 }

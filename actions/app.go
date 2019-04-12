@@ -206,6 +206,7 @@ func App() *buffalo.App {
 		api.GET("/builds/{build_slug}", DashboardAPIGetHandler)            // return dashboard resources
 		api.GET("/builds/{build_slug}/steps/{step_id}", StepAPIGetHandler) // return step resources
 		api.GET("/builds/{build_slug}/test_reports", TestReportsListHandler)
+		app.GET("/builds/{build_slug}/test_summary", TestSummaryHandler)
 		api.GET("/builds/{build_slug}/test_reports/ftl", DashboardAPIGetHandler) // Alternative route for FTL reports keeping the legacy route intact
 		api.GET("/builds/{build_slug}/test_reports/{test_report_id}", TestReportShowHandler)
 
