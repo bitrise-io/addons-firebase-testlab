@@ -84,7 +84,7 @@ func ProvisionPostHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	client := bitrise.NewClient(app.BitriseAPIToken)
-	resp, err := client.RegisterWebhook(app)
+	_, err = client.RegisterWebhook(app)
 	if err != nil {
 		logger.Error("Failed to register webhook for app", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))

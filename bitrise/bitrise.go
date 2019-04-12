@@ -1,6 +1,7 @@
 package bitrise
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -45,11 +46,11 @@ func getEnv(key, fallback string) string {
 }
 
 // newRequest creates an authenticated API request that is ready to send.
-func (c *Client) newRequest(method string, action string) (*http.Request, error) {
+func (c *Client) newRequest(method string, action string, payload []byte) (*http.Request, error) {
 	method = strings.ToUpper(method)
 	endpoint := fmt.Sprintf("%s/%s", c.BaseURL, action)
 
-	req, err := http.NewRequest(method, endpoint, nil)
+	req, err := http.NewRequest(method, endpoint, bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -96,7 +97,7 @@ type Build struct {
 // GetBuildOfApp returns information about a single build.
 func (c *Client) GetBuildOfApp(buildSlug string, appSlug string) (*http.Response, *Build, error) {
 	action := fmt.Sprintf("apps/%s/builds/%s", appSlug, buildSlug)
-	req, err := c.newRequest("GET", action)
+	req, err := c.newRequest("GET", action, nil)
 	if err != nil {
 		return nil, nil, errors.WithStack(err)
 	}
@@ -132,10 +133,10 @@ func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	action := fmt.Sprintf("/v0.1/apps/%s/outgoing-webhooks", appSlug)
-	req, err := c.newRequest("POST", action)
+	action := fmt.Sprintf("/v0.1/apps/%s/outgoing-webhooks", app.AppSlug)
+	req, err := c.newRequest("POST", action, payload)
 	if err != nil {
-		return nil, nil, errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
