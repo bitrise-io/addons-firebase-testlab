@@ -134,7 +134,7 @@ func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	action := fmt.Sprintf("/v0.1/apps/%s/outgoing-webhooks", app.AppSlug)
+	action := fmt.Sprintf("/apps/%s/outgoing-webhooks", app.AppSlug)
 	req, err := c.newRequest("POST", action, payload)
 	if err != nil {
 		return nil, errors.WithStack(err)
