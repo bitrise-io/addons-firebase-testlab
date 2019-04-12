@@ -53,14 +53,22 @@ func WebhookHandler(c buffalo.Context) error {
 	}
 
 	app := &models.App{AppSlug: appData.AppSlug}
-	app, err = database.GetApp(app)
+	app, err := database.GetApp(app)
 	if err != nil {
-		logger.Errorf("Failed to decode request body", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.String("Internal Server Error"))
+		logger.Error("Failed to decode request body", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.String("Internal error"))
 	}
 
-	if appData.BuildStatus == abortedBuildStatus {
-		// will do something
+	switch buildType {
+	case "build/triggered":
+		// Don't care
+	case "build/finished":
+		if appData.BuildStatus == abortedBuildStatus {
+			// will do something
+		}
+	default:
+		logger.Error("Invalid build type", zap.String("build_event_type", buildType))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
 	return c.Render(200, nil)
