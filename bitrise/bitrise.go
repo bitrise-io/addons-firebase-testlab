@@ -139,6 +139,8 @@ func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+	fmt.Println(action)
+	fmt.Printf("%#v\n", req)
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	response, err := client.Do(req)
