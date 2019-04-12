@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -140,7 +139,6 @@ func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	fmt.Printf("%#v\n", req)
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	response, err := client.Do(req)
@@ -148,9 +146,6 @@ func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
 		return nil, errors.WithStack(err)
 	}
 	defer response.Body.Close()
-	payloadBytes, err := ioutil.ReadAll(response.Body)
-	fmt.Println(string(payloadBytes))
-	fmt.Println(err)
 
 	if response.StatusCode != http.StatusCreated {
 		return nil, errors.New("Internal error: Failed to register webhook")
