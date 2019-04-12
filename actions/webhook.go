@@ -6,7 +6,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/bitrise-io/addons-firebase-testlab/bitrise"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
@@ -31,6 +30,7 @@ type AppData struct {
 	AppSlug                string  `json:"app_slug"`
 	BuildSlug              string  `json:"build_slug"`
 	BuildNumber            int     `json:"build_number"`
+	BuildStatus            int     `json:"build_status"`
 	BuildTriggeredWorkflow string  `json:"build_triggered_workflow"`
 	Git                    GitData `json:"git"`
 }
@@ -59,14 +59,7 @@ func WebhookHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Internal Server Error"))
 	}
 
-	client := bitrise.NewClient(app.BitriseAPIToken)
-	_, build, err := client.GetBuildOfApp(appData.BuildSlug, app.AppSlug)
-	if err != nil {
-		logger.Errorf("Failed to decode request body", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.String("Internal Server Error"))
-	}
-
-	if build.Status == abortedBuildStatus {
+	if appData.BuildStatus == abortedBuildStatus {
 		// will do something
 	}
 
