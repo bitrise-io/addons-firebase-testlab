@@ -1,6 +1,7 @@
 package bitrise
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/pkg/errors"
 )
@@ -44,11 +46,11 @@ func getEnv(key, fallback string) string {
 }
 
 // newRequest creates an authenticated API request that is ready to send.
-func (c *Client) newRequest(method string, action string) (*http.Request, error) {
+func (c *Client) newRequest(method string, action string, payload []byte) (*http.Request, error) {
 	method = strings.ToUpper(method)
 	endpoint := fmt.Sprintf("%s/%s", c.BaseURL, action)
 
-	req, err := http.NewRequest(method, endpoint, nil)
+	req, err := http.NewRequest(method, endpoint, bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -95,7 +97,7 @@ type Build struct {
 // GetBuildOfApp returns information about a single build.
 func (c *Client) GetBuildOfApp(buildSlug string, appSlug string) (*http.Response, *Build, error) {
 	action := fmt.Sprintf("apps/%s/builds/%s", appSlug, buildSlug)
-	req, err := c.newRequest("GET", action)
+	req, err := c.newRequest("GET", action, nil)
 	if err != nil {
 		return nil, nil, errors.WithStack(err)
 	}
@@ -107,4 +109,52 @@ func (c *Client) GetBuildOfApp(buildSlug string, appSlug string) (*http.Response
 	}
 
 	return resp, &build, nil
+}
+
+// RegisterWebhook ...
+func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
+	appSecret, err := app.Secret()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	testingAddonHost, ok := os.LookupEnv("TESTING_ADDON_HOST")
+	if !ok {
+		return nil, errors.New("No TESTING_ADDON_HOST env var is set")
+	}
+	payloadStruct := map[string]interface{}{
+		"url":    fmt.Sprintf("%s/webhook", testingAddonHost),
+		"events": []string{"build"},
+		"secret": appSecret,
+	}
+
+	payload, err := json.Marshal(payloadStruct)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/outgoing-webhooks", c.BaseURL, app.AppSlug), bytes.NewBuffer(payload))
+	req.Header.Set("Bitrise-Addon-Auth-Token", c.apiToken)
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	response, err := client.Do(req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer func() {
+		err := response.Body.Close()
+		if err != nil {
+			fmt.Println(errors.WithStack(err))
+		}
+	}()
+
+	if response.StatusCode != http.StatusCreated {
+		return nil, errors.New("Internal error: Failed to register webhook")
+	}
+
+	return response, nil
 }

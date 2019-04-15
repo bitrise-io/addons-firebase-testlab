@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"bytes"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -13,7 +14,9 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
+	"github.com/bitrise-io/addons-firebase-testlab/security"
 	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -167,6 +170,49 @@ func serveSVGs(next buffalo.Handler) buffalo.Handler {
 			}
 		}
 		c.Set("Svg", svgContents)
+		return next(c)
+	}
+}
+
+func verifySignature(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		appSlug := c.Request().Header.Get("Bitrise-App-Id")
+		if appSlug == "" {
+			return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"error": "Unauthorized"}))
+		}
+
+		app := &models.App{AppSlug: appSlug}
+		app, err := database.GetApp(app)
+		if err != nil {
+			return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"error": "Unauthorized"}))
+		}
+
+		if len(app.EncryptedSecretIV) == 0 {
+			return next(c)
+		}
+
+		appSecret, err := app.Secret()
+		if err != nil {
+			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		}
+		if appSecret == "" {
+			return next(c)
+		}
+
+		requestPayloadSignature := c.Request().Header.Get("Bitrise-Hook-Signature")
+		payloadBytes, err := ioutil.ReadAll(c.Request().Body)
+		if err != nil {
+			log.Errorf("Failed to get request payload, error: %s", err)
+			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		}
+
+		c.Request().Body = ioutil.NopCloser(bytes.NewReader(payloadBytes))
+
+		signatureVerifier := security.NewSignatureVerifier(appSecret, string(payloadBytes), requestPayloadSignature)
+		if !signatureVerifier.Verify() {
+			return c.Render(http.StatusUnauthorized, r.JSON(map[string]string{"error": "Unauthorized"}))
+		}
+
 		return next(c)
 	}
 }
