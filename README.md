@@ -25,10 +25,14 @@ $ go get -u -v github.com/bitrise-io/addons-firebase-testlab
 
 ### Setup the environment
 
-Run the server setup flow from the root folder of the project. This will
+Run the server setup flow from the root folder of the project.
 ```bash
 $ bitrise run setup-server
 ```
+
+This will:
+- build/rebuild the docker images
+- create, migrate and seed the development database
 
 ### Start the server and request a test
 
@@ -39,9 +43,7 @@ $ bitrise run start-server
 
 This will:
 - compile the assets.
-- create an sqlite DB in ./tmp/db and run the migrations (if the folder doesn't exist).
-- pre-populate the DB with an app, so you can create test requests to this app (like it was provisioned from the Bitrise website).
-- start the server on `http://localhost:5000`.
+- start the server on `http://localhost:5001`.
 - hot reload a server on code change.
 
 In another session you can request a test by running:
