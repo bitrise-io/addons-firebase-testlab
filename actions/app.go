@@ -177,6 +177,9 @@ func App() *buffalo.App {
 		app.Use(addLogger)
 		app.GET("/", RootGetHandler)
 
+		// WEBHOOK
+		app.POST("/webhook", verifySignature(WebhookHandler))
+
 		//
 		// PROVISIONING
 		provision := app.Group("/provision")
