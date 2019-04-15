@@ -118,9 +118,9 @@ func (c *Client) RegisterWebhook(app *models.App) (*http.Response, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	testingAddonHost, ok := os.LookupEnv("TESTING_ADDON_HOST")
+	testingAddonHost, ok := os.LookupEnv("ADDON_HOST")
 	if !ok {
-		return nil, errors.New("No TESTING_ADDON_HOST env var is set")
+		return nil, errors.New("No ADDON_HOST env var is set")
 	}
 	payloadStruct := map[string]interface{}{
 		"url":    fmt.Sprintf("%s/webhook", testingAddonHost),
