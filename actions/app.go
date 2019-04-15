@@ -130,7 +130,7 @@ func App() *buffalo.App {
 					AndroidVersionId: "21",
 				}
 				log.Infof("Checking device: %s with version: %s", device.AndroidModelId, device.AndroidVersionId)
-				if err := firebaseutils.ValidateAndroidDevice([]*testing.AndroidDevice{device}); err != nil {
+				if err := firebaseutils.ValidateAndroidDevices([]*testing.AndroidDevice{device}); err != nil {
 					log.Errorf("Device: %s should be available with version: %s, error: %s", device.AndroidModelId, device.AndroidVersionId, err)
 				} else {
 					log.Donef("OK")
@@ -140,7 +140,7 @@ func App() *buffalo.App {
 					AndroidVersionId: "21",
 				}
 				log.Infof("Checking device: %s with version: %s", device.AndroidModelId, device.AndroidVersionId)
-				if err := firebaseutils.ValidateAndroidDevice([]*testing.AndroidDevice{device}); err == nil {
+				if err := firebaseutils.ValidateAndroidDevices([]*testing.AndroidDevice{device}); err == nil {
 					log.Errorf("Device: %s shouldn't be available with version: %s, error: %s", device.AndroidModelId, device.AndroidVersionId, err)
 				} else {
 					log.Donef("OK - %s", err)
@@ -150,7 +150,7 @@ func App() *buffalo.App {
 					AndroidVersionId: "10",
 				}
 				log.Infof("Checking device: %s with version: %s", device.AndroidModelId, device.AndroidVersionId)
-				if err := firebaseutils.ValidateAndroidDevice([]*testing.AndroidDevice{device}); err == nil {
+				if err := firebaseutils.ValidateAndroidDevices([]*testing.AndroidDevice{device}); err == nil {
 					log.Errorf("Device: %s shouldn't be available with version: %s, error: %s", device.AndroidModelId, device.AndroidVersionId, err)
 				} else {
 					log.Donef("OK - %s", err)
@@ -160,7 +160,7 @@ func App() *buffalo.App {
 					AndroidVersionId: "21",
 				}
 				log.Infof("Checking device: %s with version: %s", device.AndroidModelId, device.AndroidVersionId)
-				if err := firebaseutils.ValidateAndroidDevice([]*testing.AndroidDevice{device}); err == nil {
+				if err := firebaseutils.ValidateAndroidDevices([]*testing.AndroidDevice{device}); err == nil {
 					log.Errorf("Device: %s shouldn't be available with version: %s, error: %s", device.AndroidModelId, device.AndroidVersionId, err)
 				} else {
 					log.Donef("OK - %s", err)
