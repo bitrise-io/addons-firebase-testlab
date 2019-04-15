@@ -37,6 +37,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
+            go version
             no_vendor_paths="$(go list ./... | grep -v vendor | grep -v 'apis/testing' | grep -v 'apis/toolresults')"
             echo $no_vendor_paths
             envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
@@ -130,14 +131,14 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            docker-compose -f docker-compose.test.yml pull
+            docker-compose pull
     - script:
         title: docker-compose build
         inputs:
         - content: |
             #!/bin/bash
             set -ex
-            docker-compose -f docker-compose.test.yml build
+            docker-compose build
     - script:
         title: run tests with docker-compose
         inputs:
@@ -145,9 +146,9 @@ workflows:
             #!/bin/bash
             set -ex
             # preboot containers, so that the DB is ready when the tests start
-            docker-compose -f docker-compose.test.yml run --rm app sleep 1
+            docker-compose run --rm app sleep 1
             # run tests / full ci test suit (including integration tests)
-            docker-compose -f docker-compose.test.yml run --rm app bitrise run test
+            docker-compose run --rm app bitrise run test
     - script:
         title: cleanup
         is_always_run: true
@@ -155,7 +156,7 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            docker-compose -f docker-compose.test.yml stop
+            docker-compose stop
 
   _install-test-tools:
     steps:
@@ -224,7 +225,7 @@ workflows:
           - content: |-
               export PORT=5000
               export GO_ENV=development
-              docker-compose -f docker-compose.test.yml up --force-recreate
+              docker-compose up --force-recreate
   setup-server:
     steps:
     - script:
@@ -233,11 +234,11 @@ workflows:
           - content: |-
               export PORT=5000
               export GO_ENV=development
-              docker-compose -f docker-compose.test.yml rm -f -v
-              docker-compose -f docker-compose.test.yml build
-              docker-compose -f docker-compose.test.yml run app buffalo-pop pop reset
-              docker-compose -f docker-compose.test.yml run app buffalo-pop pop migrate
-              docker-compose -f docker-compose.test.yml run app go run main.go add-test-user $BITRISE_APP_SLUG
+              docker-compose rm -f -v
+              docker-compose build
+              docker-compose run app buffalo-pop pop reset
+              docker-compose run app buffalo-pop pop migrate
+              docker-compose run app go run main.go add-test-user $BITRISE_APP_SLUG
   # ----------------------------------------------------------------
   # --- Utility workflows
   dep-update:
