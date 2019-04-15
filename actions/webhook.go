@@ -16,7 +16,9 @@ import (
 )
 
 const (
-	abortedBuildStatus int = 3
+	abortedBuildStatus      int    = 3
+	buildTriggeredEventType string = "build/triggered"
+	buildFinishedEventType  string = "build/finished"
 )
 
 // GitData ...
@@ -44,7 +46,7 @@ func WebhookHandler(c buffalo.Context) error {
 
 	buildType := c.Request().Header.Get("Bitrise-Event-Type")
 
-	if buildType != "build/triggered" && buildType != "build/finished" {
+	if buildType != buildTriggeredEventType && buildType != buildFinishedEventType {
 		logger.Error("Invalid Bitrise event type")
 		return c.Render(http.StatusInternalServerError, r.String("Invalid Bitrise event type"))
 	}
@@ -62,9 +64,7 @@ func WebhookHandler(c buffalo.Context) error {
 	}
 
 	switch buildType {
-	case "build/triggered":
-		// Don't care
-	case "build/finished":
+	case buildFinishedEventType:
 		if appData.BuildStatus == abortedBuildStatus {
 			build, err := database.GetBuild(app.AppSlug, appData.BuildSlug)
 			if err != nil {
@@ -78,6 +78,8 @@ func WebhookHandler(c buffalo.Context) error {
 				}
 			}
 		}
+	case buildTriggeredEventType:
+		// Don't care
 	default:
 		logger.Error("Invalid build type", zap.String("build_event_type", buildType))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
