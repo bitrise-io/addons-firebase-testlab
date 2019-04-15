@@ -11,7 +11,7 @@ services:
     build: .
     volumes:
       - .:/bitrise/go/src/github.com/bitrise-io/addons-firebase-testlab
-    command: bash -c "buffalo-pop pop reset && buffalo-pop pop migrate && go run main.go add-test-user $BITRISE_APP_SLUG && buffalo dev"
+    command: buffalo dev
     ports:
       - "5001:5001"
     links:

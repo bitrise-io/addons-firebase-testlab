@@ -224,20 +224,8 @@ workflows:
           - content: |-
               export PORT=5000
               export GO_ENV=development
-              export DATABASE_DRIVER=sqlite3
-
-              if [ ! -d ./tmp/db ]
-              then
-                mkdir -p ./tmp/db
-                buffalo db migrate up
-                go run main.go add-test-user $BITRISE_APP_SLUG
-                buffalo dev
-              else
-                buffalo dev
-              fi
-  start-server-2:
-    before_run:
-      - compile-assets
+              docker-compose -f docker-compose.test.yml up --force-recreate
+  setup-server:
     steps:
     - script:
         title: Start server with compiled assets
@@ -245,7 +233,11 @@ workflows:
           - content: |-
               export PORT=5000
               export GO_ENV=development
-              docker-compose -f docker-compose.test.yml up
+              docker-compose -f docker-compose.test.yml rm -f -v
+              docker-compose -f docker-compose.test.yml build
+              docker-compose -f docker-compose.test.yml run app buffalo-pop pop reset
+              docker-compose -f docker-compose.test.yml run app buffalo-pop pop migrate
+              docker-compose -f docker-compose.test.yml run app go run main.go add-test-user $BITRISE_APP_SLUG
   # ----------------------------------------------------------------
   # --- Utility workflows
   dep-update:
