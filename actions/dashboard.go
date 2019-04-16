@@ -197,11 +197,6 @@ func DashboardAPIGetHandler(c buffalo.Context) error {
 
 	build, err := database.GetBuild(appSlug, buildSlug)
 	if err != nil {
-		logger.Error("Failed to get build from DB",
-			zap.String("app_slug", appSlug),
-			zap.String("build_slug", buildSlug),
-			zap.Any("error", errors.WithStack(err)),
-		)
 		return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Not found"}))
 	}
 

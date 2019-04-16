@@ -68,7 +68,7 @@ func WebhookHandler(c buffalo.Context) error {
 		if appData.BuildStatus == abortedBuildStatus {
 			build, err := database.GetBuild(app.AppSlug, appData.BuildSlug)
 			if err != nil {
-				return c.Render(http.StatusNotFound, r.String("Build not found in database"))
+				return c.Render(http.StatusNotFound, r.JSON(map[string]string{"error": "Not found"}))
 			}
 			if build.TestExecutionID != "" {
 				_, err := firebaseutils.CancelTestMatrix(build.TestMatrixID)
