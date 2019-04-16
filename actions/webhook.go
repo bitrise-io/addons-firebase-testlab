@@ -68,13 +68,7 @@ func WebhookHandler(c buffalo.Context) error {
 		if appData.BuildStatus == abortedBuildStatus {
 			build, err := database.GetBuild(app.AppSlug, appData.BuildSlug)
 			if err != nil {
-				logger.Error("Failed to get build from database",
-					zap.String("app_slug", app.AppSlug),
-					zap.String("app_data_app_slug", appData.AppSlug),
-					zap.String("build_slug", appData.BuildSlug),
-					zap.Any("error", errors.WithStack(err)),
-				)
-				return c.Render(http.StatusInternalServerError, r.String("Internal error"))
+				return c.Render(http.StatusNotFound, r.String("Build not found in database"))
 			}
 			if build.TestExecutionID != "" {
 				_, err := firebaseutils.CancelTestMatrix(build.TestMatrixID)
