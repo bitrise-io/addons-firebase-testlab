@@ -233,7 +233,13 @@ func TestPost(c buffalo.Context) error {
 	}
 
 	if postTestrequestModel.EnvironmentMatrix.AndroidDeviceList != nil {
-		if err := firebaseutils.ValidateAndroidDevice(postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices); err != nil {
+		if err := firebaseutils.ValidateAndroidDevices(postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices); err != nil {
+			return c.Render(http.StatusNotAcceptable, r.String("Invalid device configuration: %s", err))
+		}
+	}
+
+	if postTestrequestModel.EnvironmentMatrix.IosDeviceList != nil {
+		if err := firebaseutils.ValidateIosDevices(postTestrequestModel.EnvironmentMatrix.IosDeviceList.IosDevices); err != nil {
 			return c.Render(http.StatusNotAcceptable, r.String("Invalid device configuration: %s", err))
 		}
 	}
