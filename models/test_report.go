@@ -14,7 +14,7 @@ import (
 // TestReport ...
 type TestReport struct {
 	ID               uuid.UUID         `json:"id" db:"id"`
-	Name             string            `json:"name" db:"-"`
+	Name             string            `json:"name" db:"name"`
 	Filename         string            `json:"filename" db:"filename"`
 	Filesize         int               `json:"filesize" db:"filesize"`
 	Step             json.RawMessage   `json:"step" db:"step"`

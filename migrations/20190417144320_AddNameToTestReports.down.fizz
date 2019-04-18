@@ -1,0 +1,1 @@
+drop_column("test_reports", "name")
