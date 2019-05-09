@@ -23,6 +23,7 @@ type testReportAssetPostParams struct {
 }
 
 type testReportPostParams struct {
+	Name	         string                      `json:"name"`
 	Filename         string                      `json:"filename"`
 	Filesize         int                         `json:"filesize"`
 	Step             models.StepInfo             `json:"step"`
@@ -30,7 +31,8 @@ type testReportPostParams struct {
 }
 
 type testReportPatchParams struct {
-	Uploaded bool `json:"uploaded"`
+	Name     string `json:"name"`
+	Uploaded bool   `json:"uploaded"`
 }
 
 type testReportWithUploadURL struct {
@@ -75,6 +77,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 	}
 
 	testReport := &models.TestReport{
+		Name:      params.Name,
 		Filename:  params.Filename,
 		Filesize:  params.Filesize,
 		Step:      stepInfo,
@@ -168,6 +171,7 @@ func TestReportPatchHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
+	tr.Name = params.Name
 	tr.Uploaded = params.Uploaded
 
 	verrs, err := database.UpdateTestReport(&tr)

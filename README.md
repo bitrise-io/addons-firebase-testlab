@@ -23,6 +23,17 @@ $ go get -u -v github.com/bitrise-io/addons-firebase-testlab
 - Copy `.bitrise.secrets.example.yml` to `.bitrise.secrets.yml` and fill in the `SERVICE_ACCOUNT_KEY_JSON` env var with your Google credentials. Please do the same with `BUCKET` and `PROJECT_ID`.
 - Fill in the `APP_APK_PATH` and `TEST_APK_PATH` env var with the local path of the app/test .apk files you want to request a virtual device test for.
 
+### Setup the environment
+
+Run the server setup flow from the root folder of the project.
+```bash
+$ bitrise run setup-server
+```
+
+This will:
+- build/rebuild the docker images
+- create, migrate and seed the development database
+
 ### Start the server and request a test
 
 From the root folder of the project you can start the server.
@@ -32,9 +43,7 @@ $ bitrise run start-server
 
 This will:
 - compile the assets.
-- create an sqlite DB in ./tmp/db and run the migrations (if the folder doesn't exist).
-- pre-populate the DB with an app, so you can create test requests to this app (like it was provisioned from the Bitrise website).
-- start the server on `http://localhost:5000`.
+- start the server on `http://localhost:5001`.
 - hot reload a server on code change.
 
 In another session you can request a test by running:

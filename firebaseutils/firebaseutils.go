@@ -38,7 +38,7 @@ func New() (*APIModel, error) {
 //
 // TOOLS
 
-func getVirtualDeviceIDs(devices []*testing.AndroidModel) []string {
+func getAndroidVirtualDeviceIDs(devices []*testing.AndroidModel) []string {
 	deviceIDs := []string{}
 	for _, device := range devices {
 		if device.Form == "VIRTUAL" {
@@ -48,8 +48,16 @@ func getVirtualDeviceIDs(devices []*testing.AndroidModel) []string {
 	return deviceIDs
 }
 
-// ValidateAndroidDevice ...
-func ValidateAndroidDevice(devices []*testing.AndroidDevice) error {
+func getIosDeviceIDs(devices []*testing.IosModel) []string {
+	deviceIDs := []string{}
+	for _, device := range devices {
+		deviceIDs = append(deviceIDs, device.Id)
+	}
+	return deviceIDs
+}
+
+// ValidateAndroidDevices ...
+func ValidateAndroidDevices(devices []*testing.AndroidDevice) error {
 	for _, device := range devices {
 		deviceID := device.AndroidModelId
 		versionID := device.AndroidVersionId
@@ -58,7 +66,7 @@ func ValidateAndroidDevice(devices []*testing.AndroidDevice) error {
 		for _, catalogDevice := range DevicesCatalog.AndroidDeviceCatalog.Models {
 			if catalogDevice.Id == deviceID {
 				if catalogDevice.Form != "VIRTUAL" {
-					return fmt.Errorf("(%s) is not a virtual device. Available virtual devices: %v", deviceID, getVirtualDeviceIDs(DevicesCatalog.AndroidDeviceCatalog.Models))
+					return fmt.Errorf("(%s) is not a virtual device. Available virtual devices: %v", deviceID, getAndroidVirtualDeviceIDs(DevicesCatalog.AndroidDeviceCatalog.Models))
 				}
 				if !sliceutil.IsStringInSlice(versionID, catalogDevice.SupportedVersionIds) {
 					return fmt.Errorf("device (%s) has no version: %s. Available versions: %v", deviceID, versionID, catalogDevice.SupportedVersionIds)
@@ -67,7 +75,29 @@ func ValidateAndroidDevice(devices []*testing.AndroidDevice) error {
 			}
 		}
 		if !deviceFound {
-			return fmt.Errorf("device (%s) not found. Available devices: %v", deviceID, getVirtualDeviceIDs(DevicesCatalog.AndroidDeviceCatalog.Models))
+			return fmt.Errorf("device (%s) not found. Available devices: %v", deviceID, getAndroidVirtualDeviceIDs(DevicesCatalog.AndroidDeviceCatalog.Models))
+		}
+	}
+	return nil
+}
+
+// ValidateIosDevices ...
+func ValidateIosDevices(devices []*testing.IosDevice) error {
+	for _, device := range devices {
+		deviceID := device.IosModelId
+		versionID := device.IosVersionId
+
+		deviceFound := false
+		for _, catalogDevice := range DevicesCatalog.IosDeviceCatalog.Models {
+			if catalogDevice.Id == deviceID {
+				if !sliceutil.IsStringInSlice(versionID, catalogDevice.SupportedVersionIds) {
+					return fmt.Errorf("device (%s) has no version: %s. Available versions: %v", deviceID, versionID, catalogDevice.SupportedVersionIds)
+				}
+				deviceFound = true
+			}
+		}
+		if !deviceFound {
+			return fmt.Errorf("device (%s) not found. Available devices: %v", deviceID, getIosDeviceIDs(DevicesCatalog.IosDeviceCatalog.Models))
 		}
 	}
 	return nil

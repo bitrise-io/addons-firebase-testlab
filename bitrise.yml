@@ -14,6 +14,7 @@ app:
   - BITRISEIO_APP_APK_URL: $BITRISEIO_APP_APK_URL
   - BITRISEIO_TEST_APK_URL: $BITRISEIO_TEST_APK_URL
   - AMPLITUDE_TOKEN: $AMPLITUDE_TOKEN
+  - APP_WEBHOOK_SECRET_ENCRYPT_KEY: $APP_WEBHOOK_SECRET_ENCRYPT_KEY
 
 workflows:
   test-devices:
@@ -37,6 +38,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
+            go version
             no_vendor_paths="$(go list ./... | grep -v vendor | grep -v 'apis/testing' | grep -v 'apis/toolresults')"
             echo $no_vendor_paths
             envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
@@ -130,14 +132,14 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            docker-compose -f docker-compose.test.yml pull
+            docker-compose pull
     - script:
         title: docker-compose build
         inputs:
         - content: |
             #!/bin/bash
             set -ex
-            docker-compose -f docker-compose.test.yml build
+            docker-compose build
     - script:
         title: run tests with docker-compose
         inputs:
@@ -145,9 +147,9 @@ workflows:
             #!/bin/bash
             set -ex
             # preboot containers, so that the DB is ready when the tests start
-            docker-compose -f docker-compose.test.yml run --rm app sleep 1
+            docker-compose run --rm app sleep 1
             # run tests / full ci test suit (including integration tests)
-            docker-compose -f docker-compose.test.yml run --rm app bitrise run test
+            docker-compose run --rm app bitrise run test
     - script:
         title: cleanup
         is_always_run: true
@@ -155,7 +157,7 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            docker-compose -f docker-compose.test.yml stop
+            docker-compose stop
 
   _install-test-tools:
     steps:
@@ -224,20 +226,8 @@ workflows:
           - content: |-
               export PORT=5000
               export GO_ENV=development
-              export DATABASE_DRIVER=sqlite3
-
-              if [ ! -d ./tmp/db ]
-              then
-                mkdir -p ./tmp/db
-                buffalo db migrate up
-                go run main.go add-test-user $BITRISE_APP_SLUG
-                buffalo dev
-              else
-                buffalo dev
-              fi
-  start-server-2:
-    before_run:
-      - compile-assets
+              docker-compose up --force-recreate
+  setup-server:
     steps:
     - script:
         title: Start server with compiled assets
@@ -245,7 +235,11 @@ workflows:
           - content: |-
               export PORT=5000
               export GO_ENV=development
-              docker-compose -f docker-compose.test.yml up
+              docker-compose rm -f -v
+              docker-compose build
+              docker-compose run app buffalo-pop pop reset
+              docker-compose run app buffalo-pop pop migrate
+              docker-compose run app go run main.go add-test-user $BITRISE_APP_SLUG
   # ----------------------------------------------------------------
   # --- Utility workflows
   dep-update:
