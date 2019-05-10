@@ -189,8 +189,6 @@ __12. Show a specific test report__
 curl "http://localhost:5001/api/builds/build_slug1/test_reports/a1b61365-899d-49b3-ae2d-b9bfbd2276f0"
 ```
 
-
-
 ### Testing
 
 When you create a Pull Request, Bitrise CI will run the `test-with-docker-compose` workflow defined in `bitrise.yml`. You can do the same locally if you have Docker set up on your machine. Please note that this workflow does not expect a local path to the .apk files, but downloads them from the interwebs (or a local server) using `wget`, so please  set `BITRISEIO_APP_APK_URL` and `BITRISEIO_TEST_APK_URL` env vars in your `.bitrise.secrets.yml` accordingly. Then you can:
