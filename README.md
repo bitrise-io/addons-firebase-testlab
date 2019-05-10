@@ -173,7 +173,7 @@ __10. Marking it as uploaded__
 After the files are uploaded, confirm their uploaded state with calling this endpoint
 
 ```bash
-curl -X PATCH  -H "Content-Type: application/json" -d '{"uploaded":true}'
+curl -X PATCH  -H "Content-Type: application/json" -d '{"uploaded":true}' \
 "http://localhost:5001/test/apps/app_slug1/builds/build_slug1/test_reports/a1b61365-899d-49b3-ae2d-b9bfbd2276f0/test-api-token"
 ```
 
