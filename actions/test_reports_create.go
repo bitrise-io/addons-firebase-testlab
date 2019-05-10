@@ -23,7 +23,7 @@ type testReportAssetPostParams struct {
 }
 
 type testReportPostParams struct {
-	Name	         string                      `json:"name"`
+	Name             string                      `json:"name"`
 	Filename         string                      `json:"filename"`
 	Filesize         int                         `json:"filesize"`
 	Step             models.StepInfo             `json:"step"`
