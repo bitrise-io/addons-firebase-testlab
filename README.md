@@ -58,12 +58,12 @@ The step will print out an URL where you can review the test results.
 
 ### Detailed flow
 
-__Provisioning (done by website)__
+__1. Provisioning (done by website)__
 
 To enable the add-on for an app, you have to make a provisioning request. The add-on uses a token present in the `Authentication` header to authenticate provisioning related requests from the Bitrise website. You can modify this token by setting ADDON_ACCESS_TOKEN in `bitrise.secrets.yml` The `api_token` in this request is a Bitrise API token that enables the add-on to authorize apps via the Bitrise API.
 
 ```bash
-curl -X POST -H "Authentication: addon-access-token" -H "Content-Type: application/json" -d '{"app_slug":"app-slug1","api_token":"bitrise_token1","plan":"free"}' http://localhost:5000/provision
+curl -X POST -H "Authentication: addon-access-token" -H "Content-Type: application/json" -d '{"app_slug":"app-slug1","api_token":"bitrise_token1","plan":"free"}' "http://localhost:5000/provision"
 ```
 
 The add-on returns a JSON response. You can make a test request to the URL present in the `ADDON_VDTESTING_API_URL` key and the `ADDON_VDTESTING_API_TOKEN` value is needed for authentication.
@@ -77,12 +77,12 @@ The add-on returns a JSON response. You can make a test request to the URL prese
 }
 ```
 
-__Requesting an upload URL (done by VDT step)__
+__2. Requesting an upload URL (done by VDT step)__
 
 To request a test, first you need to upload the .apk files. You can request pre-signed upload URLs from the add-on.
 
 ```bash
-curl -X POST -H "Content-Type: application/json" http://localhost:5000/test/assets/app-slug1/build_slug1/api-token
+curl -X POST -H "Content-Type: application/json" "http://localhost:5000/test/assets/app-slug1/build_slug1/api-token"
 ```
 
 ```json
@@ -103,19 +103,19 @@ __3. Starting a test (done by VDT step)__
 The client should upload the .apk files on its own and then request a test by sending test matrix data.
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"test_matrix":"data"}' http://localhost:5000/test/app-slug1/build_slug1/api-token
+curl -X POST -H "Content-Type: application/json" -d '{"test_matrix":"data"}' "http://localhost:5000/test/app-slug1/build_slug1/api-token"
 ```
 
 __4. Getting the test results (done by VDT step)__
 
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:5000/test/app-slug1/build_slug1/api-token
+curl -X GET -H "Content-Type: application/json" "http://localhost:5000/test/app-slug1/build_slug1/api-token"
 ```
 
 __5. Getting the test assets (done by VDT step)__
 
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:5000/test/assets/app-slug1/build_slug1/api-token
+curl -X GET -H "Content-Type: application/json" "http://localhost:5000/test/assets/app-slug1/build_slug1/api-token"
 ```
 
 __6. Logging in to the dashboard provided by the add-on (done by website)__
@@ -123,7 +123,7 @@ __6. Logging in to the dashboard provided by the add-on (done by website)__
 To log in, you need to provide an app and a build slug, a timestamp and a hash of these data signed by an SSO token that can be set as `ADDON_SSO_TOKEN` in `.bitrise.secrets.yml`
 
 ```bash
-curl -X POST -F "timestamp=2535644284" -F "app_slug=app-slug1"  -F "build_slug=build-slug1" -F "token=token"  http://localhost:5000/login
+curl -X POST -F "timestamp=2535644284" -F "app_slug=app-slug1"  -F "build_slug=build-slug1" -F "token=token"  "http://localhost:5000/login"
 ```
 
 In production you cannot view the dashboard without making this request. In development we can initiate a session without this, we set the `SKIP_SESSION_AUTH` to `yes` in `.bitrise.secrets.yml`.
@@ -131,7 +131,62 @@ In production you cannot view the dashboard without making this request. In deve
 __7. Disabling the add-on for an app (done by website)__
 
 ```bash
-curl -X DELETE -H "Authentication: addon-access-token" -H "Content-Type: application/json" http://localhost:5000/provision/app-slug1
+curl -X DELETE -H "Authentication: addon-access-token" -H "Content-Type: application/json" "http://localhost:5000/provision/app-slug1"
+```
+
+__8. Create a test report and get an upload URL for the XML__
+
+You can upload your test reports and the related assets through this endpoint. The request body should look like the example below:
+
+```json
+{
+  "name":"My awesome file",
+  "filename":"myjunit2.xml",
+  "filesize":3,
+  "step_info": {
+    "id":"steps-virtual-device-testing-for-android",
+    "version":"1.0.5",
+    "title":"[BETA] Virtual Device Testing for Android",
+    "number":12
+  },
+  "assets":[
+    {"filename":"mytestasset1.png","filesize":32},
+    {"filename":"mytestasset2.txt","filesize":41}
+  ]
+}
+```
+
+```bash
+curl -X POST  -H "Content-Type: application/json" -d '{...}' "http://localhost:5001/test/apps/app_slug1/builds/build_slug1/test_reports/test-api-token"
+```
+
+__9. Upload it to GCP using the upload URL__
+
+After generating the upload URLs for your test report file and its asset files, you have to upload the files to GCP
+
+```bash
+curl -v --upload-file "myjunit2.xml" "https://storage.googleapis.com/quick-test/builds/build_slug1/test_reports/a1b61365-899d-49b3-ae2d-b9bfbd2276f0/myjunit2.xml?Expires=...."
+```
+
+__10. Marking it as uploaded__
+
+After the files are uploaded, confirm their uploaded state with calling this endpoint
+
+```bash
+curl -X PATCH  -H "Content-Type: application/json" -d '{"uploaded":true}' \
+"http://localhost:5001/test/apps/app_slug1/builds/build_slug1/test_reports/a1b61365-899d-49b3-ae2d-b9bfbd2276f0/test-api-token"
+```
+
+__11. List the test reports of a sepcific build__
+
+```bash
+curl "http://localhost:5001/api/builds/build_slug1/test_reports"
+```
+
+__12. Show a specific test report__
+
+```bash
+curl "http://localhost:5001/api/builds/build_slug1/test_reports/a1b61365-899d-49b3-ae2d-b9bfbd2276f0"
 ```
 
 ### Testing

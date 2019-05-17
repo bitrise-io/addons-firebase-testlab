@@ -77,8 +77,8 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            buffalo-pop pop reset
-            buffalo-pop pop migrate
+            bin/buffalo-pop pop reset
+            bin/buffalo-pop pop migrate
             go run main.go add-test-user $BITRISE_APP_SLUG
             go run main.go &> ./server.log &
             sleep 60
@@ -237,8 +237,8 @@ workflows:
               export GO_ENV=development
               docker-compose rm -f -v
               docker-compose build
-              docker-compose run app buffalo-pop pop reset
-              docker-compose run app buffalo-pop pop migrate
+              docker-compose run app bin/buffalo-pop pop reset
+              docker-compose run app bin/buffalo-pop pop migrate
               docker-compose run app go run main.go add-test-user $BITRISE_APP_SLUG
   # ----------------------------------------------------------------
   # --- Utility workflows
