@@ -114,6 +114,7 @@ func TestReportsPostHandler(c buffalo.Context) error {
 	testReportAssets := []testReportAssetWithUploadURL{}
 	for _, testReportAssetParam := range params.TestReportAssets {
 		testReportAsset := models.TestReportAsset{
+			TestReport:   *testReport,
 			TestReportID: testReport.ID,
 			Filename:     testReportAssetParam.Filename,
 			Filesize:     testReportAssetParam.Filesize,
