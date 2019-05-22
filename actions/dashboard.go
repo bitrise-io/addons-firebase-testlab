@@ -151,6 +151,9 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 
 // DashboardAppGetHandler ...
 func DashboardAppGetHandler(c buffalo.Context) error {
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
 	appSlug, ok := c.Session().Get("app_slug").(string)
 	if !ok {
 		logger.Error("Failed to get session data(app_slug)")
