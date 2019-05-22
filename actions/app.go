@@ -206,6 +206,7 @@ func App() *buffalo.App {
 		// API
 		api := app.Group("/api")                                           // api group
 		api.Use(validateUserLoginStatus)                                   // check if signature is valid
+		api.GET("/app", DashboardAppGetHandler)                            // return app info
 		api.GET("/builds/{build_slug}", DashboardAPIGetHandler)            // return dashboard resources
 		api.GET("/builds/{build_slug}/steps/{step_id}", StepAPIGetHandler) // return step resources
 		api.GET("/builds/{build_slug}/test_reports", TestReportsListHandler)

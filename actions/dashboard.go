@@ -80,6 +80,7 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 	token := c.Request().FormValue("token")
 	appSlug := c.Request().FormValue("app_slug")
 	buildSlug := c.Param("build_slug")
+	appTitle := c.Param("app_title")
 	logger := logging.WithContext(c)
 	defer logging.Sync(logger)
 
@@ -134,6 +135,7 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 	}
 
 	c.Session().Set("app_slug", appSlug)
+	c.Session().Set("app_title", appTitle)
 
 	err = c.Session().Save()
 	if err != nil {
@@ -146,6 +148,21 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 
 //
 // API endpoints
+
+// DashboardAppGetHandler ...
+func DashboardAppGetHandler(c buffalo.Context) error {
+	appSlug, ok := c.Session().Get("app_slug").(string)
+	if !ok {
+		logger.Error("Failed to get session data(app_slug)")
+		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
+	}
+	appTitle, ok := c.Session().Get("app_title").(string)
+	if !ok {
+		logger.Error("Failed to get session data(app_title)")
+		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
+	}
+	return c.Render(http.StatusOK, r.JSON(map[string]string{"app_slug": appSlug, "app_title": appTitle}))
+}
 
 // StepAPIGetHandler ...
 func StepAPIGetHandler(c buffalo.Context) error {
