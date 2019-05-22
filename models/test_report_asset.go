@@ -32,5 +32,5 @@ func (t *TestReportAsset) Validate(tx *pop.Connection) (*validate.Errors, error)
 
 // PathInBucket ...
 func (t *TestReportAsset) PathInBucket() string {
-	return fmt.Sprintf("builds/%s/test_reports/%s/assets/%s", t.TestReport.BuildSlug, t.ID, t.Filename)
+	return fmt.Sprintf("builds/%s/test_reports/%s/assets/%s", t.TestReport.BuildSlug, t.TestReportID, t.Filename)
 }
