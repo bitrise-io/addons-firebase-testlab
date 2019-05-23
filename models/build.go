@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"github.com/markbates/pop/nulls"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Build ...

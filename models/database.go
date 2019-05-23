@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 )
 
 // DB ...

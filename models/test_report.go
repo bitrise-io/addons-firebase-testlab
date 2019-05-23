@@ -5,25 +5,25 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	uuid "github.com/satori/go.uuid"
 )
 
 // TestReport ...
 type TestReport struct {
-	ID               uuid.UUID         `json:"id" db:"id"`
-	Name             string            `json:"name" db:"name"`
-	Filename         string            `json:"filename" db:"filename"`
-	Filesize         int               `json:"filesize" db:"filesize"`
-	Step             json.RawMessage   `json:"step" db:"step"`
-	Uploaded         bool              `json:"uploaded" db:"uploaded"`
-	AppSlug          string            `json:"app_slug" db:"app_slug"`
-	BuildSlug        string            `json:"build_slug" db:"build_slug"`
-	CreatedAt        time.Time         `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time         `json:"-" db:"updated_at"`
-	TestReportAssets []TestReportAsset `has_many:"test_report_assets" db:"-"`
+	ID               uuid.UUID        `json:"id" db:"id"`
+	Name             string           `json:"name" db:"name"`
+	Filename         string           `json:"filename" db:"filename"`
+	Filesize         int              `json:"filesize" db:"filesize"`
+	Step             json.RawMessage  `json:"step" db:"step"`
+	Uploaded         bool             `json:"uploaded" db:"uploaded"`
+	AppSlug          string           `json:"app_slug" db:"app_slug"`
+	BuildSlug        string           `json:"build_slug" db:"build_slug"`
+	CreatedAt        time.Time        `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time        `json:"-" db:"updated_at"`
+	TestReportAssets TestReportAssets `has_many:"test_report_assets" db:"-"`
 }
 
 // Validate ...

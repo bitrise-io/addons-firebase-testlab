@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/bitrise-io/go-crypto/crypto"
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )

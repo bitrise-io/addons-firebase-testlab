@@ -6,8 +6,8 @@ import (
 
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 )
 
@@ -197,7 +197,7 @@ func CreateTestReport(tr *models.TestReport) (*validate.Errors, error) {
 
 // FindTestReport ...
 func FindTestReport(tr *models.TestReport, id string) error {
-	if err := DB.Find(tr, id); err != nil {
+	if err := DB.Eager().Find(tr, id); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
@@ -214,7 +214,7 @@ func UpdateTestReport(tr *models.TestReport) (*validate.Errors, error) {
 
 // GetTestReports ...
 func GetTestReports(trs *[]models.TestReport, appSlug string, buildSlug string) error {
-	if err := DB.Where("app_slug = ? AND build_slug = ? AND uploaded = ?", appSlug, buildSlug, true).All(trs); err != nil {
+	if err := DB.Eager().Where("app_slug = ? AND build_slug = ? AND uploaded = ?", appSlug, buildSlug, true).All(trs); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil

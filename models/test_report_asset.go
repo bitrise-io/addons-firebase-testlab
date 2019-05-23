@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -21,6 +21,9 @@ type TestReportAsset struct {
 	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at" db:"updated_at"`
 }
+
+// TestReportAssets ...
+type TestReportAssets []TestReportAsset
 
 // Validate ...
 func (t *TestReportAsset) Validate(tx *pop.Connection) (*validate.Errors, error) {
