@@ -85,6 +85,7 @@ func (f *Filler) FillOne(trr models.TestReport, fAPI DownloadURLCreator, junitPa
 			Uploaded:  tra.Uploaded,
 			CreatedAt: tra.CreatedAt,
 		}
+		tra.TestReport = trr
 		downloadURL, err := fAPI.DownloadURLforPath(tra.PathInBucket())
 		if err != nil {
 			return TestReportWithTestSuites{}, errors.Wrap(err, "Failed to get test report asset download URL")
