@@ -55,6 +55,22 @@
   revision = "961320f9011cedf55e1da0578949bf63450a96c0"
 
 [[projects]]
+  digest = "1:00b2c2ee0f120e9d267674ca28446e6aa43258d2c5491861664325e24ef32e62"
+  name = "github.com/blang/semver"
+  packages = ["."]
+  pruneopts = ""
+  revision = "ba2c2ddd89069b46a7011d4106f6868f17ee1705"
+  version = "v3.6.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d9fc0dced8956d589873908097c804f249de54a177546444b602fa67e41d3f59"
+  name = "github.com/cockroachdb/cockroach-go"
+  packages = ["crdb"]
+  pruneopts = ""
+  revision = "e0a95dfd547cc9c3ebaaba1a12c2afe4bf621ac5"
+
+[[projects]]
   digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -132,6 +148,44 @@
   version = "v1.3.0"
 
 [[projects]]
+  digest = "1:7142361be1347c890d53e4246fb9881ca172608220c81ba6dd52d1ebc1726e01"
+  name = "github.com/gobuffalo/fizz"
+  packages = [
+    ".",
+    "translators",
+  ]
+  pruneopts = ""
+  revision = "7cba9287543835d79ab9e3fbce78aa731534223c"
+  version = "v1.8.0"
+
+[[projects]]
+  digest = "1:1060b473c228006d8a628b7e2715113f631754b0ebe82e1443302069d3eafb12"
+  name = "github.com/gobuffalo/flect"
+  packages = [
+    ".",
+    "name",
+  ]
+  pruneopts = ""
+  revision = "7b54dde751c39a3f05221667375657eff2acb230"
+  version = "v0.1.3"
+
+[[projects]]
+  digest = "1:429c929bb5abee25889f9c9783f046a9d8b97d16e1f5734187defe2bca68ae67"
+  name = "github.com/gobuffalo/makr"
+  packages = ["."]
+  pruneopts = ""
+  revision = "bfe537384e6f4cf8a4d9d149bae4f519b186c9fe"
+  version = "v1.1.5"
+
+[[projects]]
+  digest = "1:bb6fd11556ebc11f828189b7cab990de74be18bc768f93d164516933e3bd9b33"
+  name = "github.com/gobuffalo/packd"
+  packages = ["."]
+  pruneopts = ""
+  revision = "9efbb667f2024a9370cadda45a57a0657c88a6fb"
+  version = "v0.1.0"
+
+[[projects]]
   digest = "1:8f6ee1e8f76b92a486ff1431c4909a240171cf4edd069601990cb4dca9ce333b"
   name = "github.com/gobuffalo/packr"
   packages = ["."]
@@ -154,6 +208,29 @@
   version = "v2.4.0"
 
 [[projects]]
+  digest = "1:4942f4ad6d146cc3f3f8bcf7cccb26b2917ffb9169ca262c49bac1d1fee0eaf1"
+  name = "github.com/gobuffalo/pop"
+  packages = [
+    ".",
+    "associations",
+    "columns",
+    "fix",
+    "logging",
+    "nulls",
+  ]
+  pruneopts = ""
+  revision = "9d5dff8a5b85dcb7bcd19e6827c578c3c7eb40d6"
+  version = "v4.8.8"
+
+[[projects]]
+  branch = "master"
+  digest = "1:03179c4a6eecf90cbfbb07648e6202dd999904531c9757ba034f009904de3a9c"
+  name = "github.com/gobuffalo/syncx"
+  packages = ["."]
+  pruneopts = ""
+  revision = "33c29581e754bd354236e977dfe426e55331c45d"
+
+[[projects]]
   digest = "1:0ef840a196dab777cb30c0531f05976a2b4302e211cb93a99a419ef2d8afd645"
   name = "github.com/gobuffalo/tags"
   packages = [
@@ -166,12 +243,39 @@
   version = "v1.4.0"
 
 [[projects]]
+  digest = "1:4b6a43ba3296f26ea01ae125e50951f141c215dd18b5b91e9f397117b2951eb1"
+  name = "github.com/gobuffalo/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "3f701655805f1ef76e9963d1b377497a0c66d7cd"
+  version = "v2.0.5"
+
+[[projects]]
+  digest = "1:034a8efb07cc78327b9203f3fb4863326745658e220eaab8ec9ae5f6b37a9c47"
+  name = "github.com/gobuffalo/validate"
+  packages = [
+    ".",
+    "validators",
+  ]
+  pruneopts = ""
+  revision = "f6f3be4568c1ac31b364193100816d272e36ddc5"
+  version = "v2.0.3"
+
+[[projects]]
   branch = "master"
   digest = "1:ed8f559952e05559f767c9c5cc8d14bffc1dbb3e326aef6ec2bf4a1015047790"
   name = "github.com/gobuffalo/x"
   packages = ["httpx"]
   pruneopts = ""
   revision = "3af38e8e2648503125fca81851ca7142b7498ce3"
+
+[[projects]]
+  digest = "1:141cc9fc6279592458b304038bd16a05ef477d125c6dad281216345a11746fd7"
+  name = "github.com/gofrs/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "6b08a5c5172ba18946672b49749cde22873dd7c2"
+  version = "v3.2.0"
 
 [[projects]]
   branch = "master"
@@ -237,6 +341,21 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:a7998e19ebb78fdd341cdaf3825fded9030ae27af9c70d298c05d88744e16a0b"
+  name = "github.com/jackc/pgx"
+  packages = [
+    ".",
+    "chunkreader",
+    "internal/sanitize",
+    "pgio",
+    "pgproto3",
+    "pgtype",
+  ]
+  pruneopts = ""
+  revision = "8faa4453fc7051d1076053f8854077753ab912f2"
+  version = "v3.4.0"
+
+[[projects]]
   branch = "master"
   digest = "1:aa4dedc371a6faf6a3324d5c40ba6f6caa1f6ad7683c794e5aa22cbe000b589b"
   name = "github.com/jmoiron/sqlx"
@@ -262,6 +381,14 @@
   packages = ["."]
   pruneopts = ""
   revision = "6ce6523876d326121854e6ee3a43afd3aa4fb7af"
+
+[[projects]]
+  branch = "master"
+  digest = "1:63e7368fcf6b54804076eaec26fd9cf0c4466166b272393db4b93102e1e962df"
+  name = "github.com/kballard/go-shellquote"
+  packages = ["."]
+  pruneopts = ""
+  revision = "95032a82bc518f77982ea72343cc1ade730072f0"
 
 [[projects]]
   branch = "master"
@@ -301,6 +428,14 @@
   packages = ["."]
   pruneopts = ""
   revision = "ea17041f342f81e8849284b87bc3db1a6fc596bb"
+
+[[projects]]
+  branch = "master"
+  digest = "1:ff3d3a7e367bf58b25e3c9203b7e82a02b2bfa220eacb2b362c0dbc3fcffa15b"
+  name = "github.com/markbates/oncer"
+  packages = ["."]
+  pruneopts = ""
+  revision = "bf2de49a0be218916e69a11d22866e6cd0a560f2"
 
 [[projects]]
   digest = "1:f50fae73b565f416dc6df3cf6e080120a7f57c363f8095d41bad7d2cb6e5f9ef"
@@ -651,6 +786,7 @@
   packages = [
     "bcrypt",
     "blowfish",
+    "pbkdf2",
     "ssh/terminal",
   ]
   pruneopts = ""
@@ -713,20 +849,25 @@
   digest = "1:1d7891b3bc073ada6c9808c424133e01ded2a1ccb1679e0c6aabbff5b70bd447"
   name = "golang.org/x/text"
   packages = [
+    "cases",
     "collate",
     "collate/build",
+    "internal",
     "internal/colltab",
     "internal/gen",
     "internal/tag",
     "internal/triegen",
     "internal/ucd",
     "language",
+    "runes",
     "secure/bidirule",
+    "secure/precis",
     "transform",
     "unicode/bidi",
     "unicode/cldr",
     "unicode/norm",
     "unicode/rangetable",
+    "width",
   ]
   pruneopts = ""
   revision = "3cfc6c0d6bf80d724d98c26c4822f4a35d37598e"
@@ -831,11 +972,11 @@
     "github.com/gobuffalo/buffalo",
     "github.com/gobuffalo/buffalo/render",
     "github.com/gobuffalo/envy",
+    "github.com/gobuffalo/pop",
+    "github.com/gobuffalo/validate",
+    "github.com/gobuffalo/validate/validators",
     "github.com/joshdk/go-junit",
-    "github.com/markbates/pop",
     "github.com/markbates/pop/nulls",
-    "github.com/markbates/validate",
-    "github.com/markbates/validate/validators",
     "github.com/pkg/errors",
     "github.com/satori/go.uuid",
     "github.com/savaki/amplitude-go",
