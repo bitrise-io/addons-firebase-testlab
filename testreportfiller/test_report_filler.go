@@ -9,9 +9,9 @@ import (
 
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
+	"github.com/gobuffalo/uuid"
 	junitmodels "github.com/joshdk/go-junit"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 )
 
 // TestReportAssetInfo ...

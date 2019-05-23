@@ -3,7 +3,7 @@ package models
 import (
 	"testing"
 
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 )
 
 func Test_TestReport_PathInBucket(t *testing.T) {

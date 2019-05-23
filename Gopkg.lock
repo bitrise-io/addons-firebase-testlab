@@ -973,6 +973,7 @@
     "github.com/gobuffalo/buffalo/render",
     "github.com/gobuffalo/envy",
     "github.com/gobuffalo/pop",
+    "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
     "github.com/joshdk/go-junit",

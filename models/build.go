@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/markbates/pop/nulls"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Build ...

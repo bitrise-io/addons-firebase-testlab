@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	uuid "github.com/satori/go.uuid"
 )
 
 // TestReportAsset ...

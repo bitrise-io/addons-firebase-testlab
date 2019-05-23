@@ -10,8 +10,8 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/testreportfiller"
+	"github.com/gobuffalo/uuid"
 	junitmodels "github.com/joshdk/go-junit"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -214,14 +214,14 @@ func Test_TestReportFiller_FillMore(t *testing.T) {
 			expErr: "",
 		},
 		{
-			name: "when the test report file is not found",
-			xml:  "",
+			name:                  "when the test report file is not found",
+			xml:                   "",
 			statusFromXMLDownload: 404,
 			expErr:                "Failed to get test report XML",
 		},
 		{
-			name: "when the test report file is not valid",
-			xml:  "<xml?>",
+			name:                  "when the test report file is not valid",
+			xml:                   "<xml?>",
 			statusFromXMLDownload: 200,
 			expErr:                "Failed to parse test report XML",
 		},

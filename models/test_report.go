@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	uuid "github.com/satori/go.uuid"
 )
 
 // TestReport ...
@@ -23,7 +23,7 @@ type TestReport struct {
 	BuildSlug        string           `json:"build_slug" db:"build_slug"`
 	CreatedAt        time.Time        `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time        `json:"-" db:"updated_at"`
-	TestReportAssets TestReportAssets `has_many:"test_report_assets" db:"-"`
+	TestReportAssets TestReportAssets `has_many:"test_report_assets" json:"assets" db:"-"`
 }
 
 // Validate ...
