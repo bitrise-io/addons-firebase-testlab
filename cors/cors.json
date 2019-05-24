@@ -37,5 +37,18 @@
             "Content-Type",
             "Access-Control-Allow-Origin"
         ]
+    },
+    {
+        "maxAgeSeconds": 3600,
+        "method": [
+            "GET"
+        ],
+        "origin": [
+            "https://addons-testing.bitrise.io"
+        ],
+        "responseHeader": [
+            "Content-Type",
+            "Access-Control-Allow-Origin"
+        ]
     }
 ]
