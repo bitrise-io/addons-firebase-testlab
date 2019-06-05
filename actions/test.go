@@ -3,6 +3,7 @@ package actions
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -241,6 +242,16 @@ func TestPost(c buffalo.Context) error {
 	if postTestrequestModel.EnvironmentMatrix.IosDeviceList != nil {
 		if err := firebaseutils.ValidateIosDevices(postTestrequestModel.EnvironmentMatrix.IosDeviceList.IosDevices); err != nil {
 			return c.Render(http.StatusNotAcceptable, r.String("Invalid device configuration: %s", err))
+		}
+	}
+
+	if timeout := postTestrequestModel.TestSpecification.TestTimeout; timeout != "" {
+		secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
+		if err == nil {
+			if int(secs) > 2700 {
+				logger.Warn("Incoming TestSpecification.TestTimeout '%s' exceeds limit of '2700s', overriding")
+				postTestrequestModel.TestSpecification.TestTimeout = "2700s"
+			}
 		}
 	}
 
