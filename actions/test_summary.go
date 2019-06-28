@@ -14,7 +14,8 @@ import (
 	"go.uber.org/zap"
 )
 
-type totals struct {
+// Totals ...
+type Totals struct {
 	Tests        int `json:"tests"`
 	Passed       int `json:"passed"`
 	Skipped      int `json:"skipped"`
@@ -24,7 +25,7 @@ type totals struct {
 
 // TestSummaryResponseModel ...
 type TestSummaryResponseModel struct {
-	Totals totals `json:"totals"`
+	Totals Totals `json:"totals"`
 }
 
 // TestSummaryHandler ...
@@ -39,28 +40,38 @@ func TestSummaryHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
+	totals, err := GetTotals(appSlug, buildSlug, logger)
+	if err != nil {
+		logger.Error("Failed to get totals", zap.Error(err))
+		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
+	}
+
+	return c.Render(http.StatusOK, r.JSON(TestSummaryResponseModel{
+		Totals: totals,
+	}))
+}
+
+// GetTotals ...
+func GetTotals(appSlug, buildSlug string, logger *zap.Logger) (Totals, error) {
 	testReportRecords := []models.TestReport{}
 	err := database.GetTestReports(&testReportRecords, appSlug, buildSlug)
 	if err != nil {
-		logger.Error("Failed to find test reports in DB", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		return Totals{}, errors.Wrap(err, "Failed to find test reports in DB")
 	}
 
 	fAPI, err := firebaseutils.New()
 	if err != nil {
-		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.String("Internal error"))
+		return Totals{}, errors.Wrap(err, "Failed to create Firebase API model")
 	}
 	parser := &junit.Client{}
 	testReportFiller := testreportfiller.Filler{}
 
 	testReportsWithTestSuites, err := testReportFiller.FillMore(testReportRecords, fAPI, parser, &http.Client{}, "")
 	if err != nil {
-		logger.Error("Failed to enrich test reports with JUNIT results", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		return Totals{}, errors.Wrap(err, "Failed to enrich test reports with JUNIT results")
 	}
 
-	totals := totals{}
+	var totals Totals
 
 	for _, testReport := range testReportsWithTestSuites {
 		for _, testSuite := range testReport.TestSuites {
@@ -74,28 +85,22 @@ func TestSummaryHandler(c buffalo.Context) error {
 	build, err := database.GetBuild(appSlug, buildSlug)
 	if err != nil {
 		// no Firebase tests, it's fine, we can return
-		return c.Render(http.StatusOK, r.JSON(TestSummaryResponseModel{
-			Totals: totals,
-		}))
+		return totals, nil
 	}
 
 	if build.TestHistoryID == "" || build.TestExecutionID == "" {
 		// no Firebase tests, it's fine, we can return
-		return c.Render(http.StatusOK, r.JSON(TestSummaryResponseModel{
-			Totals: totals,
-		}))
+		return totals, nil
 	}
 
 	details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, appSlug, buildSlug)
 	if err != nil {
-		logger.Error("Failed to get test details", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
+		return Totals{}, errors.Wrap(err, "Failed to get test details")
 	}
 
 	testDetails, err := fillTestDetails(details, fAPI, logger)
 	if err != nil {
-		logger.Error("Failed to prepare test details data structure", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
+		return Totals{}, errors.Wrap(err, "Failed to prepare test details data structure")
 	}
 
 	for _, testDetail := range testDetails {
@@ -110,7 +115,5 @@ func TestSummaryHandler(c buffalo.Context) error {
 			totals.Inconclusive++
 		}
 	}
-	return c.Render(http.StatusOK, r.JSON(TestSummaryResponseModel{
-		Totals: totals,
-	}))
+	return totals, nil
 }

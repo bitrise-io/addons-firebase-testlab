@@ -45,6 +45,12 @@ func getEnv(key, fallback string) string {
 	return value
 }
 
+func closeResponseBody(resp *http.Response) {
+	if err := resp.Body.Close(); err != nil {
+		log.Errorf("Failed to close response body, error: %+v", errors.WithStack(err))
+	}
+}
+
 // newRequest creates an authenticated API request that is ready to send.
 func (c *Client) newRequest(method string, action string, payload []byte) (*http.Request, error) {
 	method = strings.ToUpper(method)
@@ -67,11 +73,7 @@ func (c *Client) do(req *http.Request, bp *Build) (*http.Response, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer func() {
-		if err = resp.Body.Close(); err != nil {
-			log.Errorf("Failed to close response body, error: %+v", errors.WithStack(err))
-		}
-	}()
+	defer closeResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK {
 		return resp, nil
@@ -91,7 +93,8 @@ func (c *Client) do(req *http.Request, bp *Build) (*http.Response, error) {
 
 // Build represents a build
 type Build struct {
-	Status int `json:"status"`
+	Status int    `json:"status"`
+	Slug   string `json:"slug"`
 }
 
 // GetBuildOfApp returns information about a single build.
@@ -109,6 +112,39 @@ func (c *Client) GetBuildOfApp(buildSlug string, appSlug string) (*http.Response
 	}
 
 	return resp, &build, nil
+}
+
+// GetLatestBuildOfApp returns information about the latest build of app.
+func (c *Client) GetLatestBuildOfApp(appSlug string) (*Build, error) {
+	action := fmt.Sprintf("apps/%s/builds?limit=1", appSlug)
+	req, err := c.newRequest("GET", action, nil)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	req.Close = true
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.Errorf("Failed to fetch latest build info: status: %d", resp.StatusCode)
+	}
+
+	var successResp struct {
+		Data []Build
+	}
+	defer closeResponseBody(resp)
+
+	if err = json.NewDecoder(resp.Body).Decode(&successResp); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	if len(successResp.Data) == 0 {
+		return nil, errors.New("No builds found for app")
+	}
+
+	return &successResp.Data[0], nil
 }
 
 // RegisterWebhook ...

@@ -12,11 +12,13 @@ import (
 	"time"
 
 	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
+	"github.com/bitrise-io/addons-firebase-testlab/bitrise"
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/metrics"
+	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/renderers"
 	"github.com/bitrise-io/addons-firebase-testlab/trackables"
 	"github.com/gobuffalo/buffalo"
@@ -96,6 +98,14 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 	appSlugStored, ok := c.Session().Get("app_slug").(string)
 	if ok {
 		if appSlug == appSlugStored {
+			if buildSlug == "" {
+				var err error
+				buildSlug, err = fetchBuildSlug(appSlug)
+				if err != nil {
+					logger.Error("Failed to fetch latest build slug for app", zap.Error(err))
+					return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+				}
+			}
 			return c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/builds/%s", buildSlug))
 		}
 	}
@@ -141,6 +151,15 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 	if err != nil {
 		logger.Error("Failed to save session", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	}
+
+	if buildSlug == "" {
+		var err error
+		buildSlug, err = fetchBuildSlug(appSlug)
+		if err != nil {
+			logger.Error("Failed to fetch latest build slug for app", zap.Error(err))
+			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		}
 	}
 
 	return c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/builds/%s", buildSlug))
@@ -487,4 +506,17 @@ func fillTestDetails(details *toolresults.ListStepsResponse, fAPI *firebaseutils
 	var err error
 	err = <-errChannel
 	return testDetails, err
+}
+
+func fetchBuildSlug(appSlug string) (string, error) {
+	app, err := database.GetApp(&models.App{AppSlug: appSlug})
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	bc := bitrise.NewClient(app.APIToken)
+	build, err := bc.GetLatestBuildOfApp(appSlug)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	return build.Slug, nil
 }

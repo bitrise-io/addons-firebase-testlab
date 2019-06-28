@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"go.uber.org/zap"
 
+	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
@@ -77,6 +79,24 @@ func WebhookHandler(c buffalo.Context) error {
 				}
 			}
 		}
+
+		ac, err := analytics.NewClient(logger)
+		if err != nil {
+			logger.Warn("Failed to initialize analytics client", zap.Error(err))
+			return c.Render(200, r.JSON(app))
+		}
+		totals, err := GetTotals(app.AppSlug, appData.BuildSlug, logger)
+		if err != nil {
+			logger.Warn("Failed to get totals of test", zap.Any("app_data", appData), zap.Error(err))
+			return c.Render(200, r.JSON(app))
+		}
+
+		if totals.Failed > 0 || totals.Inconclusive > 0 {
+			ac.TestReportSummaryGenerated(app.AppSlug, "fail", time.Now())
+		} else {
+			ac.TestReportSummaryGenerated(app.AppSlug, "success", time.Now())
+		}
+
 	case buildTriggeredEventType:
 		// Don't care
 	default:

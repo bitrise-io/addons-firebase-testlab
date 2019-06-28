@@ -607,6 +607,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:3e415e57ce6b6f30a9f830323be264a24e02130f82ec37eda5fb4dfd4abb53b3"
+  name = "github.com/segmentio/backo-go"
+  packages = ["."]
+  pruneopts = ""
+  revision = "204274ad699c0983a70203a566887f17a717fef4"
+
+[[projects]]
+  branch = "master"
   digest = "1:43b0cb8b5207a7b0f3dd27c35cc24f3908441bd042fbfb14dcacfd0c2610fdb8"
   name = "github.com/serenize/snaker"
   packages = ["."]
@@ -724,6 +732,14 @@
   pruneopts = ""
   revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
   version = "v1.3.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:5e16797b91d760f6e38965968b50077a0bbc1cc5af77017c3c0b1ca1ae934aed"
+  name = "github.com/xtgo/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "a0b114877d4caeffbd7f87e3757c17fce570fea7"
 
 [[projects]]
   digest = "1:ad67dfd3799a2c58f6c65871dd141d8b53f61f600aec48ce8d7fa16a4d5476f8"
@@ -952,6 +968,14 @@
   version = "v1.7.1"
 
 [[projects]]
+  digest = "1:58ad576cc5d446d1e6cc6050af1b517c4f5c13787bce6d60b143b9f4db3174be"
+  name = "gopkg.in/segmentio/analytics-go.v3"
+  packages = ["."]
+  pruneopts = ""
+  revision = "3b00f71eadd594f41e9b6af6d5198aca38ccaca5"
+  version = "v3.0.1"
+
+[[projects]]
   branch = "v2"
   digest = "1:81314a486195626940617e43740b4fa073f265b0715c9f54ce2027fee1cb5f61"
   name = "gopkg.in/yaml.v2"
@@ -979,7 +1003,6 @@
     "github.com/joshdk/go-junit",
     "github.com/markbates/pop/nulls",
     "github.com/pkg/errors",
-    "github.com/satori/go.uuid",
     "github.com/savaki/amplitude-go",
     "github.com/stretchr/testify/require",
     "go.uber.org/zap",
@@ -991,6 +1014,7 @@
     "google.golang.org/api/storage/v1",
     "google.golang.org/api/testing/v1",
     "google.golang.org/api/toolresults/v1beta3",
+    "gopkg.in/segmentio/analytics-go.v3",
     "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"
