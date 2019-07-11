@@ -30,11 +30,13 @@ func NewClient(logger *zap.Logger) (Client, error) {
 }
 
 // TestReportSummaryGenerated ...
-func (c *Client) TestReportSummaryGenerated(appSlug, result string, time time.Time) {
+func (c *Client) TestReportSummaryGenerated(appSlug, buildSlug, result string, time time.Time) {
 	err := c.client.Enqueue(segment.Track{
 		UserId: appSlug,
 		Event:  "Test report summary generated",
 		Properties: segment.NewProperties().
+			Set("app_slug", appSlug).
+			Set("build_slug", buildSlug).
 			Set("result", result).
 			Set("datetime", time),
 	})

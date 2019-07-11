@@ -92,9 +92,9 @@ func WebhookHandler(c buffalo.Context) error {
 		}
 
 		if totals.Failed > 0 || totals.Inconclusive > 0 {
-			ac.TestReportSummaryGenerated(app.AppSlug, "fail", time.Now())
+			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "fail", time.Now())
 		} else if totals != (Totals{}) {
-			ac.TestReportSummaryGenerated(app.AppSlug, "success", time.Now())
+			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "success", time.Now())
 		}
 
 	case buildTriggeredEventType:
