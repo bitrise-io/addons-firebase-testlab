@@ -194,8 +194,10 @@ func App() *buffalo.App {
 		test.Use(authenticateRequestWithToken)
 		test.GET("/{app_slug}/{build_slug}/{token}", authorizeForBuild(TestGet))                                          // get test matrix data
 		test.POST("/{app_slug}/{build_slug}/{token}", authorizeForRunningBuildViaBitriseAPI(authorizeForBuild(TestPost))) // start test matrix
-		test.POST("/assets/{app_slug}/{build_slug}/{token}", authorizeForRunningBuildViaBitriseAPI(TestAssetsPost))       // get signed upload urls for assets
-		test.GET("/assets/{app_slug}/{build_slug}/{token}", authorizeForBuild(TestAssetsGet))                             // get signed download urls for assets
+
+		test.POST("/assets_android/{app_slug}/{build_slug}/{token}", authorizeForRunningBuildViaBitriseAPI(TestAssetUploadURLsAndroid)) // get signed upload urls for Android assets
+		test.POST("/assets/{app_slug}/{build_slug}/{token}", authorizeForRunningBuildViaBitriseAPI(TestAssetsPost))                     // get signed upload urls for assets
+		test.GET("/assets/{app_slug}/{build_slug}/{token}", authorizeForBuild(TestAssetsGet))                                           // get signed download urls for assets
 
 		//
 		// TEST REPORTS

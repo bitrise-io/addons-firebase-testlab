@@ -342,6 +342,61 @@ func TestAssetsGet(c buffalo.Context) error {
 	return c.Render(http.StatusOK, renderers.JSON(downloadUrlsModel))
 }
 
+// TestAssetUploadURLsAndroid handles request for Android test assets upload URLs
+func TestAssetUploadURLsAndroid(c buffalo.Context) error {
+	logger := logging.WithContext(c)
+	defer logging.Sync(logger)
+
+	buildSlug := c.Param("build_slug")
+	appSlug := c.Param("app_slug")
+
+	buildExists, err := database.IsBuildExists(appSlug, buildSlug)
+	if err != nil {
+		logger.Error("Failed to check if build exists", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	}
+
+	if buildExists {
+		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Build already exists"}))
+	}
+
+	var requestModel firebaseutils.TestAssetRequestAndroid
+	if err := json.NewDecoder(c.Request().Body).Decode(&requestModel); err != nil {
+		logger.Error("Failed to decode request body", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Invalid request"}))
+	}
+
+	const maxObbFiles = 10
+	if requestModel.ObbFiles > maxObbFiles {
+		logger.Error(fmt.Sprintf("Number of obb fields requested is more than %d", maxObbFiles), zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": fmt.Sprintf("More than %d obb files requested", maxObbFiles)}))
+	}
+
+	fAPI, err := firebaseutils.New()
+	if err != nil {
+		logger.Error("Failed to create Firebase API model", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	}
+
+	resp, err := fAPI.TestAssetsUploadURLsAndroid(buildSlug, requestModel)
+	if err != nil {
+		logger.Error("Failed to get Android upload URLs", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	}
+
+	err = database.AddBuild(&models.Build{BuildSlug: buildSlug, AppSlug: appSlug, LastRequest: nulls.NewTime(time.Now()), BuildSessionEnabled: true})
+	if err != nil {
+		logger.Error("Failed to save build", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
+	}
+
+	analyticsutils.SendUploadEvent(analyticsutils.EventUploadFileUploadRequested,
+		appSlug,
+		buildSlug)
+
+	return c.Render(http.StatusOK, r.JSON(resp))
+}
+
 // TestAssetsPost ...
 func TestAssetsPost(c buffalo.Context) error {
 	logger := logging.WithContext(c)
