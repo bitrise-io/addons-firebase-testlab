@@ -280,12 +280,12 @@ func GetLangByCountryCode(countryCode string) string {
 // STORAGE
 
 // TestAssetsUploadURLsAndroid returns a signed URLs used to Android upload asset
-func (api *APIModel) TestAssetsUploadURLsAndroid(buildSlug string, assetRequests TestAssetRequestAndroid) (TestAssetsAndroid, error) {
+func (api *APIModel) TestAssetsUploadURLsAndroid(buildSlug string, assetRequests TestAssetsAndroid) (TestAssetsAndroid, error) {
 	var assets TestAssetsAndroid
 
-	getAssetURL := func(buildSlug string, fileName string) (TestAsset, error) {
+	getAssetURL := func(origFilename, buildSlug, gcsFilename string) (TestAsset, error) {
 		uploadURL, err := storagesu.SignedURL(configs.GetGCSBucket(),
-			getTrimmedAppBucketPath(buildSlug, fileName),
+			getTrimmedAppBucketPath(buildSlug, gcsFilename),
 			api.GetSignedURLCredentials("PUT"))
 		if err != nil {
 			return TestAsset{}, err
@@ -293,12 +293,13 @@ func (api *APIModel) TestAssetsUploadURLsAndroid(buildSlug string, assetRequests
 
 		return TestAsset{
 			UploadURL: uploadURL,
-			GcsPath:   getAppBucketPath(buildSlug, fileName),
+			GcsPath:   getAppBucketPath(buildSlug, gcsFilename),
+			Filename:  origFilename,
 		}, nil
 	}
 
-	if assetRequests.Apk {
-		asset, err := getAssetURL(buildSlug, "app.apk")
+	if assetRequests.Apk.Filename != "" {
+		asset, err := getAssetURL(assetRequests.Apk.Filename, buildSlug, "app.apk")
 		if err != nil {
 			return TestAssetsAndroid{}, err
 		}
@@ -306,8 +307,8 @@ func (api *APIModel) TestAssetsUploadURLsAndroid(buildSlug string, assetRequests
 		assets.Apk = asset
 	}
 
-	if assetRequests.Aab {
-		asset, err := getAssetURL(buildSlug, "app.aab")
+	if assetRequests.Aab.Filename != "" {
+		asset, err := getAssetURL(assetRequests.Aab.Filename, buildSlug, "app.aab")
 		if err != nil {
 			return TestAssetsAndroid{}, err
 		}
@@ -315,8 +316,8 @@ func (api *APIModel) TestAssetsUploadURLsAndroid(buildSlug string, assetRequests
 		assets.Aab = asset
 	}
 
-	if assetRequests.TestApk {
-		asset, err := getAssetURL(buildSlug, "app-test.apk")
+	if assetRequests.TestApk.Filename != "" {
+		asset, err := getAssetURL(assetRequests.TestApk.Filename, buildSlug, "app-test.apk")
 		if err != nil {
 			return TestAssetsAndroid{}, err
 		}
@@ -324,8 +325,8 @@ func (api *APIModel) TestAssetsUploadURLsAndroid(buildSlug string, assetRequests
 		assets.TestApk = asset
 	}
 
-	if assetRequests.RoboScript {
-		asset, err := getAssetURL(buildSlug, "roboscript.json")
+	if assetRequests.RoboScript.Filename != "" {
+		asset, err := getAssetURL(assetRequests.RoboScript.Filename, buildSlug, "roboscript.json")
 		if err != nil {
 			return TestAssetsAndroid{}, err
 		}
@@ -333,8 +334,8 @@ func (api *APIModel) TestAssetsUploadURLsAndroid(buildSlug string, assetRequests
 		assets.RoboScript = asset
 	}
 
-	for i := 0; i < assetRequests.ObbFiles; i++ {
-		asset, err := getAssetURL(buildSlug, fmt.Sprintf("%d.obb", i))
+	for i, obbFile := range assetRequests.ObbFiles {
+		asset, err := getAssetURL(obbFile.Filename, buildSlug, fmt.Sprintf("%d.obb", i))
 		if err != nil {
 			return TestAssetsAndroid{}, err
 		}

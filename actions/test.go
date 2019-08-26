@@ -360,14 +360,14 @@ func TestAssetUploadURLsAndroid(c buffalo.Context) error {
 		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": "Build already exists"}))
 	}
 
-	var requestModel firebaseutils.TestAssetRequestAndroid
-	if err := json.NewDecoder(c.Request().Body).Decode(&requestModel); err != nil {
+	var testAssetRequest firebaseutils.TestAssetsAndroid
+	if err := json.NewDecoder(c.Request().Body).Decode(&testAssetRequest); err != nil {
 		logger.Error("Failed to decode request body", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
 	const maxObbFiles = 10
-	if requestModel.ObbFiles > maxObbFiles {
+	if len(testAssetRequest.ObbFiles) > maxObbFiles {
 		logger.Error(fmt.Sprintf("Number of obb fields requested is more than %d", maxObbFiles), zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": fmt.Sprintf("More than %d obb files requested", maxObbFiles)}))
 	}
@@ -378,7 +378,7 @@ func TestAssetUploadURLsAndroid(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
-	resp, err := fAPI.TestAssetsUploadURLsAndroid(buildSlug, requestModel)
+	resp, err := fAPI.TestAssetsUploadURLsAndroid(buildSlug, testAssetRequest)
 	if err != nil {
 		logger.Error("Failed to get Android upload URLs", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
