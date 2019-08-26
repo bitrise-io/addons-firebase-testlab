@@ -176,14 +176,17 @@ func (api *APIModel) StartTestMatrix(appSlug, buildSlug string, testMatrix *test
 		historyID = newHistory.HistoryId
 	}
 
-	if testMatrix.TestSpecification.AndroidInstrumentationTest != nil && testMatrix.TestSpecification.AndroidInstrumentationTest.AppApk == nil {
+	if testMatrix.TestSpecification.AndroidInstrumentationTest != nil &&
+		(testMatrix.TestSpecification.AndroidInstrumentationTest.AppApk == nil && testMatrix.TestSpecification.AndroidInstrumentationTest.AppBundle == nil) {
 		testMatrix.TestSpecification.AndroidInstrumentationTest.AppApk = &testing.FileReference{GcsPath: getAppBucketPath(buildSlug, "app.apk")}
 		testMatrix.TestSpecification.AndroidInstrumentationTest.TestApk = &testing.FileReference{GcsPath: getAppBucketPath(buildSlug, "app-test.apk")}
 	}
-	if testMatrix.TestSpecification.AndroidRoboTest != nil && testMatrix.TestSpecification.AndroidRoboTest.AppApk == nil {
+	if testMatrix.TestSpecification.AndroidRoboTest != nil &&
+		(testMatrix.TestSpecification.AndroidRoboTest.AppApk == nil && testMatrix.TestSpecification.AndroidRoboTest.AppBundle == nil) {
 		testMatrix.TestSpecification.AndroidRoboTest.AppApk = &testing.FileReference{GcsPath: getAppBucketPath(buildSlug, "app.apk")}
 	}
-	if testMatrix.TestSpecification.AndroidTestLoop != nil && testMatrix.TestSpecification.AndroidTestLoop.AppApk == nil {
+	if testMatrix.TestSpecification.AndroidTestLoop != nil &&
+		(testMatrix.TestSpecification.AndroidTestLoop.AppApk == nil && testMatrix.TestSpecification.AndroidTestLoop.AppBundle == nil) {
 		testMatrix.TestSpecification.AndroidTestLoop.AppApk = &testing.FileReference{GcsPath: getAppBucketPath(buildSlug, "app-test.apk")}
 	}
 
