@@ -369,7 +369,7 @@ func TestAssetUploadURLsAndroid(c buffalo.Context) error {
 	const maxObbFiles = 10
 	if len(testAssetRequest.ObbFiles) > maxObbFiles {
 		logger.Error(fmt.Sprintf("Number of obb fields requested is more than %d", maxObbFiles), zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusForbidden, r.JSON(map[string]string{"error": fmt.Sprintf("More than %d obb files requested", maxObbFiles)}))
+		return c.Render(http.StatusBadRequest, r.JSON(map[string]string{"error": fmt.Sprintf("More than %d obb files requested", maxObbFiles)}))
 	}
 
 	fAPI, err := firebaseutils.New()
