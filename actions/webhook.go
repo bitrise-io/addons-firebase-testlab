@@ -11,8 +11,10 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
+	"github.com/bitrise-io/addons-firebase-testlab/junit"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
+	"github.com/bitrise-io/addons-firebase-testlab/testreportfiller"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
 )
@@ -85,6 +87,7 @@ func WebhookHandler(c buffalo.Context) error {
 			logger.Warn("Failed to initialize analytics client", zap.Error(err))
 			return c.Render(200, r.JSON(app))
 		}
+
 		totals, err := GetTotals(app.AppSlug, appData.BuildSlug, logger)
 		if err != nil {
 			logger.Warn("Failed to get totals of test", zap.Any("app_data", appData), zap.Error(err))
@@ -97,6 +100,39 @@ func WebhookHandler(c buffalo.Context) error {
 			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "success", time.Now())
 		} else {
 			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "null", time.Now())
+		}
+
+		testReportRecords := []models.TestReport{}
+		err = database.GetTestReports(&testReportRecords, appSlug, buildSlug)
+		if err != nil {
+			return Totals{}, errors.Wrap(err, "Failed to find test reports in DB")
+		}
+
+		fAPI, err := firebaseutils.New()
+		if err != nil {
+			return Totals{}, errors.Wrap(err, "Failed to create Firebase API model")
+		}
+		parser := &junit.Client{}
+		testReportFiller := testreportfiller.Filler{}
+
+		testReportsWithTestSuites, err := testReportFiller.FillMore(testReportRecords, fAPI, parser, &http.Client{}, "")
+		if err != nil {
+			return Totals{}, errors.Wrap(err, "Failed to enrich test reports with JUNIT results")
+		}
+		for _, tr := range testReportsWithTestSuites {
+			if len(tr.TestSuites) == 0 {
+				ac.TestReportResult(app.AppSlug, appData.BuildSlug, "empty", tr.ID, time.Now())
+				continue
+			}
+			result := ""
+			for _, ts := range tr.TestSuites {
+				result = "success"
+				if ts.Totals.Failed > 0 || totals.Inconclusive > 0 {
+					result = "fail"
+					break
+				}
+			}
+			ac.TestReportResult(app.AppSlug, appData.BuildSlug, result, tr.ID, time.Now())
 		}
 
 	case buildTriggeredEventType:

@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
 	segment "gopkg.in/segmentio/analytics-go.v3"
@@ -42,6 +43,23 @@ func (c *Client) TestReportSummaryGenerated(appSlug, buildSlug, result string, t
 	})
 	if err != nil {
 		c.logger.Warn("Failed to track analytics (TestReportSummaryGenerated)", zap.Error(err))
+	}
+}
+
+// TestReportResult ...
+func (c *Client) TestReportResult(appSlug, buildSlug, result string, testResultID uuid.UUID, time time.Time) {
+	err := c.client.Enqueue(segment.Track{
+		UserId: appSlug,
+		Event:  "Test report result",
+		Properties: segment.NewProperties().
+			Set("app_slug", appSlug).
+			Set("build_slug", buildSlug).
+			Set("result", result).
+			Set("datetime", time).
+			Set("test_report_id", testResultID.String()),
+	})
+	if err != nil {
+		c.logger.Warn("Failed to track analytics (TestReportResult)", zap.Error(err))
 	}
 }
 
