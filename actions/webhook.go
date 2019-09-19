@@ -103,21 +103,21 @@ func WebhookHandler(c buffalo.Context) error {
 		}
 
 		testReportRecords := []models.TestReport{}
-		err = database.GetTestReports(&testReportRecords, appSlug, buildSlug)
+		err = database.GetTestReports(&testReportRecords, app.AppSlug, appData.BuildSlug)
 		if err != nil {
-			return Totals{}, errors.Wrap(err, "Failed to find test reports in DB")
+			return errors.Wrap(err, "Failed to find test reports in DB")
 		}
 
 		fAPI, err := firebaseutils.New()
 		if err != nil {
-			return Totals{}, errors.Wrap(err, "Failed to create Firebase API model")
+			return errors.Wrap(err, "Failed to create Firebase API model")
 		}
 		parser := &junit.Client{}
 		testReportFiller := testreportfiller.Filler{}
 
 		testReportsWithTestSuites, err := testReportFiller.FillMore(testReportRecords, fAPI, parser, &http.Client{}, "")
 		if err != nil {
-			return Totals{}, errors.Wrap(err, "Failed to enrich test reports with JUNIT results")
+			return errors.Wrap(err, "Failed to enrich test reports with JUNIT results")
 		}
 		for _, tr := range testReportsWithTestSuites {
 			if len(tr.TestSuites) == 0 {
