@@ -217,7 +217,7 @@ func (c *Client) CreateTestStepResult(appSlug string, buildSlug string, tsr *Tes
 		return errors.WithStack(err)
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/test_step_results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/test-step-results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
 	req.Header.Set("Bitrise-Addon-Auth-Token", c.apiToken)
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
