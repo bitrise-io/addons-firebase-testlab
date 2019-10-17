@@ -39,7 +39,7 @@ type StepResult struct {
 type TestStepResult struct {
 	StepResult
 	Total       int                `json:"total"`
-	FailedTests []junitparser.Test `json:"failed_test"`
+	FailedTests []junitparser.Test `json:"failed_tests"`
 }
 
 // NewClient returns a new instance of *Client.
