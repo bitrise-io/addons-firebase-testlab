@@ -192,7 +192,11 @@ func TestReportPatchHandler(c buffalo.Context) error {
 	}
 
 	// TODO: move this to a BG worker
-	stepresult.CreateTestStepResult(tr.ID)
+	err = stepresult.CreateStepResult(tr.ID)
+	if err != nil {
+		logger.Error("Failed to create step result", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	}
 
 	return c.Render(http.StatusOK, r.JSON(tr))
 }

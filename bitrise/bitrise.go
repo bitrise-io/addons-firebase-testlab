@@ -17,25 +17,22 @@ import (
 )
 
 const (
-	baseURLenvKey        = "BITRISE_API_URL"
-	lintStepIDListenvKey = "BITRISE_LINT_STEPS"
-	defaultBaseURL       = "https://api.bitrise.io"
-	version              = "v0.1"
+	baseURLenvKey  = "BITRISE_API_URL"
+	defaultBaseURL = "https://api.bitrise.io"
+	version        = "v0.1"
 )
 
 // Client manages communication with the Bitrise API.
 type Client struct {
-	client    *http.Client
-	BaseURL   string
-	apiToken  string
-	lintSteps map[string]bool
+	client   *http.Client
+	BaseURL  string
+	apiToken string
 }
 
 // StepResult ...
 type StepResult struct {
 	Name   string `json:"name"`
 	Status string `json:"status"`
-	ID     string `json:"id"`
 }
 
 // TestStepResult ...
@@ -45,16 +42,31 @@ type TestStepResult struct {
 	FailedTests []junitparser.Test `json:"failed_tests"`
 }
 
+// LintStepResult ...
+type LintStepResult struct {
+	StepResult
+	Annotations []Annotation `json:"annotiations"`
+}
+
+// Annotation ...
+type Annotation struct {
+	Path            string `json:"path"`
+	StartLine       int    `json:"start_line"`
+	EndLine         int    `json:"end_line"`
+	StartColumn     int    `json:"start_column"`
+	EndColumn       int    `json:"end_column"`
+	AnnotationLevel string `json:"annotation_level"`
+	Message         string `json:"message"`
+	Title           string `json:"title"`
+	RawDetails      string `json:"raw_details"`
+}
+
 // NewClient returns a new instance of *Client.
 func NewClient(apiToken string) *Client {
 	cl := Client{
-		client:    &http.Client{Timeout: 10 * time.Second},
-		apiToken:  apiToken,
-		BaseURL:   fmt.Sprintf("%s/%s", getEnv(baseURLenvKey, defaultBaseURL), version),
-		lintSteps: make(map[string]bool),
-	}
-	for _, stepID := range strings.Split(getEnv(lintStepIDListenvKey, ""), ",") {
-		cl.lintSteps[stepID] = true
+		client:   &http.Client{Timeout: 10 * time.Second},
+		apiToken: apiToken,
+		BaseURL:  fmt.Sprintf("%s/%s", getEnv(baseURLenvKey, defaultBaseURL), version),
 	}
 	return &cl
 }
@@ -225,13 +237,41 @@ func (c *Client) CreateTestStepResult(appSlug string, buildSlug string, tsr *Tes
 		return errors.WithStack(err)
 	}
 
-	var req *http.Request
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/test-step-results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
 
-	if c.lintSteps[tsr.StepResult.ID] {
-		req, err = http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/lint-step-results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
-	} else {
-		req, err = http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/test-step-results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
+	req.Header.Set("Bitrise-Addon-Auth-Token", c.apiToken)
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return errors.WithStack(err)
 	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	response, err := client.Do(req)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer func() {
+		err := response.Body.Close()
+		if err != nil {
+			fmt.Println(errors.WithStack(err))
+		}
+	}()
+
+	if response.StatusCode != http.StatusCreated {
+		return errors.New("Internal error: Failed to create test step result")
+	}
+
+	return nil
+}
+
+// CreateLintStepResult creates a new test step result
+func (c *Client) CreateLintStepResult(appSlug string, buildSlug string, lsr *LintStepResult) error {
+	payload, err := json.Marshal(lsr)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/lint-step-results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
 
 	req.Header.Set("Bitrise-Addon-Auth-Token", c.apiToken)
 	req.Header.Set("Content-Type", "application/json")

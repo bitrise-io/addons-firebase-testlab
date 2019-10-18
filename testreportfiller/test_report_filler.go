@@ -1,12 +1,15 @@
 package testreportfiller
 
 import (
+	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/bitrise-io/addons-firebase-testlab/bitrise"
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/gobuffalo/uuid"
@@ -29,6 +32,33 @@ type TestReportWithTestSuites struct {
 	TestSuites []junitmodels.Suite   `json:"test_suites"`
 	StepInfo   models.StepInfo       `json:"step_info"`
 	TestAssets []TestReportAssetInfo `json:"test_assets"`
+}
+
+// CheckStyleResult represents checkstyle XML result.
+// <?xml version="1.0" encoding="utf-8"?><checkstyle version="4.3"><file ...></file>...</checkstyle>
+//
+// References:
+//   - http://checkstyle.sourceforge.net/
+//   - http://eslint.org/docs/user-guide/formatters/#checkstyle
+type CheckStyleResult struct {
+	XMLName xml.Name          `xml:"checkstyle"`
+	Version string            `xml:"version,attr"`
+	Files   []*CheckStyleFile `xml:"file,omitempty"`
+}
+
+// CheckStyleFile represents <file name="fname"><error ... />...</file>
+type CheckStyleFile struct {
+	Name   string             `xml:"name,attr"`
+	Errors []*CheckStyleError `xml:"error"`
+}
+
+// CheckStyleError represents <error line="1" column="10" severity="error" message="msg" source="src" />
+type CheckStyleError struct {
+	Column   int    `xml:"column,attr,omitempty"`
+	Line     int    `xml:"line,attr"`
+	Message  string `xml:"message,attr"`
+	Severity string `xml:"severity,attr,omitempty"`
+	Source   string `xml:"source,attr,omitempty"`
 }
 
 // Filler ...
@@ -100,6 +130,52 @@ func (f *Filler) FillOne(trr models.TestReport, fAPI DownloadURLCreator, junitPa
 		TestAssets: testReportAssetInfos,
 	}
 	return trwts, nil
+}
+
+// Annotate ...
+func (f *Filler) Annotate(trr models.TestReport, fAPI DownloadURLCreator, httpClient *http.Client) ([]bitrise.Annotation, error) {
+	downloadURL, err := fAPI.DownloadURLforPath(trr.PathInBucket())
+	dataBytes, err := getContent(downloadURL, httpClient)
+	if err != nil {
+		return []bitrise.Annotation{}, errors.Wrap(err, "Failed to get test report XML")
+	}
+
+	r := bytes.NewReader(dataBytes)
+
+	var cs = new(CheckStyleResult)
+	if err := xml.NewDecoder(r).Decode(cs); err != nil {
+		return nil, err
+	}
+	var annotations []bitrise.Annotation
+	for _, file := range cs.Files {
+		for _, cerr := range file.Errors {
+			annotations = append(annotations, bitrise.Annotation{
+				Path:            file.Name,
+				StartLine:       cerr.Line,
+				EndLine:         cerr.Line,
+				StartColumn:     cerr.Column,
+				EndColumn:       cerr.Column,
+				AnnotationLevel: severityToLevel(cerr.Severity),
+				Message:         cerr.Message,
+			})
+		}
+	}
+
+	return annotations, nil
+}
+func severityToLevel(sev string) string {
+	levelMap := map[string]string{
+		"error":   "failure",
+		"failure": "failure",
+		"warning": "warning",
+		"notice":  "notice",
+	}
+
+	if levelMap[sev] != "" {
+		return levelMap[sev]
+	}
+
+	return "failure"
 }
 
 func getContent(url string, httpClient *http.Client) ([]byte, error) {
