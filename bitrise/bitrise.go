@@ -45,7 +45,7 @@ type TestStepResult struct {
 // LintStepResult ...
 type LintStepResult struct {
 	StepResult
-	Annotations []Annotation `json:"annotiations"`
+	Annotations []Annotation `json:"annotations"`
 }
 
 // Annotation ...
