@@ -38,7 +38,11 @@ func CreateStepResult(id uuid.UUID) error {
 		lintSteps[stepID] = true
 	}
 
-	if lintSteps[stepInfo.ID] {
+	fmt.Println("HI MOM")
+	fmt.Println(stepInfo.ID)
+	fmt.Println(lintSteps)
+	// if lintSteps[stepInfo.ID] {
+	if true {
 		return CreateLintStepResult(testReport, stepInfo)
 	}
 
