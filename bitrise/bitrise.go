@@ -17,22 +17,25 @@ import (
 )
 
 const (
-	baseURLenvKey  = "BITRISE_API_URL"
-	defaultBaseURL = "https://api.bitrise.io"
-	version        = "v0.1"
+	baseURLenvKey        = "BITRISE_API_URL"
+	lintStepIDListenvKey = "BITRISE_LINT_STEPS"
+	defaultBaseURL       = "https://api.bitrise.io"
+	version              = "v0.1"
 )
 
 // Client manages communication with the Bitrise API.
 type Client struct {
-	client   *http.Client
-	BaseURL  string
-	apiToken string
+	client    *http.Client
+	BaseURL   string
+	apiToken  string
+	lintSteps map[string]bool
 }
 
 // StepResult ...
 type StepResult struct {
 	Name   string `json:"name"`
 	Status string `json:"status"`
+	ID     string `json:"id"`
 }
 
 // TestStepResult ...
@@ -44,11 +47,16 @@ type TestStepResult struct {
 
 // NewClient returns a new instance of *Client.
 func NewClient(apiToken string) *Client {
-	return &Client{
-		client:   &http.Client{Timeout: 10 * time.Second},
-		apiToken: apiToken,
-		BaseURL:  fmt.Sprintf("%s/%s", getEnv(baseURLenvKey, defaultBaseURL), version),
+	cl := Client{
+		client:    &http.Client{Timeout: 10 * time.Second},
+		apiToken:  apiToken,
+		BaseURL:   fmt.Sprintf("%s/%s", getEnv(baseURLenvKey, defaultBaseURL), version),
+		lintSteps: make(map[string]bool),
 	}
+	for _, stepID := range strings.Split(getEnv(lintStepIDListenvKey, ""), ",") {
+		cl.lintSteps[stepID] = true
+	}
+	return &cl
 }
 
 func getEnv(key, fallback string) string {
@@ -217,7 +225,14 @@ func (c *Client) CreateTestStepResult(appSlug string, buildSlug string, tsr *Tes
 		return errors.WithStack(err)
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/test-step-results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
+	var req *http.Request
+
+	if c.lintSteps[tsr.StepResult.ID] {
+		req, err = http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/lint-step-results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
+	} else {
+		req, err = http.NewRequest("POST", fmt.Sprintf("%s/apps/%s/builds/%s/test-step-results", c.BaseURL, appSlug, buildSlug), bytes.NewBuffer(payload))
+	}
+
 	req.Header.Set("Bitrise-Addon-Auth-Token", c.apiToken)
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
