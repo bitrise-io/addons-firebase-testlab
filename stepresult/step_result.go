@@ -1,6 +1,8 @@
 package stepresult
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	junitparser "github.com/joshdk/go-junit"
@@ -44,6 +46,16 @@ func CreateTestStepResult(id uuid.UUID) error {
 		}
 	}
 
+	stepInfo := models.StepInfo{}
+	if err := json.Unmarshal(testReport.Step, &stepInfo); err != nil {
+		return errors.WithStack(err)
+	}
+
+	name := stepInfo.Title
+	if len(testReport.Name) > 0 && testReport.Name != stepInfo.Title {
+		name = fmt.Sprintf("%s (%s)", stepInfo.Title, testReport.Name)
+	}
+
 	status := "success"
 	if len(failedTests) > 0 {
 		status = "failed"
@@ -51,7 +63,7 @@ func CreateTestStepResult(id uuid.UUID) error {
 
 	testStepResult := bitrise.TestStepResult{
 		StepResult: bitrise.StepResult{
-			Name:   testReport.Name,
+			Name:   name,
 			Status: status,
 		},
 		Total:       total,
