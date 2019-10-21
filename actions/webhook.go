@@ -126,7 +126,7 @@ func WebhookHandler(c buffalo.Context) error {
 			return errors.Wrap(err, "Failed to enrich test reports with JUNIT results")
 		}
 
-		if build.TestHistoryID == "" && build.TestExecutionID == "" {
+		if build.TestHistoryID != "" && build.TestExecutionID != "" {
 			details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, app.AppSlug, appData.BuildSlug)
 			if err != nil {
 				logger.Error("Failed to get test details", zap.Any("error", errors.WithStack(err)))
