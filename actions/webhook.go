@@ -145,11 +145,8 @@ func WebhookHandler(c buffalo.Context) error {
 					result = "failed"
 				}
 				if result != "failed" {
-					if outcome == "skipped" {
-						result = "skipped"
-					}
-					if outcome == "inconclusive" {
-						result = "inconclusive"
+					if outcome == "skipped" || outcome == "inconclusive" {
+						result = outcome
 					}
 				}
 			}
