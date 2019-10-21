@@ -93,13 +93,12 @@ func WebhookHandler(c buffalo.Context) error {
 			logger.Warn("Failed to get totals of test", zap.Any("app_data", appData), zap.Error(err))
 			return c.Render(200, r.JSON(app))
 		}
-
 		if totals.Failed > 0 || totals.Inconclusive > 0 {
-			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "fail", time.Now())
+			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "fail", totals.Tests, time.Now())
 		} else if totals != (Totals{}) {
-			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "success", time.Now())
+			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "success", totals.Tests, time.Now())
 		} else {
-			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "null", time.Now())
+			ac.TestReportSummaryGenerated(app.AppSlug, appData.BuildSlug, "null", totals.Tests, time.Now())
 		}
 
 		testReportRecords := []models.TestReport{}
