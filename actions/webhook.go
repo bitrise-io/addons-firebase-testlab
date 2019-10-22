@@ -125,8 +125,18 @@ func WebhookHandler(c buffalo.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "Failed to enrich test reports with JUNIT results")
 		}
+		for _, tr := range testReportsWithTestSuites {
+			result := "success"
+			for _, ts := range tr.TestSuites {
+				if ts.Totals.Failed > 0 || totals.Inconclusive > 0 {
+					result = "fail"
+					break
+				}
+			}
+			ac.TestReportResult(app.AppSlug, appData.BuildSlug, result, "unit", tr.ID, time.Now())
+		}
 
-		if build.TestHistoryID != "" && build.TestExecutionID != "" {
+		if build != nil && build.TestHistoryID != "" && build.TestExecutionID != "" {
 			details, err := fAPI.GetTestsByHistoryAndExecutionID(build.TestHistoryID, build.TestExecutionID, app.AppSlug, appData.BuildSlug)
 			if err != nil {
 				logger.Error("Failed to get test details", zap.Any("error", errors.WithStack(err)))
@@ -153,17 +163,6 @@ func WebhookHandler(c buffalo.Context) error {
 
 			ac.TestReportResult(app.AppSlug, appData.BuildSlug, result, "ui", uuid.UUID{}, time.Now())
 		}
-		for _, tr := range testReportsWithTestSuites {
-			result := "success"
-			for _, ts := range tr.TestSuites {
-				if ts.Totals.Failed > 0 || totals.Inconclusive > 0 {
-					result = "fail"
-					break
-				}
-			}
-			ac.TestReportResult(app.AppSlug, appData.BuildSlug, result, "unit", tr.ID, time.Now())
-		}
-
 	case buildTriggeredEventType:
 		// Don't care
 	default:
