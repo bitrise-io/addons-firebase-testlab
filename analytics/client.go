@@ -65,6 +65,22 @@ func (c *Client) TestReportResult(appSlug, buildSlug, result, testType string, t
 	}
 }
 
+// NumberOfTestReports ...
+func (c *Client) NumberOfTestReports(appSlug, buildSlug string, count int, time time.Time) {
+	err := c.client.Enqueue(segment.Track{
+		UserId: appSlug,
+		Event:  "Number of test reports",
+		Properties: segment.NewProperties().
+			Set("app_slug", appSlug).
+			Set("build_slug", buildSlug).
+			Set("count", count).
+			Set("datetime", time),
+	})
+	if err != nil {
+		c.logger.Warn("Failed to track analytics (NumberOfTestReports)", zap.Error(err))
+	}
+}
+
 // Close ...
 func (c *Client) Close() error {
 	return c.client.Close()

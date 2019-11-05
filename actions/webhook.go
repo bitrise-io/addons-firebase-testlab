@@ -114,6 +114,8 @@ func WebhookHandler(c buffalo.Context) error {
 			return errors.Wrap(err, "Failed to find test reports in DB")
 		}
 
+		ac.NumberOfTestReports(app.AppSlug, appData.BuildSlug, len(testReportRecords), time.Now())
+
 		fAPI, err := firebaseutils.New()
 		if err != nil {
 			return errors.Wrap(err, "Failed to create Firebase API model")
