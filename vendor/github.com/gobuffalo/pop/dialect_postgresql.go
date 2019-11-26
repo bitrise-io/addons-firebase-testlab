@@ -53,6 +53,11 @@ func (p *postgresql) Create(s store, model *Model, cols columns.Columns) error {
 		if err != nil {
 			return errors.WithStack(err)
 		}
+		defer func(s *sqlx.NamedStmt) {
+			if err := stmt.Close(); err != nil {
+				Log("Failed to close statement: %s", err)
+			}
+		}(stmt)
 		err = stmt.Get(&id, model.Value)
 		if err != nil {
 			if err := stmt.Close(); err != nil {
