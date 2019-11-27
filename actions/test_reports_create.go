@@ -14,6 +14,7 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
+	"github.com/bitrise-io/addons-firebase-testlab/stepresult"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/pkg/errors"
@@ -189,6 +190,20 @@ func TestReportPatchHandler(c buffalo.Context) error {
 	if verrs.HasAny() {
 		return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
 	}
+
+	// TODO: move this to a BG worker
+	err = stepresult.CreateTestStepResult(tr.ID)
+	if err != nil {
+		logger.Error("Failed to create step result", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	}
+
+	// workerService := worker.Service{}
+	// err = workerService.EnqueueCreateStepResult(tr.ID, 0)
+	// if err != nil {
+	// 	logger.Error("Failed to enqueue CreateStepResult worker", zap.Any("error", errors.WithStack(err)))
+	// 	return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	// }
 
 	return c.Render(http.StatusOK, r.JSON(tr))
 }

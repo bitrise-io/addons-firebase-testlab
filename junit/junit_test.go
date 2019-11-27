@@ -58,7 +58,8 @@ func Test_Junitparser_Parse(t *testing.T) {
 						junitmodels.Test{
 							Name:      "should default path to an empty string",
 							Classname: "JUnitXmlReporter.constructor",
-							Duration:  6000000, Status: "failed",
+							Duration:  6000000,
+							Status:    "failed",
 							Error: junitmodels.Error{
 								Message: "test failure",
 								Type:    "",

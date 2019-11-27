@@ -34,6 +34,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:5aa9c43b511ea252e07e0a93fa41683c2b13cd03d10ad4705de9b2c5bfb65e3a"
+  name = "github.com/bitrise-io/api-utils"
+  packages = ["utils"]
+  pruneopts = ""
+  revision = "a2aa6a6a45493ef33df4ba4d64f588a53d9e9e8f"
+
+[[projects]]
+  branch = "master"
   digest = "1:2527e8173e63cf7d9dd1f93ac20b617e17f0225f1788fdf52a78f185ec370ab4"
   name = "github.com/bitrise-io/go-crypto"
   packages = ["crypto"]
@@ -270,6 +278,14 @@
   revision = "3af38e8e2648503125fca81851ca7142b7498ce3"
 
 [[projects]]
+  digest = "1:b975e0fbc2b4d61a11dd33e2fec0179db756ebcf83e9d5447891b0fc47fcedfa"
+  name = "github.com/gocraft/work"
+  packages = ["."]
+  pruneopts = ""
+  revision = "1d4117a214abff263b472043871c8666aedb716b"
+  version = "v0.5.1"
+
+[[projects]]
   digest = "1:141cc9fc6279592458b304038bd16a05ef477d125c6dad281216345a11746fd7"
   name = "github.com/gofrs/uuid"
   packages = ["."]
@@ -291,6 +307,17 @@
   ]
   pruneopts = ""
   revision = "1643683e1b54a9e88ad26d98f81400c8c9d9f4f9"
+
+[[projects]]
+  digest = "1:dcf8316121302735c0ac84e05f4686e3b34e284444435e9a206da48d8be18cb1"
+  name = "github.com/gomodule/redigo"
+  packages = [
+    "internal",
+    "redis",
+  ]
+  pruneopts = ""
+  revision = "9c11da706d9b7902c6da69c592f75637793fe121"
+  version = "v2.0.0"
 
 [[projects]]
   digest = "1:e097a364f4e8d8d91b9b9eeafb992d3796a41fde3eb548c1a87eb9d9f60725cf"
@@ -580,6 +607,14 @@
   pruneopts = ""
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  digest = "1:6ab228f39a195cb1dab3564a0f27dc24a52bb3a19fa58dd2967f1e7b2482d82b"
+  name = "github.com/robfig/cron"
+  packages = ["."]
+  pruneopts = ""
+  revision = "b41be1df696709bb6395fe435af20370037c0b4c"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -989,6 +1024,7 @@
   input-imports = [
     "cloud.google.com/go/storage",
     "github.com/DataDog/datadog-go/statsd",
+    "github.com/bitrise-io/api-utils/utils",
     "github.com/bitrise-io/go-crypto/crypto",
     "github.com/bitrise-io/go-utils/fileutil",
     "github.com/bitrise-io/go-utils/log",
@@ -1000,6 +1036,8 @@
     "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
+    "github.com/gocraft/work",
+    "github.com/gomodule/redigo/redis",
     "github.com/joshdk/go-junit",
     "github.com/markbates/pop/nulls",
     "github.com/pkg/errors",

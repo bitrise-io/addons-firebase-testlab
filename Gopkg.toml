@@ -70,3 +70,11 @@
 [[constraint]]
   branch = "master"
   name = "github.com/joshdk/go-junit"
+
+[[constraint]]
+  name = "github.com/gocraft/work"
+  version = "v0.5.1"
+
+[[override]]
+  name = "github.com/robfig/cron"
+  version = "v1.2.0"
