@@ -9,7 +9,7 @@ RUN go get github.com/codegangsta/gin \
     && go get github.com/kisielk/errcheck \
     && go get golang.org/x/lint/golint \
     && go get github.com/stripe/safesql \
-    && go get github.com/gobuffalo/buffalo/buffalo
+    && GO111MODULE=on go get github.com/gobuffalo/buffalo/buffalo@v0.15.1
 
 RUN apt-get update -qq && apt-get upgrade -y && \
     apt-get install -y postgresql-client
