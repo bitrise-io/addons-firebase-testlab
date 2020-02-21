@@ -249,9 +249,9 @@ func TestPost(c buffalo.Context) error {
 	if timeout := postTestrequestModel.TestSpecification.TestTimeout; timeout != "" {
 		secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
 		if err == nil {
-			if secs > 2700.0 {
-				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '2700s', overriding it to '2700s'", timeout, appSlug))
-				postTestrequestModel.TestSpecification.TestTimeout = "2700s"
+			if secs > 3600.0 {
+				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '3600s', overriding it to '3600s'", timeout, appSlug))
+				postTestrequestModel.TestSpecification.TestTimeout = "3600s"
 			}
 		}
 	}
