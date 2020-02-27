@@ -218,6 +218,44 @@ func TestGet(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.JSON(steps))
 }
 
+// ensureTimeout limits testing.TestMatrix.TestSpecification.TestTimeout and returns a warning if TestTimeout was higher than the allowed.
+func ensureTimeout(matrix *testing.TestMatrix, appSlug string) string {
+	if matrix == nil {
+		return ""
+	}
+
+	spec := matrix.TestSpecification
+	if spec == nil {
+		return ""
+	}
+
+	timeout := spec.TestTimeout
+	if len(timeout) == 0 {
+		return ""
+	}
+
+	secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
+	if err != nil {
+		return ""
+	}
+
+	maxTimeoutSecs := 0
+	switch {
+	case spec.AndroidInstrumentationTest != nil,
+		spec.AndroidRoboTest != nil,
+		spec.AndroidTestLoop != nil:
+		maxTimeoutSecs = androidMaxTimeoutSecs
+	case spec.IosXcTest != nil:
+		maxTimeoutSecs = iosMaxTimeoutSecs
+	}
+
+	if maxTimeoutSecs > 0 && secs > float64(maxTimeoutSecs) {
+		spec.TestTimeout = fmt.Sprintf("%ds", maxTimeoutSecs)
+		return fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, maxTimeoutSecs, maxTimeoutSecs)
+	}
+	return ""
+}
+
 // TestPost ...
 func TestPost(c buffalo.Context) error {
 	logger := logging.WithContext(c)
@@ -241,35 +279,21 @@ func TestPost(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
-	testAndroid := false
 	if postTestrequestModel.EnvironmentMatrix.AndroidDeviceList != nil {
 		if err := firebaseutils.ValidateAndroidDevices(postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices); err != nil {
 			return c.Render(http.StatusNotAcceptable, r.String("Invalid device configuration: %s", err))
 		}
-		testAndroid = len(postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices) > 0
 	}
 
-	testIos := false
 	if postTestrequestModel.EnvironmentMatrix.IosDeviceList != nil {
 		if err := firebaseutils.ValidateIosDevices(postTestrequestModel.EnvironmentMatrix.IosDeviceList.IosDevices); err != nil {
 			return c.Render(http.StatusNotAcceptable, r.String("Invalid device configuration: %s", err))
 		}
-		testIos = len(postTestrequestModel.EnvironmentMatrix.IosDeviceList.IosDevices) > 0
 	}
 
-	if timeout := postTestrequestModel.TestSpecification.TestTimeout; timeout != "" {
-		secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
-		if err == nil {
-			if testAndroid && secs > androidMaxTimeoutSecs {
-				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, androidMaxTimeoutSecs, androidMaxTimeoutSecs))
-				postTestrequestModel.TestSpecification.TestTimeout = fmt.Sprintf("%ds", androidMaxTimeoutSecs)
-			}
-
-			if testIos && secs > iosMaxTimeoutSecs {
-				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, iosMaxTimeoutSecs, iosMaxTimeoutSecs))
-				postTestrequestModel.TestSpecification.TestTimeout = fmt.Sprintf("%ds", iosMaxTimeoutSecs)
-			}
-		}
+	warning := ensureTimeout(postTestrequestModel, appSlug)
+	if len(warning) > 0 {
+		logger.Warn(warning)
 	}
 
 	fAPI, err := firebaseutils.New()
