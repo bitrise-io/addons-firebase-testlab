@@ -22,6 +22,13 @@ import (
 	testing "google.golang.org/api/testing/v1"
 )
 
+const (
+	// Android test run uses virtual devices, while iOS uses phisical devices.
+	// https://cloud.google.com/sdk/gcloud/reference/firebase/test/android/run#--timeout
+	androidMaxTimeoutSecs = 60 * 60
+	iosMaxTimeoutSecs     = 30 * 60
+)
+
 // TestGet ...
 func TestGet(c buffalo.Context) error {
 	logger := logging.WithContext(c)
@@ -234,24 +241,33 @@ func TestPost(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.String("Invalid request"))
 	}
 
+	testAndroid := false
 	if postTestrequestModel.EnvironmentMatrix.AndroidDeviceList != nil {
 		if err := firebaseutils.ValidateAndroidDevices(postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices); err != nil {
 			return c.Render(http.StatusNotAcceptable, r.String("Invalid device configuration: %s", err))
 		}
+		testAndroid = len(postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices) > 0
 	}
 
+	testIos := false
 	if postTestrequestModel.EnvironmentMatrix.IosDeviceList != nil {
 		if err := firebaseutils.ValidateIosDevices(postTestrequestModel.EnvironmentMatrix.IosDeviceList.IosDevices); err != nil {
 			return c.Render(http.StatusNotAcceptable, r.String("Invalid device configuration: %s", err))
 		}
+		testIos = len(postTestrequestModel.EnvironmentMatrix.IosDeviceList.IosDevices) > 0
 	}
 
 	if timeout := postTestrequestModel.TestSpecification.TestTimeout; timeout != "" {
 		secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
 		if err == nil {
-			if secs > 3600.0 {
-				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '3600s', overriding it to '3600s'", timeout, appSlug))
-				postTestrequestModel.TestSpecification.TestTimeout = "3600s"
+			if testAndroid && secs > androidMaxTimeoutSecs {
+				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, androidMaxTimeoutSecs, androidMaxTimeoutSecs))
+				postTestrequestModel.TestSpecification.TestTimeout = fmt.Sprintf("%ds", androidMaxTimeoutSecs)
+			}
+
+			if testIos && secs > iosMaxTimeoutSecs {
+				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, iosMaxTimeoutSecs, iosMaxTimeoutSecs))
+				postTestrequestModel.TestSpecification.TestTimeout = fmt.Sprintf("%ds", iosMaxTimeoutSecs)
 			}
 		}
 	}
