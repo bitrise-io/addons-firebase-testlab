@@ -218,16 +218,16 @@ func TestGet(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.JSON(steps))
 }
 
-func maxTimeoutSecs(spec testing.TestSpecification) (secs int) {
+func maxTimeoutSecs(spec testing.TestSpecification) int {
 	switch {
 	case spec.AndroidInstrumentationTest != nil,
 		spec.AndroidRoboTest != nil,
 		spec.AndroidTestLoop != nil:
-		secs = androidMaxTimeoutSecs
+		return androidMaxTimeoutSecs
 	case spec.IosXcTest != nil:
-		secs = iosMaxTimeoutSecs
+		return iosMaxTimeoutSecs
 	}
-	return
+	return 0
 }
 
 // TestPost ...
@@ -269,7 +269,7 @@ func TestPost(c buffalo.Context) error {
 		secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
 		if err == nil {
 			maxSecs := maxTimeoutSecs(*postTestrequestModel.TestSpecification)
-			if secs > float64(maxSecs) {
+			if maxSecs > 0 && secs > float64(maxSecs) {
 				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, maxSecs, maxSecs))
 				postTestrequestModel.TestSpecification.TestTimeout = fmt.Sprintf("%ds", maxSecs)
 			}
