@@ -218,42 +218,16 @@ func TestGet(c buffalo.Context) error {
 	return c.Render(http.StatusOK, r.JSON(steps))
 }
 
-// ensureTimeout limits testing.TestMatrix.TestSpecification.TestTimeout and returns a warning if TestTimeout was higher than the allowed.
-func ensureTimeout(matrix *testing.TestMatrix, appSlug string) string {
-	if matrix == nil {
-		return ""
-	}
-
-	spec := matrix.TestSpecification
-	if spec == nil {
-		return ""
-	}
-
-	timeout := spec.TestTimeout
-	if len(timeout) == 0 {
-		return ""
-	}
-
-	secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
-	if err != nil {
-		return ""
-	}
-
-	maxTimeoutSecs := 0
+func maxTimeoutSecs(spec testing.TestSpecification) (secs int) {
 	switch {
 	case spec.AndroidInstrumentationTest != nil,
 		spec.AndroidRoboTest != nil,
 		spec.AndroidTestLoop != nil:
-		maxTimeoutSecs = androidMaxTimeoutSecs
+		secs = androidMaxTimeoutSecs
 	case spec.IosXcTest != nil:
-		maxTimeoutSecs = iosMaxTimeoutSecs
+		secs = iosMaxTimeoutSecs
 	}
-
-	if maxTimeoutSecs > 0 && secs > float64(maxTimeoutSecs) {
-		spec.TestTimeout = fmt.Sprintf("%ds", maxTimeoutSecs)
-		return fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, maxTimeoutSecs, maxTimeoutSecs)
-	}
-	return ""
+	return
 }
 
 // TestPost ...
@@ -291,9 +265,15 @@ func TestPost(c buffalo.Context) error {
 		}
 	}
 
-	warning := ensureTimeout(postTestrequestModel, appSlug)
-	if len(warning) > 0 {
-		logger.Warn(warning)
+	if timeout := postTestrequestModel.TestSpecification.TestTimeout; timeout != "" {
+		secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
+		if err == nil {
+			maxSecs := maxTimeoutSecs(*postTestrequestModel.TestSpecification)
+			if secs > float64(maxSecs) {
+				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, maxSecs, maxSecs))
+				postTestrequestModel.TestSpecification.TestTimeout = fmt.Sprintf("%ds", maxSecs)
+			}
+		}
 	}
 
 	fAPI, err := firebaseutils.New()
