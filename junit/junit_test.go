@@ -75,7 +75,7 @@ func Test_Junitparser_Parse(t *testing.T) {
 							Classname: "JUnitXmlReporter.constructor",
 							Duration:  0,
 							Status:    "skipped",
-							Error:     error(nil),
+							Error:     junitmodels.Error{},
 							Properties: map[string]string{
 								"classname": "JUnitXmlReporter.constructor",
 								"name":      "should default consolidate to true",
@@ -87,7 +87,7 @@ func Test_Junitparser_Parse(t *testing.T) {
 							Classname: "JUnitXmlReporter.constructor",
 							Duration:  0,
 							Status:    "passed",
-							Error:     error(nil),
+							Error:     junitmodels.Error{},
 							Properties: map[string]string{
 								"classname": "JUnitXmlReporter.constructor",
 								"name":      "should default useDotNotation to true",

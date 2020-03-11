@@ -92,9 +92,9 @@ func ingestTestcase(root xmlNode) Test {
 
 func ingestError(root xmlNode) Error {
 	return Error{
-		Body:    string(root.Content),
 		Type:    root.Attr("type"),
 		Message: root.Attr("message"),
+		Body:    string(root.Content),
 	}
 }
 

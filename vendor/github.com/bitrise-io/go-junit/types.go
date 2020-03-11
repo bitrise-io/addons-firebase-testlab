@@ -127,7 +127,7 @@ type Test struct {
 	// The following relations should hold true.
 	//   Error == nil && (Status == Passed || Status == Skipped)
 	//   Error != nil && (Status == Failed || Status == Error)
-	Error error `json:"error" yaml:"error"`
+	Error Error `json:"error" yaml:"error"`
 
 	// Additional properties from XML node attributes.
 	// Some tools use them to store additional information about test location.
