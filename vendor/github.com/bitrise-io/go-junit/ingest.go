@@ -5,6 +5,8 @@
 package junit
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -91,6 +93,10 @@ func ingestTestcase(root xmlNode) Test {
 }
 
 func ingestError(root xmlNode) Error {
+	if str, err := json.Marshal(root.Attrs); err == nil {
+		fmt.Println(string(str))
+	}
+
 	return Error{
 		Type:    root.Attr("type"),
 		Message: root.Attr("message"),
