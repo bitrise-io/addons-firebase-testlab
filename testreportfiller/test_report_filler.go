@@ -9,8 +9,8 @@ import (
 
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
-	junitmodels "github.com/bitrise-io/go-junit"
 	"github.com/gobuffalo/uuid"
+	junitmodels "github.com/joshdk/go-junit"
 	"github.com/pkg/errors"
 )
 

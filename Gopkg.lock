@@ -42,14 +42,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:32033bdff5107287715e42f8f458e2ddab7170a7b95740669b14440e02c1a33c"
-  name = "github.com/bitrise-io/go-junit"
-  packages = ["."]
-  pruneopts = ""
-  revision = "2ba01a402b3f21383eff748a0b499dd5e8d37f84"
-
-[[projects]]
-  branch = "master"
   digest = "1:d4bd4e3d2d5c6e3de6e0735bc0d43fa5573c3a7cda0f0049ad4824dbecc36f04"
   name = "github.com/bitrise-io/go-utils"
   packages = [
@@ -381,6 +373,14 @@
   pruneopts = ""
   revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
   version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:c4c1388b99d650df1570fafb14fb9ee973e0e59836fde7e061dd8b37f7f640cd"
+  name = "github.com/joshdk/go-junit"
+  packages = ["."]
+  pruneopts = ""
+  revision = "e5d93c0f31a8353caf1572cdb565fdfdb80cc0a7"
 
 [[projects]]
   branch = "master"
@@ -990,7 +990,6 @@
     "cloud.google.com/go/storage",
     "github.com/DataDog/datadog-go/statsd",
     "github.com/bitrise-io/go-crypto/crypto",
-    "github.com/bitrise-io/go-junit",
     "github.com/bitrise-io/go-utils/fileutil",
     "github.com/bitrise-io/go-utils/log",
     "github.com/bitrise-io/go-utils/sliceutil",
@@ -1001,6 +1000,7 @@
     "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
+    "github.com/joshdk/go-junit",
     "github.com/markbates/pop/nulls",
     "github.com/pkg/errors",
     "github.com/savaki/amplitude-go",

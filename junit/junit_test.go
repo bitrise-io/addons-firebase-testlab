@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
-	junitmodels "github.com/bitrise-io/go-junit"
+	junitmodels "github.com/joshdk/go-junit"
 	"github.com/stretchr/testify/require"
 )
 
