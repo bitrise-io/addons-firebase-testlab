@@ -249,10 +249,10 @@ func doMigration() {
 	}
 	db, ok := reflect.ValueOf(DB).Interface().(*sqlx.DB)
 	if !ok {
-		fmt.Println("Failed to convert connection to SQLX db")
+		fmt.Println("Failed to convert connection to sqlx db")
 	}
 	_, err := migrate.Exec(db.DB, "postgres", migrations, migrate.Up)
 	if err != nil {
-		fmt.Println("Failed to run migrations: %s", errors.WithStack(err))
+		fmt.Printf("Failed to run migrations: %s\n", errors.WithStack(err))
 	}
 }
