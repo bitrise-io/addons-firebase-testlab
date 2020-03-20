@@ -270,5 +270,5 @@ func doMigration() {
 	if err != nil {
 		fmt.Printf("Failed to run migrations: %s\n", errors.WithStack(err))
 	}
-	fmt.Printf("%d new migrations migrated\n")
+	fmt.Printf("%d new migrations migrated\n", n)
 }
