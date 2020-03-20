@@ -1,2 +1,2 @@
-release: bin/buffalo-pop pop migrate && go run main.go run-migrations
+release: bin/buffalo-pop pop migrate && go run tools/migration/main.go
 web: addons-firebase-testlab
