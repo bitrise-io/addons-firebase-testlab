@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -165,7 +166,7 @@ func App() *buffalo.App {
 				} else {
 					log.Donef("OK - %s", err)
 				}
-			case: "run-migrations":
+			case "run-migrations":
 				fmt.Println("Setup db connection for migrations ...")
 				err := database.RunMigrations()
 				if err != nil {

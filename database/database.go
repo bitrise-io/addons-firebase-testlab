@@ -262,10 +262,10 @@ func RunMigrations() error {
 	defer func() {
 		err := db.Close()
 		if err != nil {
-			return errors.WithMessage(err, "Failed to close DB")
+			fmt.Printf("Failed to close DB: %s\n", err)
 		}
 	}()
-	n, err = migrate.Exec(db, "postgres", migrations, migrate.Up)
+	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
 	if err != nil {
 		return errors.WithMessage(err, "Failed to run migrations")
 	}
