@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 // DB ...
