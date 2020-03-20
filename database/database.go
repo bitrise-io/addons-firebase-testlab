@@ -25,7 +25,6 @@ func InitDB() error {
 		return err
 	}
 
-	doMigration()
 	pop.Debug = configs.GetENV() == "development"
 	return nil
 }
@@ -243,8 +242,8 @@ func CreateTestReportAsset(tra *models.TestReportAsset) (*validate.Errors, error
 	return verrs, nil
 }
 
-func doMigration() {
-	fmt.Println("Setup db connection for migrations ...")
+// RunMigrations ...
+func RunMigrations() error {
 	migrations := &migrate.FileMigrationSource{
 		Dir: "migrations/sql",
 	}
@@ -254,21 +253,22 @@ func doMigration() {
 	}
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		fmt.Println("No database URL provided!")
+		return errors.New("No database URL provided")
 	}
 	db, err := sql.Open(driver, dbURL)
 	if err != nil {
-		fmt.Printf("Failed to open DB connection: %s", errors.WithStack(err))
+		return errors.WithMessage(err, "Failed to open DB connection")
 	}
 	defer func() {
 		err := db.Close()
 		if err != nil {
-			fmt.Printf("Failed to close DB: %s", errors.WithStack(err))
+			return errors.WithMessage(err, "Failed to close DB")
 		}
 	}()
 	n, err = migrate.Exec(db, "postgres", migrations, migrate.Up)
 	if err != nil {
-		fmt.Printf("Failed to run migrations: %s\n", errors.WithStack(err))
+		return errors.WithMessage(err, "Failed to run migrations")
 	}
 	fmt.Printf("%d new migrations migrated\n", n)
+	return nil
 }
