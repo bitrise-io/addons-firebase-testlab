@@ -583,6 +583,17 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:16849b96d50a370608d33935c366216503183feb8d9e89305f15853d9997f960"
+  name = "github.com/rubenv/sql-migrate"
+  packages = [
+    ".",
+    "sqlparse",
+  ]
+  pruneopts = ""
+  revision = "64f95ea68aa39b024c83a7d0d60910dbdafcfb04"
+
+[[projects]]
+  branch = "master"
   digest = "1:63a266eebc531df4b84cf52b1d999db90921e453d2de0166d3cd42372e238c18"
   name = "github.com/russross/blackfriday"
   packages = ["."]
@@ -968,6 +979,14 @@
   version = "v1.7.1"
 
 [[projects]]
+  digest = "1:cf14a5ea75b0cdb3eed3315839a120110068dce6df03edbe8c3bf4bd642a6024"
+  name = "gopkg.in/gorp.v1"
+  packages = ["."]
+  pruneopts = ""
+  revision = "6a667da9c028871f98598d85413e3fc4c6daa52e"
+  version = "v1.7.2"
+
+[[projects]]
   digest = "1:58ad576cc5d446d1e6cc6050af1b517c4f5c13787bce6d60b143b9f4db3174be"
   name = "gopkg.in/segmentio/analytics-go.v3"
   packages = ["."]
@@ -1003,6 +1022,7 @@
     "github.com/joshdk/go-junit",
     "github.com/markbates/pop/nulls",
     "github.com/pkg/errors",
+    "github.com/rubenv/sql-migrate",
     "github.com/savaki/amplitude-go",
     "github.com/stretchr/testify/require",
     "go.uber.org/zap",
