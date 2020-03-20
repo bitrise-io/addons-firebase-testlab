@@ -1,15 +1,15 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
-	"reflect"
+	"os"
 	"time"
 
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	migrate "github.com/rubenv/sql-migrate"
 )
@@ -247,11 +247,25 @@ func doMigration() {
 	migrations := &migrate.FileMigrationSource{
 		Dir: "migrations/sql",
 	}
-	db, ok := reflect.ValueOf(DB).Interface().(*sqlx.DB)
-	if !ok {
-		fmt.Println("Failed to convert connection to sqlx db")
+	driver := os.Getenv("DATABASE_DRIVER")
+	if driver == "" {
+		driver = "postgres"
 	}
-	_, err := migrate.Exec(db.DB, "postgres", migrations, migrate.Up)
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		fmt.Println("No database URL provided!")
+	}
+	db, err := sql.Open(driver, dbURL)
+	if err != nil {
+		fmt.Printf("Failed to open DB connection: %s", errors.WithStack(err))
+	}
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			fmt.Printf("Failed to close DB: %s", errors.WithStack(err))
+		}
+	}()
+	_, err = migrate.Exec(db, "postgres", migrations, migrate.Up)
 	if err != nil {
 		fmt.Printf("Failed to run migrations: %s\n", errors.WithStack(err))
 	}
