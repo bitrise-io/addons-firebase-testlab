@@ -244,6 +244,7 @@ func CreateTestReportAsset(tra *models.TestReportAsset) (*validate.Errors, error
 }
 
 func doMigration() {
+	fmt.Println("Setup db connection for migrations ...")
 	migrations := &migrate.FileMigrationSource{
 		Dir: "migrations/sql",
 	}
@@ -265,8 +266,9 @@ func doMigration() {
 			fmt.Printf("Failed to close DB: %s", errors.WithStack(err))
 		}
 	}()
-	_, err = migrate.Exec(db, "postgres", migrations, migrate.Up)
+	n, err = migrate.Exec(db, "postgres", migrations, migrate.Up)
 	if err != nil {
 		fmt.Printf("Failed to run migrations: %s\n", errors.WithStack(err))
 	}
+	fmt.Printf("%d new migrations migrated\n")
 }
