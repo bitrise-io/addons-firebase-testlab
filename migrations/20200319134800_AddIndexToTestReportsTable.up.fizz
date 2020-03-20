@@ -1,0 +1,1 @@
+sql("DROP INDEX test_reports_app_slug_build_slug_uploaded_idx")
