@@ -2,12 +2,14 @@ package database
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
 
@@ -21,6 +23,8 @@ func InitDB() error {
 	if err != nil {
 		return err
 	}
+
+	doMigration()
 	pop.Debug = configs.GetENV() == "development"
 	return nil
 }
@@ -236,4 +240,18 @@ func CreateTestReportAsset(tra *models.TestReportAsset) (*validate.Errors, error
 		return nil, errors.WithStack(err)
 	}
 	return verrs, nil
+}
+
+func doMigration() {
+	migrations := &migrate.FileMigrationSource{
+		Dir: "migrations/sql",
+	}
+	db, ok := reflect.ValueOf(DB).Interface().(*sqlx.DB)
+	if !ok {
+		fmt.Println("Failed to convert connection to SQLX db")
+	}
+	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	if err != nil {
+		fmt.Println("Failed to run migrations: %s", errors.WithStack(err))
+	}
 }
