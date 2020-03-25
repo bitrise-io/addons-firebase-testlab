@@ -341,6 +341,17 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:d5238196bdf2895dd79503cd12fdc80ccda2c564cb50eba12ab63330b2ba32e5"
+  name = "github.com/heroku/x"
+  packages = [
+    "hmetrics",
+    "hmetrics/onload",
+  ]
+  pruneopts = ""
+  revision = "2ea78f73804bbe72cb4f4a27a7749f090c0c7f1d"
+  version = "v0.0.22"
+
+[[projects]]
   digest = "1:a7998e19ebb78fdd341cdaf3825fded9030ae27af9c70d298c05d88744e16a0b"
   name = "github.com/jackc/pgx"
   packages = [
@@ -1019,6 +1030,7 @@
     "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
+    "github.com/heroku/x/hmetrics/onload",
     "github.com/joshdk/go-junit",
     "github.com/markbates/pop/nulls",
     "github.com/pkg/errors",
