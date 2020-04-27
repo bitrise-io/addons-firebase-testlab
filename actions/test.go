@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
@@ -124,86 +123,6 @@ func TestGet(c buffalo.Context) error {
 		}
 		if build.BuildSessionEnabled && completed {
 			build.BuildSessionEnabled = false
-
-			testType := "instrumentation"
-
-			if !strings.Contains(strings.ToLower(steps.Steps[0].Name), "instrumentation") {
-				testType = "robo"
-			}
-
-			result := "success"
-			for _, step := range steps.Steps {
-				if step.Outcome.Summary != "success" {
-					result = "failed"
-				}
-
-				if !isIOS {
-					device := &testing.AndroidDevice{}
-					for _, dim := range step.DimensionValue {
-						if dim != nil {
-							switch dim.Key {
-							case "Model":
-								device.AndroidModelId = dim.Value
-							case "Version":
-								device.AndroidVersionId = dim.Value
-							case "Locale":
-								device.Locale = dim.Value
-							case "Orientation":
-								device.Orientation = dim.Value
-							}
-						}
-					}
-					analyticsutils.SendTestingEventDevices(analyticsutils.EventTestingTestFinishedOnDevice,
-						appSlug,
-						buildSlug,
-						testType,
-						[]*testing.AndroidDevice{device},
-						map[string]interface{}{
-							"test_result": step.Outcome.Summary,
-						})
-				} else {
-					device := &testing.IosDevice{}
-					for _, dim := range step.DimensionValue {
-						if dim != nil {
-							switch dim.Key {
-							case "Model":
-								device.IosModelId = dim.Value
-							case "Version":
-								device.IosVersionId = dim.Value
-							case "Locale":
-								device.Locale = dim.Value
-							case "Orientation":
-								device.Orientation = dim.Value
-							}
-						}
-					}
-					analyticsutils.SendIOSTestingEventDevices(analyticsutils.EventIOSTestingTestFinishedOnDevice,
-						appSlug,
-						buildSlug,
-						"",
-						[]*testing.IosDevice{device},
-						map[string]interface{}{
-							"test_result": step.Outcome.Summary,
-						})
-				}
-			}
-			if !isIOS {
-				analyticsutils.SendTestingEvent(analyticsutils.EventTestingTestFinished,
-					appSlug,
-					buildSlug,
-					testType,
-					map[string]interface{}{
-						"test_result": result,
-					})
-			} else {
-				analyticsutils.SendTestingEvent(analyticsutils.EventIOSTestingTestFinished,
-					appSlug,
-					buildSlug,
-					"",
-					map[string]interface{}{
-						"test_result": result,
-					})
-			}
 		}
 	}
 
@@ -306,37 +225,6 @@ func TestPost(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
-	if postTestrequestModel.TestSpecification.IosXcTest == nil {
-		testType := "robo"
-		if postTestrequestModel.TestSpecification.AndroidInstrumentationTest != nil {
-			testType = "instrumentation"
-		}
-
-		analyticsutils.SendTestingEvent(analyticsutils.EventTestingTestStarted,
-			appSlug,
-			buildSlug,
-			testType,
-			nil)
-		analyticsutils.SendTestingEventDevices(analyticsutils.EventTestingTestStartedOnDevice,
-			appSlug,
-			buildSlug,
-			testType,
-			postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices,
-			nil)
-	} else {
-		analyticsutils.SendTestingEvent(analyticsutils.EventIOSTestingTestStarted,
-			appSlug,
-			buildSlug,
-			"",
-			nil)
-		analyticsutils.SendIOSTestingEventDevices(analyticsutils.EventIOSTestingTestStartedOnDevice,
-			appSlug,
-			buildSlug,
-			"",
-			postTestrequestModel.EnvironmentMatrix.IosDeviceList.IosDevices,
-			nil)
-	}
-
 	return c.Render(http.StatusOK, r.String(""))
 }
 
@@ -410,10 +298,6 @@ func TestAssetUploadURLsAndroid(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
-	analyticsutils.SendUploadEvent(analyticsutils.EventUploadFileUploadRequested,
-		appSlug,
-		buildSlug)
-
 	return c.Render(http.StatusOK, r.JSON(resp))
 }
 
@@ -452,10 +336,6 @@ func TestAssetsPost(c buffalo.Context) error {
 		logger.Error("Failed to save build", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
-
-	analyticsutils.SendUploadEvent(analyticsutils.EventUploadFileUploadRequested,
-		appSlug,
-		buildSlug)
 
 	return c.Render(http.StatusOK, r.JSON(resp))
 }

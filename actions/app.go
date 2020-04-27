@@ -14,7 +14,6 @@ import (
 	"github.com/markbates/pop/nulls"
 	"github.com/pkg/errors"
 
-	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
@@ -45,11 +44,6 @@ func initApp() error {
 	err = database.InitDB()
 	if err != nil {
 		return errors.Wrap(err, "Failed to init DB")
-	}
-
-	err = analyticsutils.Init()
-	if err != nil {
-		logger.Warn("Failed to initialize Analytics utils", zap.Any("error", errors.WithStack(err)))
 	}
 
 	fAPI, err := firebaseutils.New()

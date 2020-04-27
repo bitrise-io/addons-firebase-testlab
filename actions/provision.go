@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
 	"github.com/bitrise-io/addons-firebase-testlab/bitrise"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"go.uber.org/zap"
@@ -71,8 +70,6 @@ func ProvisionPostHandler(c buffalo.Context) error {
 			logger.Error("Failed to add app to DB", zap.Any("error", errors.WithStack(err)))
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
-
-		analyticsutils.SendAddonEvent(analyticsutils.EventAddonProvisioned, app.AppSlug, "", app.Plan)
 
 		client := bitrise.NewClient(app.BitriseAPIToken)
 		_, err = client.RegisterWebhook(app)
@@ -139,8 +136,6 @@ func ProvisionDeleteHandler(c buffalo.Context) error {
 		logger.Error("Failed to delete App from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
-
-	analyticsutils.SendAddonEvent(analyticsutils.EventAddonProvisioned, appSlug, "", "")
 
 	return c.Render(200, nil)
 }
