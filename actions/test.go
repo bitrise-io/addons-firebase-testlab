@@ -110,17 +110,6 @@ func TestGet(c buffalo.Context) error {
 	}
 
 	if len(steps.Steps) > 0 {
-		isIOS := false
-
-		completed := true
-		for _, step := range steps.Steps {
-			if step.State != "complete" {
-				completed = false
-			}
-			if strings.Contains(strings.ToLower(step.Name), "ios") {
-				isIOS = true
-			}
-		}
 		if build.BuildSessionEnabled && completed {
 			build.BuildSessionEnabled = false
 		}
