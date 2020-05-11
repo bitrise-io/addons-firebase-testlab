@@ -14,6 +14,7 @@ import (
 	"github.com/markbates/pop/nulls"
 	"github.com/pkg/errors"
 
+	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
@@ -49,6 +50,11 @@ func initApp() error {
 	fAPI, err := firebaseutils.New()
 	if err != nil {
 		return errors.Wrap(err, "Failed to create Firebase API model")
+	}
+
+	err = analytics.Initialize()
+	if err != nil {
+		return errors.WithMessage(err, "Failed to initialize Segment analytics")
 	}
 
 	// init devices catalog

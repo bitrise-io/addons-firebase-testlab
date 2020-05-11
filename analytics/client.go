@@ -11,23 +11,30 @@ import (
 	segment "gopkg.in/segmentio/analytics-go.v3"
 )
 
+var client segment.Client
+
 // Client ...
 type Client struct {
 	client segment.Client
 	logger *zap.Logger
 }
 
-// NewClient ...
-func NewClient(logger *zap.Logger) (Client, error) {
+// Initialize ...
+func Initialize() error {
 	writeKey, ok := os.LookupEnv("SEGMENT_WRITE_KEY")
 	if !ok {
-		return Client{}, errors.New("No value set for env SEGMENT_WRITEKEY")
+		return errors.New("No value set for env SEGMENT_WRITEKEY")
 	}
+	client = segment.New(writeKey)
+	return nil
+}
 
-	return Client{
-		client: segment.New(writeKey),
+// GetClient ...
+func GetClient(logger *zap.Logger) *Client {
+	return &Client{
+		client: client,
 		logger: logger,
-	}, nil
+	}
 }
 
 // TestReportSummaryGenerated ...
