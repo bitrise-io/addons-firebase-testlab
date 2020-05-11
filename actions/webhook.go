@@ -85,12 +85,7 @@ func WebhookHandler(c buffalo.Context) error {
 			}
 		}
 
-		ac, err := analytics.GetClient(logger)
-		if err != nil {
-			logger.Warn("Failed to initialize analytics client", zap.Error(err))
-			return c.Render(200, r.JSON(app))
-		}
-
+		ac := analytics.GetClient(logger)
 		totals, err := GetTotals(app.AppSlug, appData.BuildSlug, logger)
 		if err != nil {
 			logger.Warn("Failed to get totals of test", zap.Any("app_data", appData), zap.Error(err))
