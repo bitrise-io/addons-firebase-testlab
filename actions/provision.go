@@ -13,6 +13,7 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
+	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
 )
@@ -71,6 +72,9 @@ func ProvisionPostHandler(c buffalo.Context) error {
 			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 		}
 
+		ac := analytics.GetClient(logger)
+		ac.SendAddonProvisionedEvent(provData.AppSlug, "", provData.Plan)
+
 		client := bitrise.NewClient(app.BitriseAPIToken)
 		_, err = client.RegisterWebhook(app)
 		if err != nil {
@@ -122,6 +126,10 @@ func ProvisionPutHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
+	// TODO: fetch app to get old plan
+	ac := analytics.GetClient(logger)
+	ac.SendAddonPlanChangedEvent(appSlug, "", provData.Plan)
+
 	return c.Render(200, nil)
 }
 
@@ -136,6 +144,9 @@ func ProvisionDeleteHandler(c buffalo.Context) error {
 		logger.Error("Failed to delete App from DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
+
+	ac := analytics.GetClient(logger)
+	ac.SendAddonDeprovisionedEvent(appSlug, "", "")
 
 	return c.Render(200, nil)
 }

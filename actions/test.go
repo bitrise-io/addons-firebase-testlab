@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
@@ -109,16 +110,103 @@ func TestGet(c buffalo.Context) error {
 		}
 	}
 
+	ac := analytics.GetClient(logger)
 	if len(steps.Steps) > 0 {
+		isIOS := false
+
 		completed := true
 		for _, step := range steps.Steps {
 			if step.State != "complete" {
 				completed = false
 			}
+			if strings.Contains(strings.ToLower(step.Name), "ios") {
+				isIOS = true
+			}
 		}
 
 		if build.BuildSessionEnabled && completed {
 			build.BuildSessionEnabled = false
+
+			testType := "instrumentation"
+
+			if !strings.Contains(strings.ToLower(steps.Steps[0].Name), "instrumentation") {
+				testType = "robo"
+			}
+
+			result := "success"
+			for _, step := range steps.Steps {
+				if step.Outcome.Summary != "success" {
+					result = "failed"
+				}
+
+				if !isIOS {
+					device := &testing.AndroidDevice{}
+					for _, dim := range step.DimensionValue {
+						if dim != nil {
+							switch dim.Key {
+							case "Model":
+								device.AndroidModelId = dim.Value
+							case "Version":
+								device.AndroidVersionId = dim.Value
+							case "Locale":
+								device.Locale = dim.Value
+							case "Orientation":
+								device.Orientation = dim.Value
+							}
+						}
+					}
+					ac.SendAndroidTestFinishedOnDeviceEvent(
+						appSlug,
+						buildSlug,
+						testType,
+						[]*testing.AndroidDevice{device},
+						map[string]interface{}{
+							"test_result": step.Outcome.Summary,
+						},
+					)
+				} else {
+					device := &testing.IosDevice{}
+					for _, dim := range step.DimensionValue {
+						if dim != nil {
+							switch dim.Key {
+							case "Model":
+								device.IosModelId = dim.Value
+							case "Version":
+								device.IosVersionId = dim.Value
+							case "Locale":
+								device.Locale = dim.Value
+							case "Orientation":
+								device.Orientation = dim.Value
+							}
+						}
+					}
+					ac.SendIOSTestFinishedOnDeviceEvent(
+						appSlug,
+						buildSlug,
+						"",
+						[]*testing.IosDevice{device},
+						map[string]interface{}{
+							"test_result": step.Outcome.Summary,
+						})
+				}
+			}
+			if !isIOS {
+				ac.SendAndroidTestFinishedEvent(
+					appSlug,
+					buildSlug,
+					testType,
+					map[string]interface{}{
+						"test_result": result,
+					})
+			} else {
+				ac.SendIOSTestFinishedEvent(
+					appSlug,
+					buildSlug,
+					"",
+					map[string]interface{}{
+						"test_result": result,
+					})
+			}
 		}
 	}
 
@@ -221,6 +309,38 @@ func TestPost(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
+	ac := analytics.GetClient(logger)
+	if postTestrequestModel.TestSpecification.IosXcTest == nil {
+		testType := "robo"
+		if postTestrequestModel.TestSpecification.AndroidInstrumentationTest != nil {
+			testType = "instrumentation"
+		}
+
+		ac.SendAndroidTestStartedEvent(
+			appSlug,
+			buildSlug,
+			testType,
+			nil)
+		ac.SendAndroidTestStartedOnDeviceEvent(
+			appSlug,
+			buildSlug,
+			testType,
+			postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices,
+			nil)
+	} else {
+		ac.SendIOSTestStartedEvent(
+			appSlug,
+			buildSlug,
+			"",
+			nil)
+		ac.SendIOSTestStartedOnDeviceEvent(
+			appSlug,
+			buildSlug,
+			"",
+			postTestrequestModel.EnvironmentMatrix.IosDeviceList.IosDevices,
+			nil)
+	}
+
 	return c.Render(http.StatusOK, r.String(""))
 }
 
@@ -294,6 +414,9 @@ func TestAssetUploadURLsAndroid(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
+	ac := analytics.GetClient(logger)
+	ac.SendUploadRequestedEvent(appSlug,buildSlug)
+
 	return c.Render(http.StatusOK, r.JSON(resp))
 }
 
@@ -332,6 +455,9 @@ func TestAssetsPost(c buffalo.Context) error {
 		logger.Error("Failed to save build", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
+
+	ac := analytics.GetClient(logger)
+	ac.SendUploadRequestedEvent(appSlug,buildSlug)
 
 	return c.Render(http.StatusOK, r.JSON(resp))
 }

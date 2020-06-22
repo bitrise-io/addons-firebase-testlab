@@ -93,7 +93,7 @@ func (c *Client) NumberOfTestReports(appSlug, buildSlug string, count int, time 
 }
 
 // SendUploadRequestedEvent ...
-func (c *Client) SendUploadRequestedEvent(event, appSlug, buildSlug string) {
+func (c *Client) SendUploadRequestedEvent(appSlug, buildSlug string) {
 	if c.client == nil {
 		return
 	}
@@ -107,6 +107,35 @@ func (c *Client) SendUploadRequestedEvent(event, appSlug, buildSlug string) {
 	})
 	if err != nil {
 		c.logger.Warn("Failed to track analytics (SendUploadRequestedEvent)", zap.Error(err))
+	}
+}
+
+func (c *Client) sendTestingEvent(event, appSlug, buildSlug, testType string, eventProperties map[string]interface{}) {
+	if c.client == nil {
+		return
+	}
+
+	trackProps := segment.NewProperties().
+		Set("app_slug", appSlug).
+		Set("build_slug", buildSlug)
+
+	if testType != "" {
+		trackProps = trackProps.Set("test_type", testType)
+	}
+	if eventProperties != nil {
+		for key, value := range eventProperties {
+			trackProps = trackProps.Set(key, value)
+		}
+	}
+	err := c.client.Enqueue(segment.Track{
+		UserId:     appSlug,
+		Event:      event,
+		Properties: trackProps,
+		Timestamp:  time.Now(),
+	})
+
+	if err != nil {
+		c.logger.Warn("Failed to track analytics (sendTestingEvent)", zap.String("event", event), zap.Error(err))
 	}
 }
 

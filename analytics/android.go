@@ -9,21 +9,33 @@ import (
 )
 
 const (
+	eventTestingTestStarted          = "vdt_android_addon_test_started"
+	eventTestingTestFinished         = "vdt_android_addon_test_finished"
 	eventTestingTestStartedOnDevice  = "vdt_android_addon_test_started_on_device"
 	eventTestingTestFinishedOnDevice = "vdt_android_addon_test_finished_on_device"
 )
 
-// SendTestStartedOnDeviceEvent ...
-func (c *Client) SendTestStartedOnDeviceEvent(appSlug, buildSlug, testType string, devices []*testing.AndroidDevice, eventProperties map[string]interface{}) {
-	c.sendTestingEventDevices(eventTestingTestStartedOnDevice, appSlug, buildSlug, testType, devices, eventProperties)
+// SendAndroidTestStartedOnDeviceEvent ...
+func (c *Client) SendAndroidTestStartedOnDeviceEvent(appSlug, buildSlug, testType string, devices []*testing.AndroidDevice, eventProperties map[string]interface{}) {
+	c.sendAndroidTestingEventDevices(eventTestingTestStartedOnDevice, appSlug, buildSlug, testType, devices, eventProperties)
 }
 
-// SendTestFinishedOnDeviceEvent ...
-func (c *Client) SendTestFinishedOnDeviceEvent(appSlug, buildSlug, testType string, devices []*testing.AndroidDevice, eventProperties map[string]interface{}) {
-	c.sendTestingEventDevices(eventTestingTestFinishedOnDevice, appSlug, buildSlug, testType, devices, eventProperties)
+// SendAndroidTestFinishedOnDeviceEvent ...
+func (c *Client) SendAndroidTestFinishedOnDeviceEvent(appSlug, buildSlug, testType string, devices []*testing.AndroidDevice, eventProperties map[string]interface{}) {
+	c.sendAndroidTestingEventDevices(eventTestingTestFinishedOnDevice, appSlug, buildSlug, testType, devices, eventProperties)
 }
 
-func (c *Client) sendTestingEventDevices(event, appSlug, buildSlug, testType string, devices []*testing.AndroidDevice, eventProperties map[string]interface{}) {
+// SendAndroidTestStartedEvent ...
+func (c *Client) SendAndroidTestStartedEvent(appSlug, buildSlug, testType string, eventProperties map[string]interface{}) {
+	c.sendTestingEvent(eventTestingTestStartedOnDevice, appSlug, buildSlug, testType, eventProperties)
+}
+
+// SendAndroidTestFinishedEvent ...
+func (c *Client) SendAndroidTestFinishedEvent(appSlug, buildSlug, testType string, eventProperties map[string]interface{}) {
+	c.sendTestingEvent(eventTestingTestFinishedOnDevice, appSlug, buildSlug, testType, eventProperties)
+}
+
+func (c *Client) sendAndroidTestingEventDevices(event, appSlug, buildSlug, testType string, devices []*testing.AndroidDevice, eventProperties map[string]interface{}) {
 	if c.client == nil {
 		return
 	}

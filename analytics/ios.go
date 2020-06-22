@@ -25,6 +25,16 @@ func (c *Client) SendIOSTestFinishedOnDeviceEvent(appSlug, buildSlug, testType s
 	c.sendIOSTestingEventDevices(eventIOSTestingTestFinishedOnDevice, appSlug, buildSlug, testType, devices, eventProperties)
 }
 
+// SendIOSTestStartedEvent ...
+func (c *Client) SendIOSTestStartedEvent(appSlug, buildSlug, testType string, eventProperties map[string]interface{}) {
+	c.sendTestingEvent(eventIOSTestingTestStartedOnDevice, appSlug, buildSlug, testType, eventProperties)
+}
+
+// SendIOSTestFinishedEvent ...
+func (c *Client) SendIOSTestFinishedEvent(appSlug, buildSlug, testType string, eventProperties map[string]interface{}) {
+	c.sendTestingEvent(eventIOSTestingTestFinishedOnDevice, appSlug, buildSlug, testType, eventProperties)
+}
+
 func (c *Client) sendIOSTestingEventDevices(event, appSlug, buildSlug, testType string, devices []*testing.IosDevice, eventProperties map[string]interface{}) {
 	if c.client == nil {
 		return
