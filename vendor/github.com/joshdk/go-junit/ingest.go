@@ -51,8 +51,7 @@ func ingestProperties(root xmlNode) map[string]string {
 	props := make(map[string]string, len(root.Nodes))
 
 	for _, node := range root.Nodes {
-		switch node.XMLName.Local {
-		case "property":
+		if node.XMLName.Local == "property" {
 			name := node.Attr("name")
 			value := node.Attr("value")
 			props[name] = value
@@ -64,10 +63,11 @@ func ingestProperties(root xmlNode) map[string]string {
 
 func ingestTestcase(root xmlNode) Test {
 	test := Test{
-		Name:      root.Attr("name"),
-		Classname: root.Attr("classname"),
-		Duration:  duration(root.Attr("time")),
-		Status:    StatusPassed,
+		Name:       root.Attr("name"),
+		Classname:  root.Attr("classname"),
+		Duration:   duration(root.Attr("time")),
+		Status:     StatusPassed,
+		Properties: root.Attrs,
 	}
 
 	for _, node := range root.Nodes {
@@ -80,6 +80,10 @@ func ingestTestcase(root xmlNode) Test {
 		case "error":
 			test.Error = ingestError(node)
 			test.Status = StatusError
+		case "system-out":
+			test.SystemOut = string(node.Content)
+		case "system-err":
+			test.SystemErr = string(node.Content)
 		}
 	}
 

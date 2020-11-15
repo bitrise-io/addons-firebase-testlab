@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
+	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
@@ -20,6 +20,13 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	testing "google.golang.org/api/testing/v1"
+)
+
+const (
+	// Android test run uses virtual devices, while iOS uses phisical devices.
+	// https://cloud.google.com/sdk/gcloud/reference/firebase/test/android/run#--timeout
+	androidMaxTimeoutSecs = 60 * 60
+	iosMaxTimeoutSecs     = 30 * 60
 )
 
 // TestGet ...
@@ -103,6 +110,7 @@ func TestGet(c buffalo.Context) error {
 		}
 	}
 
+	ac := analytics.GetClient(logger)
 	if len(steps.Steps) > 0 {
 		isIOS := false
 
@@ -115,6 +123,7 @@ func TestGet(c buffalo.Context) error {
 				isIOS = true
 			}
 		}
+
 		if build.BuildSessionEnabled && completed {
 			build.BuildSessionEnabled = false
 
@@ -146,14 +155,15 @@ func TestGet(c buffalo.Context) error {
 							}
 						}
 					}
-					analyticsutils.SendTestingEventDevices(analyticsutils.EventTestingTestFinishedOnDevice,
+					ac.SendAndroidTestFinishedOnDeviceEvent(
 						appSlug,
 						buildSlug,
 						testType,
 						[]*testing.AndroidDevice{device},
 						map[string]interface{}{
 							"test_result": step.Outcome.Summary,
-						})
+						},
+					)
 				} else {
 					device := &testing.IosDevice{}
 					for _, dim := range step.DimensionValue {
@@ -170,7 +180,7 @@ func TestGet(c buffalo.Context) error {
 							}
 						}
 					}
-					analyticsutils.SendIOSTestingEventDevices(analyticsutils.EventIOSTestingTestFinishedOnDevice,
+					ac.SendIOSTestFinishedOnDeviceEvent(
 						appSlug,
 						buildSlug,
 						"",
@@ -181,7 +191,7 @@ func TestGet(c buffalo.Context) error {
 				}
 			}
 			if !isIOS {
-				analyticsutils.SendTestingEvent(analyticsutils.EventTestingTestFinished,
+				ac.SendAndroidTestFinishedEvent(
 					appSlug,
 					buildSlug,
 					testType,
@@ -189,7 +199,7 @@ func TestGet(c buffalo.Context) error {
 						"test_result": result,
 					})
 			} else {
-				analyticsutils.SendTestingEvent(analyticsutils.EventIOSTestingTestFinished,
+				ac.SendIOSTestFinishedEvent(
 					appSlug,
 					buildSlug,
 					"",
@@ -209,6 +219,18 @@ func TestGet(c buffalo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, r.JSON(steps))
+}
+
+func maxTimeoutSecs(spec testing.TestSpecification) int {
+	switch {
+	case spec.AndroidInstrumentationTest != nil,
+		spec.AndroidRoboTest != nil,
+		spec.AndroidTestLoop != nil:
+		return androidMaxTimeoutSecs
+	case spec.IosXcTest != nil:
+		return iosMaxTimeoutSecs
+	}
+	return 0
 }
 
 // TestPost ...
@@ -249,9 +271,10 @@ func TestPost(c buffalo.Context) error {
 	if timeout := postTestrequestModel.TestSpecification.TestTimeout; timeout != "" {
 		secs, err := strconv.ParseFloat(strings.TrimSuffix(timeout, "s"), 32)
 		if err == nil {
-			if secs > 2700.0 {
-				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '2700s', overriding it to '2700s'", timeout, appSlug))
-				postTestrequestModel.TestSpecification.TestTimeout = "2700s"
+			maxSecs := maxTimeoutSecs(*postTestrequestModel.TestSpecification)
+			if maxSecs > 0 && secs > float64(maxSecs) {
+				logger.Warn(fmt.Sprintf("Incoming TestSpecification.TestTimeout '%s' from build '%s' exceeds limit of '%ds', overriding it to '%ds'", timeout, appSlug, maxSecs, maxSecs))
+				postTestrequestModel.TestSpecification.TestTimeout = fmt.Sprintf("%ds", maxSecs)
 			}
 		}
 	}
@@ -286,30 +309,31 @@ func TestPost(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 
+	ac := analytics.GetClient(logger)
 	if postTestrequestModel.TestSpecification.IosXcTest == nil {
 		testType := "robo"
 		if postTestrequestModel.TestSpecification.AndroidInstrumentationTest != nil {
 			testType = "instrumentation"
 		}
 
-		analyticsutils.SendTestingEvent(analyticsutils.EventTestingTestStarted,
+		ac.SendAndroidTestStartedEvent(
 			appSlug,
 			buildSlug,
 			testType,
 			nil)
-		analyticsutils.SendTestingEventDevices(analyticsutils.EventTestingTestStartedOnDevice,
+		ac.SendAndroidTestStartedOnDeviceEvent(
 			appSlug,
 			buildSlug,
 			testType,
 			postTestrequestModel.EnvironmentMatrix.AndroidDeviceList.AndroidDevices,
 			nil)
 	} else {
-		analyticsutils.SendTestingEvent(analyticsutils.EventIOSTestingTestStarted,
+		ac.SendIOSTestStartedEvent(
 			appSlug,
 			buildSlug,
 			"",
 			nil)
-		analyticsutils.SendIOSTestingEventDevices(analyticsutils.EventIOSTestingTestStartedOnDevice,
+		ac.SendIOSTestStartedOnDeviceEvent(
 			appSlug,
 			buildSlug,
 			"",
@@ -390,9 +414,8 @@ func TestAssetUploadURLsAndroid(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
-	analyticsutils.SendUploadEvent(analyticsutils.EventUploadFileUploadRequested,
-		appSlug,
-		buildSlug)
+	ac := analytics.GetClient(logger)
+	ac.SendUploadRequestedEvent(appSlug,buildSlug)
 
 	return c.Render(http.StatusOK, r.JSON(resp))
 }
@@ -433,9 +456,8 @@ func TestAssetsPost(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Invalid request"}))
 	}
 
-	analyticsutils.SendUploadEvent(analyticsutils.EventUploadFileUploadRequested,
-		appSlug,
-		buildSlug)
+	ac := analytics.GetClient(logger)
+	ac.SendUploadRequestedEvent(appSlug,buildSlug)
 
 	return c.Render(http.StatusOK, r.JSON(resp))
 }

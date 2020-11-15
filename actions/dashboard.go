@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bitrise-io/addons-firebase-testlab/analyticsutils"
+	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/bitrise-io/addons-firebase-testlab/bitrise"
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
@@ -93,7 +93,8 @@ func DashboardLoginPostHandler(c buffalo.Context) error {
 		zap.String("build_slug", buildSlug),
 	)
 
-	analyticsutils.SendAddonEvent(analyticsutils.EventAddonSSOLogin, appSlug, "", "")
+	ac := analytics.GetClient(logger)
+	ac.SendAddonSSOLoginEvent(appSlug, "", "")
 
 	appSlugStored, ok := c.Session().Get("app_slug").(string)
 	if ok {

@@ -159,11 +159,17 @@ func Test_TestReportFiller_FillMore(t *testing.T) {
 									Name:   "failing test",
 									Status: "failed",
 									Error:  junitmodels.Error{},
+									Properties: map[string]string{
+										"name": "failing test",
+									},
 								},
 								junitmodels.Test{
 									Name:   "erroneous test",
 									Status: "error",
 									Error:  junitmodels.Error{},
+									Properties: map[string]string{
+										"name": "erroneous test",
+									},
 								},
 							},
 						},
@@ -198,11 +204,17 @@ func Test_TestReportFiller_FillMore(t *testing.T) {
 									Name:   "failing test",
 									Status: "failed",
 									Error:  junitmodels.Error{},
+									Properties: map[string]string{
+										"name": "failing test",
+									},
 								},
 								junitmodels.Test{
 									Name:   "erroneous test",
 									Status: "error",
 									Error:  junitmodels.Error{},
+									Properties: map[string]string{
+										"name": "erroneous test",
+									},
 								},
 							},
 						},

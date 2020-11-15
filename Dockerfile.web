@@ -1,10 +1,10 @@
-FROM golang:1.11
+FROM golang:1.13
 
 RUN apt-get update -qq && apt-get upgrade -y && \
     apt-get install -y postgresql-client sqlite3
 
-RUN go get -v -u github.com/gobuffalo/buffalo/buffalo
-RUN go get -v -u github.com/gobuffalo/buffalo-pop
+RUN GO111MODULE=on go get -v -u github.com/gobuffalo/buffalo/buffalo@v0.15.1
+RUN GO111MODULE=on go get -v -u github.com/gobuffalo/buffalo-pop@v1.23.1
 
 COPY . /go/src/github.com/bitrise-io/addons-firebase-testlab/
 RUN cd /go/src/github.com/bitrise-io/addons-firebase-testlab/ && \

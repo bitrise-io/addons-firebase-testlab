@@ -65,6 +65,11 @@ func Test_Junitparser_Parse(t *testing.T) {
 								Type:    "",
 								Body:    "Assertion failed",
 							},
+							Properties: map[string]string{
+								"classname": "JUnitXmlReporter.constructor",
+								"name":      "should default path to an empty string",
+								"time":      "0.006",
+							},
 						},
 						junitmodels.Test{
 							Name:      "should default consolidate to true",
@@ -72,6 +77,11 @@ func Test_Junitparser_Parse(t *testing.T) {
 							Duration:  0,
 							Status:    "skipped",
 							Error:     error(nil),
+							Properties: map[string]string{
+								"classname": "JUnitXmlReporter.constructor",
+								"name":      "should default consolidate to true",
+								"time":      "0",
+							},
 						},
 						junitmodels.Test{
 							Name:      "should default useDotNotation to true",
@@ -79,6 +89,11 @@ func Test_Junitparser_Parse(t *testing.T) {
 							Duration:  0,
 							Status:    "passed",
 							Error:     error(nil),
+							Properties: map[string]string{
+								"classname": "JUnitXmlReporter.constructor",
+								"name":      "should default useDotNotation to true",
+								"time":      "0",
+							},
 						},
 					},
 				},
@@ -92,7 +107,7 @@ func Test_Junitparser_Parse(t *testing.T) {
 			<testsuites>
 			</testsuites>
 			`,
-			expResp: []junitmodels.Suite(nil),
+			expResp: []junitmodels.Suite{},
 			expErr:  "",
 		},
 		{

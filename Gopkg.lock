@@ -341,6 +341,17 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:d5238196bdf2895dd79503cd12fdc80ccda2c564cb50eba12ab63330b2ba32e5"
+  name = "github.com/heroku/x"
+  packages = [
+    "hmetrics",
+    "hmetrics/onload",
+  ]
+  pruneopts = ""
+  revision = "2ea78f73804bbe72cb4f4a27a7749f090c0c7f1d"
+  version = "v0.0.22"
+
+[[projects]]
   digest = "1:a7998e19ebb78fdd341cdaf3825fded9030ae27af9c70d298c05d88744e16a0b"
   name = "github.com/jackc/pgx"
   packages = [
@@ -376,11 +387,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:77c629debceea9f5f3dd313dcdd11e6e97d820ca2852e383d8f0afb340bbf8f0"
+  digest = "1:c4c1388b99d650df1570fafb14fb9ee973e0e59836fde7e061dd8b37f7f640cd"
   name = "github.com/joshdk/go-junit"
   packages = ["."]
   pruneopts = ""
-  revision = "6ce6523876d326121854e6ee3a43afd3aa4fb7af"
+  revision = "e5d93c0f31a8353caf1572cdb565fdfdb80cc0a7"
 
 [[projects]]
   branch = "master"
@@ -580,6 +591,17 @@
   pruneopts = ""
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:16849b96d50a370608d33935c366216503183feb8d9e89305f15853d9997f960"
+  name = "github.com/rubenv/sql-migrate"
+  packages = [
+    ".",
+    "sqlparse",
+  ]
+  pruneopts = ""
+  revision = "64f95ea68aa39b024c83a7d0d60910dbdafcfb04"
 
 [[projects]]
   branch = "master"
@@ -968,6 +990,14 @@
   version = "v1.7.1"
 
 [[projects]]
+  digest = "1:cf14a5ea75b0cdb3eed3315839a120110068dce6df03edbe8c3bf4bd642a6024"
+  name = "gopkg.in/gorp.v1"
+  packages = ["."]
+  pruneopts = ""
+  revision = "6a667da9c028871f98598d85413e3fc4c6daa52e"
+  version = "v1.7.2"
+
+[[projects]]
   digest = "1:58ad576cc5d446d1e6cc6050af1b517c4f5c13787bce6d60b143b9f4db3174be"
   name = "gopkg.in/segmentio/analytics-go.v3"
   packages = ["."]
@@ -1000,9 +1030,11 @@
     "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
+    "github.com/heroku/x/hmetrics/onload",
     "github.com/joshdk/go-junit",
     "github.com/markbates/pop/nulls",
     "github.com/pkg/errors",
+    "github.com/rubenv/sql-migrate",
     "github.com/savaki/amplitude-go",
     "github.com/stretchr/testify/require",
     "go.uber.org/zap",

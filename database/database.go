@@ -1,7 +1,9 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
@@ -9,6 +11,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 // DB ...
@@ -21,6 +24,7 @@ func InitDB() error {
 	if err != nil {
 		return err
 	}
+
 	pop.Debug = configs.GetENV() == "development"
 	return nil
 }
@@ -236,4 +240,35 @@ func CreateTestReportAsset(tra *models.TestReportAsset) (*validate.Errors, error
 		return nil, errors.WithStack(err)
 	}
 	return verrs, nil
+}
+
+// RunMigrations ...
+func RunMigrations() error {
+	migrations := &migrate.FileMigrationSource{
+		Dir: "migrations/sql",
+	}
+	driver := os.Getenv("DATABASE_DRIVER")
+	if driver == "" {
+		driver = "postgres"
+	}
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		return errors.New("No database URL provided")
+	}
+	db, err := sql.Open(driver, dbURL)
+	if err != nil {
+		return errors.WithMessage(err, "Failed to open DB connection")
+	}
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			fmt.Printf("Failed to close DB: %s\n", err)
+		}
+	}()
+	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	if err != nil {
+		return errors.WithMessage(err, "Failed to run migrations")
+	}
+	fmt.Printf("%d new migrations migrated\n", n)
+	return nil
 }
