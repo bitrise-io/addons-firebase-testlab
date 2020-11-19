@@ -15,17 +15,14 @@ var Client *ld.LDClient
 
 // InitClient sets up the package global Client
 func InitClient() error {
-	fmt.Println("!!!! INIT LDDDDDDDDJKl")
 	key, ok := os.LookupEnv("LAUNCHDARKLY_SDK_KEY")
 	if !ok {
-		fmt.Println("!!!!!!!!! no env set")
 		return errors.New("No value set for env LAUNCHDARKLY_SDK_KEY")
 	}
 
 	var err error
 	Client, err = ld.MakeClient(key, 5*time.Second)
 	if err != nil {
-		fmt.Printf("!!!!!!!!! make client error: %v", err)
 		return err
 	}
 
