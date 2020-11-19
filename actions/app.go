@@ -16,6 +16,7 @@ import (
 
 	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
+	"github.com/bitrise-io/addons-firebase-testlab/featureflag"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
@@ -30,8 +31,10 @@ const (
 	contextMatrixHistoryAndExecutionIDs = "matrix_history_and_execution_ids"
 )
 
-var app *buffalo.App
-var r *render.Engine
+var (
+	app *buffalo.App
+	r   *render.Engine
+)
 
 func initApp() error {
 	logger := logging.WithContext(nil)
@@ -55,6 +58,11 @@ func initApp() error {
 	err = analytics.Initialize()
 	if err != nil {
 		return errors.WithMessage(err, "Failed to initialize Segment analytics")
+	}
+
+	err = featureflag.InitClient()
+	if err != nil {
+		return errors.WithMessage(err, "Failed to initialize feature flag client")
 	}
 
 	// init devices catalog

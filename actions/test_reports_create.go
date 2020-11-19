@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/bitrise-io/addons-firebase-testlab/database"
+	"github.com/bitrise-io/addons-firebase-testlab/featureflag"
 	"github.com/bitrise-io/addons-firebase-testlab/firebaseutils"
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
@@ -19,6 +20,8 @@ import (
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/pkg/errors"
 )
+
+const githubChecksSendTestSummaryFlagKey = "github-checks-test-summary"
 
 type testReportAssetPostParams struct {
 	Filename string `json:"filename"`
@@ -191,11 +194,13 @@ func TestReportPatchHandler(c buffalo.Context) error {
 		return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
 	}
 
-	// TODO: move this to a BG worker
-	err = stepresult.CreateStepResult(tr.ID)
-	if err != nil {
-		logger.Error("Failed to create step result", zap.Any("error", errors.WithStack(err)))
-		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	if featureflag.BoolVariationForApp(githubChecksSendTestSummaryFlagKey, c.Param("app_slug"), false) {
+		// TODO: move this to a BG worker
+		err = stepresult.CreateStepResult(tr.ID)
+		if err != nil {
+			logger.Error("Failed to create step result", zap.Any("error", errors.WithStack(err)))
+			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		}
 	}
 
 	return c.Render(http.StatusOK, r.JSON(tr))

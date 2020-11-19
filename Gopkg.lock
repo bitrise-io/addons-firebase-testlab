@@ -293,6 +293,14 @@
   revision = "1643683e1b54a9e88ad26d98f81400c8c9d9f4f9"
 
 [[projects]]
+  digest = "1:25eec675540d3cf690b593f161626a8bbf1d25e60d5cc8f8d51f38c467a32766"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "0e4e31197428a347842d152773b4cace4645ca25"
+  version = "v1.1.2"
+
+[[projects]]
   digest = "1:e097a364f4e8d8d91b9b9eeafb992d3796a41fde3eb548c1a87eb9d9f60725cf"
   name = "github.com/googleapis/gax-go"
   packages = ["."]
@@ -339,6 +347,14 @@
   pruneopts = ""
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
   version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e1fd67b5695fb12f54f979606c5d650a5aa72ef242f8e71072bfd4f7b5a141a0"
+  name = "github.com/gregjones/httpcache"
+  packages = ["."]
+  pruneopts = ""
+  revision = "901d90724c7919163f472a9812253fb26761123d"
 
 [[projects]]
   digest = "1:d5238196bdf2895dd79503cd12fdc80ccda2c564cb50eba12ab63330b2ba32e5"
@@ -400,6 +416,22 @@
   packages = ["."]
   pruneopts = ""
   revision = "95032a82bc518f77982ea72343cc1ade730072f0"
+
+[[projects]]
+  digest = "1:62c088a52f239ef5f5206b8637b4f9bed05cf19dc3e6e248cf098e2cff2c24c2"
+  name = "github.com/launchdarkly/eventsource"
+  packages = ["."]
+  pruneopts = ""
+  revision = "ebd63cdae66ac7cdfae2ad71939ce60f9a7d4eef"
+  version = "v1.6.1"
+
+[[projects]]
+  digest = "1:9e5e1be33d12a3d8bd4a3820c3e799a577743724ecc5a7dabf498bd6661e9f42"
+  name = "github.com/launchdarkly/go-semver"
+  packages = ["."]
+  pruneopts = ""
+  revision = "9d994eccaa59216bdb97f76929bdc539836f0a75"
+  version = "1.0.1"
 
 [[projects]]
   branch = "master"
@@ -575,6 +607,14 @@
   pruneopts = ""
   revision = "99ca9dcbaca6d91e9665f817d0da23af6184ced3"
   version = "v3.0"
+
+[[projects]]
+  digest = "1:4c0404dc03d974acd5fcd8b8d3ce687b13bd169db032b89275e8b9d77b98ce8c"
+  name = "github.com/patrickmn/go-cache"
+  packages = ["."]
+  pruneopts = ""
+  revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+  version = "v2.1.0"
 
 [[projects]]
   digest = "1:1d7e1867c49a6dd9856598ef7c3123604ea3daabf5b83f303ff457bcbc410b1d"
@@ -867,7 +907,10 @@
   branch = "master"
   digest = "1:515221679f426b79ef0ebc2753527354fc15f02d32a6e71101631e2d9c236d32"
   name = "golang.org/x/sync"
-  packages = ["errgroup"]
+  packages = [
+    "errgroup",
+    "singleflight",
+  ]
   pruneopts = ""
   revision = "8e0aa688b654ef28caa72506fa5ec8dba9fc7690"
 
@@ -998,6 +1041,60 @@
   version = "v1.7.2"
 
 [[projects]]
+  digest = "1:1675204e0c7986b20f990c00d67e1cf413f2acb60b5876f3603147db2b61fef0"
+  name = "gopkg.in/launchdarkly/go-sdk-common.v2"
+  packages = [
+    "jsonstream",
+    "ldlog",
+    "ldreason",
+    "ldtime",
+    "lduser",
+    "ldvalue",
+  ]
+  pruneopts = ""
+  revision = "cb4476b8b3c3faf57fecf57aaaf7e37b32c1e4f4"
+  version = "2.0.1"
+
+[[projects]]
+  digest = "1:6d4bab629a57779db916adc8c3bdc0d6ec7d0869c493b450c147e163d5298c50"
+  name = "gopkg.in/launchdarkly/go-sdk-events.v1"
+  packages = ["."]
+  pruneopts = ""
+  revision = "25f6ef72f19ce5e0252653e005430428f25210f7"
+  version = "1.0.0"
+
+[[projects]]
+  digest = "1:752d930f4da556ce75c780da1d27188377fe47bed923d20aa91a1b8994910b7b"
+  name = "gopkg.in/launchdarkly/go-server-sdk-evaluation.v1"
+  packages = [
+    ".",
+    "ldmodel",
+  ]
+  pruneopts = ""
+  revision = "8ad2b2bbca7a381ece87a04a046ee0c97e559c36"
+  version = "1.0.1"
+
+[[projects]]
+  digest = "1:5e13ff63da77e9cce6e547b95cfd3138ea289dc369219e3da2f8e8e2b2ba4720"
+  name = "gopkg.in/launchdarkly/go-server-sdk.v5"
+  packages = [
+    ".",
+    "interfaces",
+    "interfaces/flagstate",
+    "interfaces/ldstoretypes",
+    "internal",
+    "internal/datakinds",
+    "internal/datasource",
+    "internal/datastore",
+    "ldcomponents",
+    "ldcomponents/ldstoreimpl",
+    "ldhttp",
+  ]
+  pruneopts = ""
+  revision = "537ff4891d00ab8c613cff99680b76954301df51"
+  version = "v5.0.2"
+
+[[projects]]
   digest = "1:58ad576cc5d446d1e6cc6050af1b517c4f5c13787bce6d60b143b9f4db3174be"
   name = "gopkg.in/segmentio/analytics-go.v3"
   packages = ["."]
@@ -1046,6 +1143,7 @@
     "google.golang.org/api/storage/v1",
     "google.golang.org/api/testing/v1",
     "google.golang.org/api/toolresults/v1beta3",
+    "gopkg.in/launchdarkly/go-server-sdk.v5",
     "gopkg.in/segmentio/analytics-go.v3",
     "gopkg.in/yaml.v2",
   ]

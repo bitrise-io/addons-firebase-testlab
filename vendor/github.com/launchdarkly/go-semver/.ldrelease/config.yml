@@ -1,0 +1,6 @@
+template:
+  name: go
+
+publications:
+  - url: https://godoc.org/github.com/launchdarkly/go-semver
+    description: documentation

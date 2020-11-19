@@ -1,0 +1,13 @@
+repo:
+  public: go-sdk-events
+  private: go-sdk-events-private
+
+releasableBranches:
+  - name: v1
+
+template:
+  name: go
+
+publications:
+  - url: https://pkg.go.dev/github.com/launchdarkly/go-sdk-events
+    description: documentation
