@@ -10,8 +10,10 @@ import (
 	ld "gopkg.in/launchdarkly/go-server-sdk.v5"
 )
 
+// Client is a global feature flag client used by all across the app
 var Client *ld.LDClient
 
+// InitClient sets up the package global Client
 func InitClient() error {
 	fmt.Println("!!!! INIT LDDDDDDDDJKl")
 	key, ok := os.LookupEnv("LAUNCHDARKLY_SDK_KEY")
@@ -30,10 +32,12 @@ func InitClient() error {
 	return nil
 }
 
+// BoolVariationForApp ...
 func BoolVariationForApp(flagKey string, appSlug string, fallback bool) bool {
 	return BoolVariation(flagKey, fmt.Sprintf("app-%s", appSlug), fallback)
 }
 
+// BoolVariation ...
 func BoolVariation(flagKey string, userID string, fallback bool) bool {
 	user := lduser.NewUser(userID)
 
@@ -46,6 +50,7 @@ func BoolVariation(flagKey string, userID string, fallback bool) bool {
 }
 
 // TODO: find out where to add graceful teardown to Buffalo
+// Close ...
 func Close() error {
 	if Client == nil {
 		return nil
