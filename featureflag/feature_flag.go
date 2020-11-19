@@ -1,8 +1,8 @@
 package featureflag
 
 import (
-	"errors"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -15,9 +15,10 @@ var Client *ld.LDClient
 
 // InitClient sets up the package global Client
 func InitClient() error {
-	key, ok := os.LookupEnv("LAUNCHDARKLY_SDK_KEY")
-	if !ok {
-		return errors.New("No value set for env LAUNCHDARKLY_SDK_KEY")
+	key := os.Getenv("LAUNCHDARKLY_SDK_KEY")
+	if key == "" {
+		log.Println("No LAUNCHDARKLY_SDK_KEY env var set, falling back to offline client")
+		return initOfflineClient()
 	}
 
 	var err error
@@ -54,4 +55,16 @@ func Close() error {
 	}
 
 	return Client.Close()
+}
+
+func initOfflineClient() error {
+	var config ld.Config
+	config.Offline = true
+	var err error
+	Client, err = ld.MakeCustomClient("", config, 5*time.Second)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
