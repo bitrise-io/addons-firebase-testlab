@@ -46,8 +46,8 @@ func BoolVariation(flagKey string, userID string, fallback bool) bool {
 	return flagValue
 }
 
-// TODO: find out where to add graceful teardown to Buffalo
 // Close ...
+// TODO: find out where to add graceful teardown to Buffalo
 func Close() error {
 	if Client == nil {
 		return nil
