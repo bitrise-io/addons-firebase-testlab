@@ -274,8 +274,8 @@ func Test_TestReportFiller_Annotate(t *testing.T) {
 		{
 			name: "when the test report files are found and valid",
 			xml: `
-	    <?xml version="1.0" encoding="UTF-8"?>
-	    <checkstyle version="4.3">
+			<?xml version="1.0" encoding="UTF-8"?>
+			<checkstyle version="4.3">
 				<file name="file1">
 				  <error line="1" column="11" severity="error" message="msg1"/>
 				  <error line="10" column="101" severity="error" message="msg11"/>
