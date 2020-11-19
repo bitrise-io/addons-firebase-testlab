@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bitrise-io/addons-firebase-testlab/bitrise"
 	"github.com/bitrise-io/addons-firebase-testlab/junit"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
 	"github.com/bitrise-io/addons-firebase-testlab/testreportfiller"
@@ -249,6 +250,98 @@ func Test_TestReportFiller_FillMore(t *testing.T) {
 				}
 			})
 			got, err := filler.FillMore(trs, &TestFAPI{}, &junit.Client{}, httpClient, tc.statusFilter)
+
+			if len(tc.expErr) > 0 {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.expErr)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.expResp, got)
+			}
+		})
+	}
+}
+
+func Test_TestReportFiller_Annotate(t *testing.T) {
+	testCases := []struct {
+		name                  string
+		xml                   string
+		statusFilter          string
+		statusFromXMLDownload int
+		expResp               []bitrise.Annotation
+		expErr                string
+	}{
+		{
+			name: "when the test report files are found and valid",
+			xml: `
+	    <?xml version="1.0" encoding="UTF-8"?>
+	    <checkstyle version="4.3">
+				<file name="file1">
+				  <error line="1" column="11" severity="error" message="msg1"/>
+				  <error line="10" column="101" severity="error" message="msg11"/>
+				</file>
+				<file name="file2">
+				  <error line="2" column="20" severity="warning" message="msg2"/>
+				</file>
+			</checkstyle>
+			`,
+			statusFromXMLDownload: 200,
+			expResp: []bitrise.Annotation{
+				{
+					Path:            "file1",
+					StartLine:       1,
+					EndLine:         1,
+					StartColumn:     11,
+					EndColumn:       11,
+					AnnotationLevel: "failure",
+					Message:         "msg1",
+				},
+				{
+					Path:            "file1",
+					StartLine:       10,
+					EndLine:         10,
+					StartColumn:     101,
+					EndColumn:       101,
+					AnnotationLevel: "failure",
+					Message:         "msg11",
+				},
+				{
+					Path:            "file2",
+					StartLine:       2,
+					EndLine:         2,
+					StartColumn:     20,
+					EndColumn:       20,
+					AnnotationLevel: "warning",
+					Message:         "msg2",
+				},
+			},
+			expErr: "",
+		},
+		{
+			name:                  "when the test report file is not found",
+			xml:                   "",
+			statusFromXMLDownload: 404,
+			expErr:                "Failed to get test report XML",
+		},
+		{
+			name:                  "when the test report file is not valid",
+			xml:                   "<xml?>",
+			statusFromXMLDownload: 200,
+			expErr:                "failed to parse XML",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			httpClient := NewTestClient(func(req *http.Request) *http.Response {
+				return &http.Response{
+					StatusCode: tc.statusFromXMLDownload,
+					Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(tc.xml))),
+				}
+			})
+
+			filler := testreportfiller.Filler{}
+			got, err := filler.Annotate(models.TestReport{}, &TestFAPI{}, httpClient)
 
 			if len(tc.expErr) > 0 {
 				require.Error(t, err)

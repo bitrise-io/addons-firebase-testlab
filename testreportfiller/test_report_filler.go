@@ -142,9 +142,9 @@ func (f *Filler) Annotate(trr models.TestReport, fAPI DownloadURLCreator, httpCl
 
 	r := bytes.NewReader(dataBytes)
 
-	var cs = new(CheckStyleResult)
+	cs := new(CheckStyleResult)
 	if err := xml.NewDecoder(r).Decode(cs); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to parse XML")
 	}
 	var annotations []bitrise.Annotation
 	for _, file := range cs.Files {
@@ -163,6 +163,7 @@ func (f *Filler) Annotate(trr models.TestReport, fAPI DownloadURLCreator, httpCl
 
 	return annotations, nil
 }
+
 func severityToLevel(sev string) string {
 	levelMap := map[string]string{
 		"error":   "failure",
