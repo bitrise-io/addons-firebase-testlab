@@ -3,6 +3,7 @@ package actions
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -194,6 +195,8 @@ func TestReportPatchHandler(c buffalo.Context) error {
 		return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
 	}
 
+	fmt.Printf("!!!!!!!! featureflag.Client: %v", featureflag.Client)
+	fmt.Printf("!!!! app slug: %s", c.Param("app_slug"))
 	if featureflag.BoolVariationForApp(githubChecksSendTestSummaryFlagKey, c.Param("app_slug"), false) {
 		// TODO: move this to a BG worker
 		err = stepresult.CreateStepResult(tr.ID)
