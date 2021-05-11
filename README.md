@@ -9,7 +9,7 @@ adjustments have been made later. The original development flows still work and 
 
 1. clone `example.env` and rename it to `.env` - this tores the env variables required for running the upp using VS Code
 2. run `docker-compose up -d` to start the local development database
-3. run the upp with the `Debug app` configuration
+3. run the app with the `Debug app` configuration
 
 Note that not all use-cases have been tested and debuggable this way but provisioning/deprovisioning are working.
 
