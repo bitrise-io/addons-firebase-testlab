@@ -5,7 +5,7 @@ This add-on enables Bitrise.io users to test their apps on Firebase Test Lab usi
 ## Development with Visual Studio Code
 
 NOTE: originally, the project was set up with a docker-based development workflow in mind. To support debugging some of the flows using VS Code, a few
-adjustments has been made later. The original development flows still work and are required to fully test the app (see later sections).
+adjustments have been made later. The original development flows still work and are required to fully test the app (see later sections).
 
 1. clone `example.env` and rename it to `.env` - this tores the env variables required for running the upp using VS Code
 2. run `docker-compose up -d` to start the local development database
