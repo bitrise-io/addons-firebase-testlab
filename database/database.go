@@ -59,12 +59,17 @@ func IsAppExistsWithToken(appSlug, apiToken string) (bool, error) {
 // UpdateApp ...
 func UpdateApp(app *models.App) error {
 	plan := app.Plan
+	apiToken := app.APIToken
+
 	err := DB.Q().Where("apps.app_slug = ?", app.AppSlug).First(app)
 	if err != nil {
 		return fmt.Errorf("failed to get appSlug from DB, error: %s", err)
 	}
 
 	app.Plan = plan
+	if len(apiToken) > 0 {
+		app.APIToken = apiToken
+	}
 
 	err = DB.Save(app)
 	if err != nil {

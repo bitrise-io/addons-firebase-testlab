@@ -10,10 +10,10 @@ import (
 	"github.com/bitrise-io/addons-firebase-testlab/logging"
 	"go.uber.org/zap"
 
+	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/bitrise-io/addons-firebase-testlab/configs"
 	"github.com/bitrise-io/addons-firebase-testlab/database"
 	"github.com/bitrise-io/addons-firebase-testlab/models"
-	"github.com/bitrise-io/addons-firebase-testlab/analytics"
 	"github.com/gobuffalo/buffalo"
 	"github.com/pkg/errors"
 )
@@ -49,8 +49,7 @@ func ProvisionPostHandler(c buffalo.Context) error {
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 	if exists {
-		logger.Warn("  [!] App already exists")
-		//return c.Render(http.StatusConflict, r.JSON(map[string]string{"error": "App already exists"}))
+		logger.Warn("  [!] App already exists - generating new ADDON API TOKEN")
 	}
 
 	envs := map[string][]Env{}
@@ -75,20 +74,32 @@ func ProvisionPostHandler(c buffalo.Context) error {
 		ac := analytics.GetClient(logger)
 		ac.SendAddonProvisionedEvent(provData.AppSlug, "", provData.Plan)
 
-		client := bitrise.NewClient(app.BitriseAPIToken)
-		_, err = client.RegisterWebhook(app)
-		if err != nil {
-			logger.Error("Failed to register webhook for app", zap.Any("error", errors.WithStack(err)))
-			return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+		if !configs.GetShouldSkipProvisioningBitriseAPIWebhhokRegistration() {
+			client := bitrise.NewClient(app.BitriseAPIToken)
+			_, err = client.RegisterWebhook(app)
+			if err != nil {
+				logger.Error("Failed to register webhook for app", zap.Any("error", errors.WithStack(err)))
+				return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+			}
 		}
 
 		envs["envs"] = append(envs["envs"], Env{Key: "ADDON_VDTESTING_API_TOKEN", Value: app.APIToken})
 		return c.Render(200, r.JSON(envs))
 	}
 
+	// app already exists, read it from db and update its API TOKEN
+
 	app, err = database.GetApp(app)
 	if err != nil {
 		logger.Error("Failed to get app from DB", zap.Any("error", errors.WithStack(err)))
+		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
+	}
+
+	app.APIToken = generateRandomHash(50)
+
+	err = database.UpdateApp(app)
+	if err != nil {
+		logger.Error("Failed to update app in DB", zap.Any("error", errors.WithStack(err)))
 		return c.Render(http.StatusInternalServerError, r.JSON(map[string]string{"error": "Internal error"}))
 	}
 

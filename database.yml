@@ -10,7 +10,7 @@ development:
   dialect: postgres
   database: bitrise_ftl_server_development
   user: postgres
-  host: db
+  host: {{envOr "DB_HOST_OVERRIDE" "db"}}
   pool: 5
 
 test:
