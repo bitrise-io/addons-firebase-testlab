@@ -20,7 +20,7 @@ var (
 	//
 	shouldSkipBuildAuthorizationWithBitriseAPI          = false
 	shouldSkipSessionAuthentication                     = false
-	shouldSkipProvisioningBitriseAPIWebhhokRegistration = false
+	shouldSkipProvisioningBitriseAPIWebhookRegistration = false
 	// GCS
 	gcBucket           = ""
 	gcKeyJSON          = ""
@@ -115,7 +115,7 @@ func Setup() error {
 	if env == "development" {
 		shouldSkipBuildAuthorizationWithBitriseAPI = os.Getenv("SKIP_AUTH_WITH_BITRISE_API") == "yes"
 		shouldSkipSessionAuthentication = os.Getenv("SKIP_SESSION_AUTH") == "yes"
-		shouldSkipProvisioningBitriseAPIWebhhokRegistration = os.Getenv("SKIP_PROVISIONING_BITRISE_API_WEBHOOK_REGISTRATION") == "yes"
+		shouldSkipProvisioningBitriseAPIWebhookRegistration = os.Getenv("SKIP_PROVISIONING_BITRISE_API_WEBHOOK_REGISTRATION") == "yes"
 	}
 
 	if err := setRequiredEnv("PORT", &port); err != nil {
@@ -181,9 +181,9 @@ func GetShouldSkipSessionAuthentication() bool {
 	return shouldSkipSessionAuthentication
 }
 
-// GetShouldSkipProvisioningBitriseAPIWebhhokRegistration ...
-func GetShouldSkipProvisioningBitriseAPIWebhhokRegistration() bool {
-	return shouldSkipProvisioningBitriseAPIWebhhokRegistration
+// GetShouldSkipProvisioningBitriseAPIWebhookRegistration ...
+func GetShouldSkipProvisioningBitriseAPIWebhookRegistration() bool {
+	return shouldSkipProvisioningBitriseAPIWebhookRegistration
 }
 
 // GetProjectID ...

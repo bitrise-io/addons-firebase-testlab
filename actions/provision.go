@@ -74,7 +74,7 @@ func ProvisionPostHandler(c buffalo.Context) error {
 		ac := analytics.GetClient(logger)
 		ac.SendAddonProvisionedEvent(provData.AppSlug, "", provData.Plan)
 
-		if !configs.GetShouldSkipProvisioningBitriseAPIWebhhokRegistration() {
+		if !configs.GetShouldSkipProvisioningBitriseAPIWebhookRegistration() {
 			client := bitrise.NewClient(app.BitriseAPIToken)
 			_, err = client.RegisterWebhook(app)
 			if err != nil {
