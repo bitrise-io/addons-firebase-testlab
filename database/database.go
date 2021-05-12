@@ -60,6 +60,7 @@ func IsAppExistsWithToken(appSlug, apiToken string) (bool, error) {
 func UpdateApp(app *models.App) error {
 	plan := app.Plan
 	apiToken := app.APIToken
+	bitriseApiToken := app.BitriseAPIToken
 
 	err := DB.Q().Where("apps.app_slug = ?", app.AppSlug).First(app)
 	if err != nil {
@@ -69,6 +70,10 @@ func UpdateApp(app *models.App) error {
 	app.Plan = plan
 	if len(apiToken) > 0 {
 		app.APIToken = apiToken
+	}
+
+	if len(bitriseApiToken) > 0 {
+		app.BitriseAPIToken = bitriseApiToken
 	}
 
 	err = DB.Save(app)
