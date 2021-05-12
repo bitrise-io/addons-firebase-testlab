@@ -12,3 +12,4 @@ bitrise-addon-service
 migrations/schema.sql
 .gows*
 *.css.map
+.env
